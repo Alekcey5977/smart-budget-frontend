@@ -3,8 +3,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { useSelector, useDispatch } from 'react-redux'
-import { getIsAuth, getCurrentUser} from './features/counter/selectors'
-import {login, logout} from './features/counter/counterSlice'
+import { getIsAuth, getCurrentUser} from './app/store/selectors'
+import {login, logout} from './features/auth/authSlice'
 
 function App() {
   const dispatch = useDispatch();
