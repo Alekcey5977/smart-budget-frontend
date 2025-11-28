@@ -1,16 +1,36 @@
-# React + Vite
+# Smart Budget – frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Smart Budget**.  
+Сейчас в проекте настроены базовые вещи:
 
-Currently, two official plugins are available:
+- React + Vite
+- Redux Toolkit для управления состоянием приложения
+- Хранение информации о текущем пользователе и его авторизованности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Дальше на этой базе будут разрабатываться экраны авторизации, регистрации и основного приложения.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Стек
 
-## Expanding the ESLint configuration
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/) – сборка и dev-сервер
+- [Redux Toolkit](https://redux-toolkit.js.org/) – стор и слайсы
+- [React Redux](https://react-redux.js.org/) – привязка стора к React
+- [Prettier](https://prettier.io/) – автоформатирование кода
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Структура проекта
+
+smart-budget-frontend/
+├─ src/
+│ ├─ app/
+│ │ └─ store/ - стор, селекторы
+│ ├─ features/
+│ │ └─ auth/ - authSlice - слайс для авторизации
+│ ├─ App.jsx
+│ └─ main.jsx - входная точка приложения
+├─ .prettierrc.json - настройки Prettier
+├─ package.json
+└─ README.md
