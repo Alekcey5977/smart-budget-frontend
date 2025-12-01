@@ -1,0 +1,55 @@
+@use "../../global.scss" as global;
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px 20px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f0e6 !important;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.backButton {
+  width: 47px;
+  height: 37px;
+}
+
+.title {
+  margin-top: 15vh;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.bottomBlock {
+  margin-top: auto;
+  padding-bottom: 10vh;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.helperText {
+  margin-top: 6px;
+  margin-bottom: 0;
+  font-size: 12px;
+  text-align: left;
+}
+
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.buttonWrapper {
+  margin-top: 24px;
+}
