@@ -1,4 +1,4 @@
-import "./App.css";
+import "../global.css";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsAuth, getCurrentUser } from "../store/auth/authsSelectors";
 import { login, logout } from "../store/auth/authSlice";
