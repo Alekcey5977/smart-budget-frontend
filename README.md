@@ -1,24 +1,39 @@
-# Smart Budget - Frontend
-Frontend for personal finance management application.
+# Smart Budget – frontend
 
-## 👥 Project Team
-- **Alexey Kilin** - Team Lead & Backend Developer
-- **Dmitry Lykov** - Backend Developer  
-- **Alexander Oskin** - Frontend Developer
-- **Vadim Popov** - Frontend Developer
+**Smart Budget**.  
+Сейчас в проекте настроены базовые вещи:
 
-## 🎯 Frontend Team
-- **Alexander Oskin** - Frontend Developer
-- **Vadim Popov** - Frontend Developer
-- **Alexey Kilin** - Team Lead
+- React + Vite
+- Redux Toolkit для управления состоянием приложения
+- Хранение информации о текущем пользователе и его авторизованности
 
-## 🛠️ Tech Stack
-- React
+Дальше на этой базе будут разрабатываться экраны авторизации, регистрации и основного приложения.
 
-## 💻 Development Environment
-- **IDE**: Visual Studio Code (VS Code)
+---
 
-## 🚀 Getting Started
-```bash
-git clone https://github.com/Alekcey5977/smart-budget-frontend
-cd smart-budget-frontend
+## Стек
+
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/) – сборка и dev-сервер
+- [Redux Toolkit](https://redux-toolkit.js.org/) – стор и слайсы
+- [React Redux](https://react-redux.js.org/) – привязка стора к React
+- [Prettier](https://prettier.io/) – автоформатирование кода
+
+---
+
+## Структура проекта
+
+smart-budget-frontend/
+src/
+│
+├── app/ - Главные файлы приложения
+│ ├── App.jsx - Основной компонент приложения
+│ ├── global.css - Глобальные стили
+│ └── main.jsx - Точка входа
+│
+└── store/ -
+| ├── auth/ - Фича авторизации
+│ ├── authSlice.js - Slice авторизации
+│ └── authSelectors.js - Селекторы для auth
+│
+└── store.js - состояние проекта
