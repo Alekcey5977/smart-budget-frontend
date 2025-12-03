@@ -24,13 +24,16 @@
 ## Структура проекта
 
 smart-budget-frontend/
-├─ src/
-│ ├─ app/
-│ │ └─ store/ - стор, селекторы
-│ ├─ features/
-│ │ └─ auth/ - authSlice - слайс для авторизации
-│ ├─ App.jsx
-│ └─ main.jsx - входная точка приложения
-├─ .prettierrc.json - настройки Prettier
-├─ package.json
-└─ README.md
+src/
+│
+├── app/ - Главные файлы приложения
+│ ├── App.jsx - Основной компонент приложения
+│ ├── global.css - Глобальные стили
+│ └── main.jsx - Точка входа
+│
+└── store/ -
+| ├── auth/ - Фича авторизации
+│ ├── authSlice.js - Slice авторизации
+│ └── authSelectors.js - Селекторы для auth
+│
+└── store.js - состояние проекта
