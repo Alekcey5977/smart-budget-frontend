@@ -1,14 +1,14 @@
-import React from 'react';
-import { Button, Typography } from '@mui/material';
-import styles from './WelcomePage.module.scss';
+import React from "react";
+import { Button, Typography } from "@mui/material";
+import styles from "./WelcomePage.module.scss";
 
 function WelcomePage() {
   const handleAuthClick = () => {
-    console.log('Нажата кнопка Авторизация');
+    console.log("Нажата кнопка Авторизация");
   };
 
   const handleRegisterClick = () => {
-    console.log('Нажата кнопка Регистрация');
+    console.log("Нажата кнопка Регистрация");
   };
 
   return (
@@ -45,7 +45,6 @@ function WelcomePage() {
             Регистрация
           </Button>
         </div>
-        
       </div>
     </div>
   );
