@@ -1,24 +1,20 @@
-.root {
-  --bg: #181818;
-  --surface: #f4f0e6;
-  --accent: #f5df6e;
-  --text: #141414;
-  --muted: #4a4a4a;
+@use "../../global.scss" as global;
 
+.root {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 16px 0;
-  background: var(--bg);
+  background: global.$color-bg-main;
 }
 
 .phone {
   width: 360px;
   height: 800px;
-  background: var(--surface);
+  background: global.$color-surface-main;
   border-radius: 38px;
-  padding: 16px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,7 +30,7 @@
   font-weight: 800 !important;
   font-size: 42px !important;
   line-height: 1.15;
-  color: var(--text);
+  color: global.$color-text-main;
 }
 
 .subtitle {
@@ -42,7 +38,7 @@
   margin-bottom: 0;
   font-size: 20px;
   line-height: 1.35;
-  color: var(--muted);
+  color: global.$color-muted-main;
 }
 
 .spacer {
@@ -68,8 +64,8 @@
 
 .primaryButton {
   @extend .button;
-  background-color: var(--accent) !important;
-  color: var(--text) !important;
+  background-color: global.$color-accent-main !important;
+  color: global.$color-text-main !important;
   border: none !important;
   box-shadow: none !important;
 }
@@ -77,6 +73,6 @@
 .secondaryButton {
   @extend .button;
   background-color: transparent !important;
-  border: 2px solid var(--accent) !important;
-  color: var(--text) !important;
+  border: 2px solid global.$color-accent-main !important;
+  color: global.$color-text-main !important;
 }
