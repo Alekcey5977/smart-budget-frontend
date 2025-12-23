@@ -1,47 +1,52 @@
-@use "../../global.scss" as global;
-
-.card {
-  width: 100%;
-  max-width: 400px;
-  padding: 24px 20px 32px;
-  box-sizing: border-box;
+.page {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f4f0e6 !important;
-}
-
-.topBar {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.backButton {
-  width: 47px;
-  height: 37px;
 }
 
 .title {
-  margin-top: 15vh;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.1;
+  margin: clamp(70px, 12vh, 140px) 0 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 1.15;
+  color: var(--color-text-main);
 }
 
-.bottomBlock {
-  margin-top: auto;
-  padding-bottom: 10vh;
+.spacer {
+  flex: 1;
 }
 
 .form {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  margin-bottom: 32px;
+}
+
+.input {
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 2px solid var(--color-accent-main);
+  background: transparent;
+  outline: none;
+  color: var(--color-text-main);
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.input::placeholder {
+  color: var(--color-muted-main);
 }
 
 .helperText {
-  margin-top: 6px;
-  margin-bottom: 0;
+  margin: 0;
   font-size: 12px;
+  color: var(--color-text-main);
   text-align: left;
 }
 
@@ -50,6 +55,12 @@
   cursor: pointer;
 }
 
-.buttonWrapper {
-  margin-top: 24px;
+.primaryButton {
+  height: 78px;
+  border-radius: 20px;
+  border: none;
+  background: var(--color-accent-main);
+  color: var(--color-text-main);
+  font-size: 22px;
+  cursor: pointer;
 }

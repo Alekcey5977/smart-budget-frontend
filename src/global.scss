@@ -3,3 +3,20 @@ $color-surface-main: #f4f0e6;
 $color-accent-main: #ffe56b;
 $color-text-main: #141414;
 $color-muted-main: #4a4a4a;
+
+:root {
+  --color-bg-main: #{$color-bg-main};
+  --color-surface-main: #{$color-surface-main};
+  --color-accent-main: #{$color-accent-main};
+  --color-text-main: #{$color-text-main};
+  --color-muted-main: #{$color-muted-main};
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}

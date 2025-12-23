@@ -1,92 +1,39 @@
-import { useForm } from "react-hook-form";
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  IconButton,
-} from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../store/auth/authSlice";
-import UnauthLayout from "../../layout/UnauthLayout";
 import styles from "./LoginPage.module.scss";
 
-const LoginPage = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const dispatch = useDispatch();
+export default function LoginPage() {
   const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    dispatch(
-      login({
-        user: { email: data.email },
-        token: "fake-token-123",
-      })
-    );
-    navigate("/");
+  const onSubmit = (e) => {
+    e.preventDefault();
+    navigate("/home");
   };
 
   return (
-    <UnauthLayout>
-      <Paper className={styles.card}>
-        <Box className={styles.topBar}>
-          <IconButton
-            size="small"
-            className={styles.backButton}
-            onClick={() => navigate(-1)}
-          >
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-        </Box>
+    <div className={styles.page}>
+      <h1 className={styles.title}>Авторизация</h1>
 
-        <Typography className={styles.title}>Авторизация</Typography>
+      <div className={styles.spacer} />
 
-        <Box className={styles.bottomBlock}>
-          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-            <TextField
-              fullWidth
-              placeholder="Введите вашу почту"
-              {...register("email", { required: "Email обязателен" })}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
+      <form className={styles.form} onSubmit={onSubmit}>
+        <input className={styles.input} placeholder="Введите вашу почту" />
+        <input
+          className={styles.input}
+          placeholder="Введите ваш пароль"
+          type="password"
+        />
 
-            <TextField
-              fullWidth
-              type="password"
-              placeholder="Введите ваш пароль"
-              {...register("password", { required: "Пароль обязателен" })}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
+        <p className={styles.helperText}>
+          У вас нет аккаунта?{" "}
+          <span className={styles.link} onClick={() => console.log("register")}>
+            Зарегистрируйтесь
+          </span>
+        </p>
 
-            <Typography className={styles.helperText}>
-              У вас нет аккаунта?{" "}
-              <span
-                className={styles.link}
-                onClick={() => navigate("/register")}
-              >
-                Зарегистрируйтесь
-              </span>
-            </Typography>
-
-            <div className={styles.buttonWrapper}>
-              <Button fullWidth type="submit">
-                Войти
-              </Button>
-            </div>
-          </form>
-        </Box>
-      </Paper>
-    </UnauthLayout>
+        <button className={styles.primaryButton} type="submit">
+          Войти
+        </button>
+      </form>
+    </div>
   );
-};
-
-export default LoginPage;
+}
