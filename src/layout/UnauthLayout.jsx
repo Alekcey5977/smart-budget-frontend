@@ -1,19 +1,26 @@
-import { Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import styles from "./UnauthLayout.module.scss";
 
-const UnauthLayout = ({ children }) => {
+const UnauthLayout = ({ children, showBack = false }) => {
+  const navigate = useNavigate();
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        bgcolor: "background.default",
-        p: 2,
-      }}
-    >
-      {children}
-    </Box>
+    <div className={styles.root}>
+      <div className={styles.phone}>
+        {showBack && (
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => navigate(-1)}
+            aria-label="Назад"
+          >
+            ←
+          </button>
+        )}
+
+        <div className={styles.content}>{children}</div>
+      </div>
+    </div>
   );
 };
 

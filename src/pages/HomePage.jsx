@@ -1,3 +1,5 @@
-const HomePage = () => <h1>Главная</h1>;
-
-export default HomePage;
+export default function HomePage() {
+  return (
+    <div style={{ paddingTop: "80px", textAlign: "center" }}>HomePage</div>
+  );
+}
