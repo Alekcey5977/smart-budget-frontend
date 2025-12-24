@@ -5,12 +5,8 @@
 }
 
 .title {
-  margin: clamp(70px, 12vh, 140px) 0 0;
-  text-align: center;
-  font-weight: 800;
-  font-size: 42px;
-  line-height: 1.15;
-  color: var(--color-text-main);
+  margin-top: clamp(40px, 10vh, 120px) !important;
+  text-align: end;
 }
 
 .spacer {
@@ -18,35 +14,14 @@
 }
 
 .form {
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 8px;
-  box-sizing: border-box;
-  margin-bottom: 32px;
-}
-
-.input {
-  height: 52px;
-  padding: 0 16px;
-  border-radius: 14px;
-  border: 2px solid var(--color-accent-main);
-  background: transparent;
-  outline: none;
-  color: var(--color-text-main);
-  box-sizing: border-box;
-  font-size: 14px;
-}
-
-.input::placeholder {
-  color: var(--color-muted-main);
+  width: 100%;
 }
 
 .helperText {
   margin: 0;
-  font-size: 12px;
-  color: var(--color-text-main);
   text-align: left;
 }
 
@@ -55,12 +30,38 @@
   cursor: pointer;
 }
 
-.primaryButton {
-  height: 78px;
-  border-radius: 20px;
-  border: none;
-  background: var(--color-accent-main);
-  color: var(--color-text-main);
-  font-size: 22px;
-  cursor: pointer;
+.buttonWrapper {
+  margin-top: 8px;
+}
+
+.bottomPadding {
+  height: clamp(24px, 8vh, 64px);
+}
+
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding-top: 56px;
+  padding-bottom: 32px;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
