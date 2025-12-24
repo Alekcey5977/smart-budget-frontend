@@ -1,0 +1,63 @@
+@use "../../colors.scss" as color;
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.content {
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.card,
+.cardWide,
+.cardWideLarge {
+  border-radius: 22px;
+  padding: 14px;
+
+  background: rgba(255, 255, 255, 0.35);
+
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.card {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.donut {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 16px solid rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.cardWide {
+  min-height: 120px;
+}
+
+.cardWideLarge {
+  min-height: 240px;
+  flex: 1;
+}
+
+.center {
+  margin-top: 12px;
+  height: calc(100% - 36px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
