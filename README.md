@@ -25,16 +25,48 @@
 
 smart-budget-frontend/
 src/
-│
-├── app/ - Главные файлы приложения
-│ ├── App.jsx - Основной компонент приложения
-│ ├── App.css - Стили App
-│ ├── index.css - Глобальные стили
-│ └── main.jsx - Точка входа
-│
-└── store/ -
-├── auth/ - Фича авторизации
-│ ├── authSlice.js - Slice авторизации
-│ └── authSelectors.js - Селекторы для auth
-│
-└── store.js - состояние проекта
+app/
+App.jsx # Корневой компонент приложения
+
+    AppRouter.jsx # Описание маршрутов (Routes/Route): какие страницы открываются по каким URL.
+
+    main.jsx # Точка входа
+
+hoc/
+PrivateRoute.jsx # обёртка для защиты приватных роутов: проверяет авторизацию
+
+    layout/
+
+    PhoneLayout/
+
+      PhoneLayout.jsx # Layout "телефона": задаёт одинаковые размеры/позиционирование/контейнер для всех экранов.
+
+      PhoneLayout.module.scss # Стили PhoneLayout: фон страницы, размеры "телефона", скругления, паддинги и т.п.
+
+    UnauthLayout.jsx # Лейаут неавторизованной зоны
+
+    UnauthLayout.module.scss # Стили UnauthLayout
+
+pages/
+LoginPage/
+LoginPage.jsx # Страница авторизации
+
+      LoginPage.module.scss # Стили LoginPage
+
+    WelcomePage/
+      WelcomePage.jsx # Приветственная страница
+
+      WelcomePage.module.scss # Стили WelcomePage
+
+store/
+auth/
+authSlice.js # slice авторизации
+
+      authSelectors.js # Селекторы для auth slice
+
+    store.js # Конфигурация Redux store (configureStore) и подключение редьюсеров.
+
+theme/
+Tbank.js # MUI тема
+
+colors.scss # Общие SCSS-переменные (цвета/константы)

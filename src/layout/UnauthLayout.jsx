@@ -1,27 +1,36 @@
-import { useNavigate } from "react-router-dom";
+import { Typography } from "@mui/material";
+import PhoneLayout from "../layout/PhoneLayout/PhoneLayout";
 import styles from "./UnauthLayout.module.scss";
 
-const UnauthLayout = ({ children, showBack = false }) => {
-  const navigate = useNavigate();
+export default function UnauthLayout({
+  children,
+  showBack = false,
+  title,
+  subtitle,
+  headerAlign = "right",
+  headerTop = "clamp(140px, 22vh, 220px)",
+}) {
+  const isRight = headerAlign === "right";
 
   return (
-    <div className={styles.root}>
-      <div className={styles.phone}>
-        {showBack && (
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={() => navigate(-1)}
-            aria-label="Назад"
-          >
-            ←
-          </button>
-        )}
+    <PhoneLayout showBack={showBack}>
+      <div className={styles.content} style={{ "--header-top": headerTop }}>
+        <div className={`${styles.header} ${isRight ? styles.headerRight : ""}`}>
+          {title && (
+            <Typography variant="h4" component="h1" className={styles.title}>
+              {title}
+            </Typography>
+          )}
 
-        <div className={styles.content}>{children}</div>
+          {subtitle && (
+            <Typography variant="body1" component="p" className={styles.subtitle}>
+              {subtitle}
+            </Typography>
+          )}
+        </div>
+
+        <div className={styles.bottom}>{children}</div>
       </div>
-    </div>
+    </PhoneLayout>
   );
-};
-
-export default UnauthLayout;
+}

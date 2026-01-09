@@ -1,49 +1,45 @@
-@use "../global.scss" as global;
-
-.root {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 16px 0;
-  background: global.$color-bg-main;
-}
-
-.phone {
-  position: relative;
-
-  width: min(360px, calc(100% - 32px));
-  height: min(800px, calc(100vh - 32px));
-
-  background: global.$color-surface-main;
-  border-radius: 38px;
-  padding: 16px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  box-sizing: border-box;
-}
-
-.backButton {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-
-  width: 47px;
-  height: 37px;
-
-  border: none;
-  border-radius: 15px;
-  background: global.$color-accent-main;
-  color: global.$color-text-main;
-
-  font-size: 18px;
-  cursor: pointer;
-}
+@use "../colors.scss" as colors;
 
 .content {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: var(--header-top, clamp(160px, 26vh, 240px));
+  padding-bottom: clamp(24px, 6vh, 56px);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  text-align: left;
+  align-items: flex-start;
+}
+
+.headerRight {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.title:global(.MuiTypography-root) {
+  margin: 0;
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 1.15;
+  color: colors.$color-text-main;
+}
+
+.subtitle:global(.MuiTypography-root) {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+  color: colors.$color-muted-main;
+}
+
+.bottom {
+  width: 100%;
   display: flex;
   flex-direction: column;
 }

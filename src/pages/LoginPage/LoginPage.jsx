@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { Button, TextField, Typography } from "@mui/material";
+import UnauthLayout from "../../layout/UnauthLayout";
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
@@ -9,31 +11,55 @@ export default function LoginPage() {
     navigate("/home");
   };
 
+  const goRegister = () => navigate("/register");
+
+  const onLinkKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      goRegister();
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <h1 className={styles.title}>Авторизация</h1>
-
-      <div className={styles.spacer} />
-
+    <UnauthLayout
+      showBack
+      title="Авторизация"
+    >
       <form className={styles.form} onSubmit={onSubmit}>
-        <input className={styles.input} placeholder="Введите вашу почту" />
-        <input
-          className={styles.input}
-          placeholder="Введите ваш пароль"
-          type="password"
-        />
+        <div className={styles.fields}>
+          <TextField
+            className={styles.input}
+            placeholder="Введите вашу почту"
+            fullWidth
+            variant="outlined"
+          />
 
-        <p className={styles.helperText}>
+          <TextField
+            className={styles.input}
+            placeholder="Введите ваш пароль"
+            fullWidth
+            type="password"
+            variant="outlined"
+          />
+        </div>
+
+        <Typography variant="body2" className={styles.helperText}>
           У вас нет аккаунта?{" "}
-          <span className={styles.link} onClick={() => console.log("register")}>
+          <span
+            className={styles.link}
+            onClick={goRegister}
+            onKeyDown={onLinkKeyDown}
+            role="button"
+            tabIndex={0}
+          >
             Зарегистрируйтесь
           </span>
-        </p>
+        </Typography>
 
-        <button className={styles.primaryButton} type="submit">
+        <Button type="submit" variant="contained" fullWidth className={styles.primaryButton}>
           Войти
-        </button>
+        </Button>
       </form>
-    </div>
+    </UnauthLayout>
   );
 }
