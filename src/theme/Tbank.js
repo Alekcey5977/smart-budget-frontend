@@ -1,31 +1,92 @@
 import { createTheme } from "@mui/material/styles";
 
-const Tbank = createTheme({
+export const theme = createTheme({
   palette: {
     background: {
-      default: "#111111",
-      paper: "#e9cc84ff",
+      default: "#181818",
+      paper: "#f4f0e6",
     },
     primary: {
-      main: "#1976d2",
+      main: "#ffe56b",
+      contrastText: "#141414",
     },
     text: {
-      primary: "#121212",
+      primary: "#141414",
+      secondary: "#4a4a4a",
     },
   },
-  shape: {
-    borderRadius: 15,
-  },
+
   typography: {
-    fontFamily: [
-      "Manrope",
-      "system-ui",
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "sans-serif",
-    ].join(","),
+    fontFamily:
+      '"Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+
+    h1: {
+      fontWeight: 800,
+      fontSize: "42px",
+      lineHeight: 1.15,
+    },
+
+    subtitle1: {
+      fontSize: "20px",
+      lineHeight: 1.35,
+      fontWeight: 400,
+      color: "#4a4a4a",
+    },
+
+    body2: {
+      fontSize: "12px",
+      lineHeight: 1.4,
+    },
+
+    button: {
+      fontSize: "22px",
+      letterSpacing: "0.26em",
+      textTransform: "none",
+      fontWeight: 400,
+    },
+  },
+
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: "#181818",
+        },
+      },
+    },
+
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          height: 78,
+          borderRadius: 20,
+          boxShadow: "none",
+        },
+        containedPrimary: {
+          boxShadow: "none",
+          "&:hover": { boxShadow: "none" },
+        },
+        outlinedPrimary: {
+          borderWidth: 2,
+          "&:hover": { borderWidth: 2 },
+        },
+      },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 14,
+          backgroundColor: "transparent",
+        },
+        notchedOutline: {
+          borderColor: "#ffe56b",
+          borderWidth: 2,
+        },
+        input: {
+          padding: "14px 16px",
+        },
+      },
+    },
   },
 });
-
-export default Tbank;
