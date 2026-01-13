@@ -1,10 +1,9 @@
-// src/App.jsx
 import React from "react";
 import "./App.css";
-import WelcomePage from "./pages/WelcomePage/WelcomePage";
+import RegistrationPage from "./pages/Registration/RegistrationPage";
 
 function App() {
-  return <WelcomePage />;
+  return <RegistrationPage />;
 }
 
 export default App;
