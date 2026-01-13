@@ -1,5 +1,3 @@
-@use "../../colors.scss" as colors;
-
 .form {
   width: 100%;
   display: flex;
@@ -13,51 +11,11 @@
   gap: 16px;
 }
 
-.input {
-  :global(.MuiOutlinedInput-root) {
-    border-radius: 16px;
-  }
-
-  :global(.MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-input) {
-    padding: 16px;
-  }
-}
-
 .helperText {
   margin: 0;
-  color: colors.$color-text-main;
 }
 
 .link {
   text-decoration: underline;
   cursor: pointer;
-}
-
-.primaryButton {
-  height: 78px;
-  border-radius: 20px;
-  font-size: 22px;
-  font-weight: 400;
-  text-transform: none;
-
-  background-color: colors.$color-accent-main;
-  color: colors.$color-text-main;
-  box-shadow: none;
-
-  &:hover {
-    background-color: colors.$color-accent-main;
-    box-shadow: none;
-  }
 }

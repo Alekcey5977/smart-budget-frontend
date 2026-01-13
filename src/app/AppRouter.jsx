@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import WelcomePage from "../pages/WelcomePage/WelcomePage";
 import LoginPage from "../pages/LoginPage/LoginPage";
-
 export default function AppRouter() {
   return (
     <Routes>

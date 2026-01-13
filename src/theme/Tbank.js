@@ -30,7 +30,6 @@ export const theme = createTheme({
       fontSize: "20px",
       lineHeight: 1.35,
       fontWeight: 400,
-      color: "#4a4a4a",
     },
 
     body2: {
@@ -47,21 +46,17 @@ export const theme = createTheme({
   },
 
   components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          backgroundColor: "#181818",
-        },
-      },
-    },
-
     MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           height: 78,
           borderRadius: 20,
           boxShadow: "none",
-        },
+          color: theme.palette.text.primary,
+        }),
         containedPrimary: {
           boxShadow: "none",
           "&:hover": { boxShadow: "none" },
@@ -75,14 +70,24 @@ export const theme = createTheme({
 
     MuiOutlinedInput: {
       styleOverrides: {
-        root: {
-          borderRadius: 14,
-          backgroundColor: "transparent",
-        },
-        notchedOutline: {
-          borderColor: "#ffe56b",
-          borderWidth: 2,
-        },
+        root: ({ theme }) => ({
+          borderRadius: 16,
+          backgroundColor: "transcrept",
+
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+            borderWidth: 2,
+          },
+
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+          },
+
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+          },
+        }),
+
         input: {
           padding: "14px 16px",
         },

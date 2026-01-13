@@ -1,6 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { Button, TextField, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+
 import UnauthLayout from "../../layout/UnauthLayout";
+import AppButton from "../../ui/AppButton";
+import AppTextField from "../../ui/AppTextField";
+
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
@@ -11,44 +15,19 @@ export default function LoginPage() {
     navigate("/home");
   };
 
-  const goRegister = () => navigate("/register");
-
-  const onLinkKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      goRegister();
-    }
-  };
-
   return (
-    <UnauthLayout
-      showBack
-      title="Авторизация"
-    >
+    <UnauthLayout showBack title="Авторизация">
       <form className={styles.form} onSubmit={onSubmit}>
         <div className={styles.fields}>
-          <TextField
-            className={styles.input}
-            placeholder="Введите вашу почту"
-            fullWidth
-            variant="outlined"
-          />
-
-          <TextField
-            className={styles.input}
-            placeholder="Введите ваш пароль"
-            fullWidth
-            type="password"
-            variant="outlined"
-          />
+          <AppTextField placeholder="Введите вашу почту" />
+          <AppTextField placeholder="Введите ваш пароль" type="password" />
         </div>
 
         <Typography variant="body2" className={styles.helperText}>
           У вас нет аккаунта?{" "}
           <span
             className={styles.link}
-            onClick={goRegister}
-            onKeyDown={onLinkKeyDown}
+            onClick={() => navigate("/register")}
             role="button"
             tabIndex={0}
           >
@@ -56,9 +35,7 @@ export default function LoginPage() {
           </span>
         </Typography>
 
-        <Button type="submit" variant="contained" fullWidth className={styles.primaryButton}>
-          Войти
-        </Button>
+        <AppButton type="submit">Войти</AppButton>
       </form>
     </UnauthLayout>
   );

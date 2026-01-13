@@ -1,39 +1,5 @@
-@use "../../colors.scss" as colors;
-
-.buttonsBlock {
-  width: 100%;
+.actions {
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-.primaryButton:global(.MuiButton-root) {
-  height: 78px;
-  border-radius: 20px;
-  font-size: 22px;
-  letter-spacing: 0.26em;
-  text-transform: none;
-  font-weight: 400;
-
-  background-color: colors.$color-accent-main;
-  color: colors.$color-text-main;
-  box-shadow: none;
-}
-
-.primaryButton:global(.MuiButton-root:hover) {
-  background-color: colors.$color-accent-main;
-  box-shadow: none;
-}
-
-.secondaryButton:global(.MuiButton-root) {
-  height: 78px;
-  border-radius: 20px;
-  font-size: 22px;
-  letter-spacing: 0.26em;
-  text-transform: none;
-  font-weight: 400;
-
-  background: transparent;
-  border: 2px solid colors.$color-accent-main;
-  color: colors.$color-text-main;
 }
