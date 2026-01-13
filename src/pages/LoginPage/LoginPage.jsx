@@ -18,15 +18,6 @@ export default function LoginPage() {
     navigate("/home");
   };
 
-  const goRegister = () => navigate("/register");
-
-  const onLinkKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      goRegister();
-    }
-  };
-
   return (
     <UnauthLayout showBack title="Авторизация">
       <form className={styles.form} onSubmit={onSubmit}>

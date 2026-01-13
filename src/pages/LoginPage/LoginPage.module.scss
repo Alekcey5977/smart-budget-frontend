@@ -11,28 +11,6 @@
   gap: 16px;
 }
 
-.input {
-  :global(.MuiOutlinedInput-root) {
-    border-radius: 16px;
-  }
-
-  :global(.MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
-    border-color: colors.$color-accent-main;
-  }
-
-  :global(.MuiOutlinedInput-input) {
-    padding: 16px;
-  }
-}
-
 .helperText {
   margin: 0;
 }
