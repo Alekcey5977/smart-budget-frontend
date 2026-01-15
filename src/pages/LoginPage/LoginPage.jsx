@@ -1,61 +1,42 @@
 import { useNavigate } from "react-router-dom";
-import { Button, TextField, Typography } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { Typography } from "@mui/material";
 
-import UnauthLayout from "../../layout/UnauthLayout";
+import UnauthLayout from "@layout/UnauthLayout";
+import AppButton from "@ui/AppButton";
+import AppTextField from "@ui/AppTextField";
+
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const { register, handleSubmit } = useForm({
-    defaultValues: { email: "", password: "" },
-  });
-
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     navigate("/home");
   };
 
   return (
-    <UnauthLayout showBack>
-      <div className={styles.page}>
-        <Typography variant="h4" className={styles.title}>
-          Авторизация
+    <UnauthLayout showBack title="Авторизация">
+      <form className={styles.form} onSubmit={onSubmit}>
+        <div className={styles.fields}>
+          <AppTextField placeholder="Введите вашу почту" />
+          <AppTextField placeholder="Введите ваш пароль" type="password" />
+        </div>
+
+        <Typography variant="body2" className={styles.helperText}>
+          У вас нет аккаунта?{" "}
+          <span
+            className={styles.link}
+            onClick={() => navigate("/register")}
+            role="button"
+            tabIndex={0}
+          >
+            Зарегистрируйтесь
+          </span>
         </Typography>
 
-        <div className={styles.bottom}>
-          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              placeholder="Введите вашу почту"
-              fullWidth
-              {...register("email")}
-            />
-
-            <TextField
-              placeholder="Введите ваш пароль"
-              type="password"
-              fullWidth
-              {...register("password")}
-            />
-
-            <div className={styles.actions}>
-              <Typography variant="body2" className={styles.helperText}>
-                У вас нет аккаунта?{" "}
-                <span
-                  className={styles.link}
-                  onClick={() => navigate("/register")}
-                >
-                  Зарегистрируйтесь
-                </span>
-              </Typography>
-
-              <Button type="submit" variant="contained" fullWidth>
-                Войти
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
+        <AppButton type="submit">Войти</AppButton>
+      </form>
     </UnauthLayout>
   );
 }

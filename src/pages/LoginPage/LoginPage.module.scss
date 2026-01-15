@@ -1,67 +1,21 @@
-.page {
-  height: 100%;
+.form {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 18px;
 }
 
-.title {
-  margin-top: clamp(40px, 10vh, 120px) !important;
-  text-align: end;
-}
-
-.spacer {
-  flex: 1;
-}
-
-.form {
+.fields {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: 100%;
 }
 
 .helperText {
   margin: 0;
-  text-align: left;
 }
 
 .link {
   text-decoration: underline;
   cursor: pointer;
-}
-
-.buttonWrapper {
-  margin-top: 8px;
-}
-
-.bottomPadding {
-  height: clamp(24px, 8vh, 64px);
-}
-
-.page {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  padding-top: 56px;
-  padding-bottom: 32px;
-}
-
-.bottom {
-  display: flex;
-  flex-direction: column;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.actions {
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
 }
