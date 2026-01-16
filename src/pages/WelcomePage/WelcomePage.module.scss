@@ -1,19 +1,5 @@
-.page {
-  height: 100%;
+.actions {
   display: flex;
   flex-direction: column;
-}
-
-.header {
-  margin-top: clamp(140px, 27vh, 220px);
-  text-align: right;
-}
-
-.spacer {
-  flex: 1;
-}
-
-.buttonsBlock {
-  width: 100%;
-  margin-bottom: 32px;
+  gap: 18px;
 }
