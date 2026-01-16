@@ -1,53 +1,19 @@
-import React from "react";
-import { Button, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import UnauthLayout from "@layout/UnauthLayout";
+import AppButton from "@ui/AppButton";
 import styles from "./WelcomePage.module.scss";
 
-function WelcomePage() {
-  const handleAuthClick = () => {
-    console.log("Нажата кнопка Авторизация");
-  };
-
-  const handleRegisterClick = () => {
-    console.log("Нажата кнопка Регистрация");
-  };
+export default function WelcomePage() {
+  const navigate = useNavigate();
 
   return (
-    <div className={styles.root}>
-      <div className={styles.phone}>
-        <div className={styles.header}>
-          <Typography component="h1" className={styles.title}>
-            Умный бюджет
-          </Typography>
-
-          <Typography component="p" className={styles.subtitle}>
-            Учёт расходов стал проще
-          </Typography>
-        </div>
-
-        <div className={styles.spacer} />
-
-        <div className={styles.buttonsBlock}>
-          <Button
-            variant="contained"
-            fullWidth
-            className={styles.primaryButton}
-            onClick={handleAuthClick}
-          >
-            Авторизация
-          </Button>
-
-          <Button
-            variant="outlined"
-            fullWidth
-            className={styles.secondaryButton}
-            onClick={handleRegisterClick}
-          >
-            Регистрация
-          </Button>
-        </div>
+    <UnauthLayout title="Умный бюджет" subtitle="Учёт расходов стал проще">
+      <div className={styles.actions}>
+        <AppButton onClick={() => navigate("/login")}>Авторизация</AppButton>
+        <AppButton variant="outlined" onClick={() => navigate("/register")}>
+          Регистрация
+        </AppButton>
       </div>
-    </div>
+    </UnauthLayout>
   );
 }
-
-export default WelcomePage;

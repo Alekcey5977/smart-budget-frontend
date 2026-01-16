@@ -23,17 +23,44 @@
 
 ## Структура проекта
 
-smart-budget-frontend/
 src/
-│
-├── app/ - Главные файлы приложения
-│ ├── App.jsx - Основной компонент приложения
-│ ├── global.css - Глобальные стили
-│ └── main.jsx - Точка входа
-│
-└── store/ -
-| ├── auth/ - Фича авторизации
-│ ├── authSlice.js - Slice авторизации
-│ └── authSelectors.js - Селекторы для auth
-│
-└── store.js - состояние проекта
+app/
+App.jsx
+AppRouter.jsx
+main.jsx
+global.scss
+index.html
+theme/
+Tbank.js
+
+    PrivateRoute/
+      PrivateRoute.jsx
+      index.js
+
+layout/
+PhoneLayout/
+PhoneLayout.jsx
+PhoneLayout.module.scss
+index.js
+
+    UnauthLayout/
+      UnauthLayout.jsx
+      UnauthLayout.module.scss
+      index.js
+
+    AuthLayout/
+      AuthLayout.jsx
+      AuthLayout.module.scss
+      index.js
+
+ui/
+AppButton/
+AppButton.jsx
+index.js
+
+    AppTextField/
+      AppTextField.jsx
+      index.js
+
+styles/
+colors.scss
