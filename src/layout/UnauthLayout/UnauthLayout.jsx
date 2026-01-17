@@ -10,15 +10,17 @@ export default function UnauthLayout({
   showBack = false,
   title,
   subtitle,
+  onBack,
 }) {
   const navigate = useNavigate();
+  const handleBack = onBack || (() => navigate(-1));
 
   return (
     <PhoneLayout>
       {showBack && (
         <IconButton
           className={styles.backButton}
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           aria-label="Назад"
           sx={{
             width: 47,

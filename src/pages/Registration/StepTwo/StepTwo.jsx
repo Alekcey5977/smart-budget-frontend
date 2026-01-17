@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, TextField } from "@mui/material";
 import { useFormContext } from "react-hook-form";
+import AppButton from "@ui/AppButton";
+import AppTextField from "@ui/AppTextField";
 import styles from "../RegistrationPage.module.scss";
 
 const StepTwo = () => {
@@ -10,42 +11,33 @@ const StepTwo = () => {
   } = useFormContext();
 
   return (
-    <div className={styles.formArea}>
+    <div className={styles.form}>
       <div className={styles.fields}>
-        <TextField
-          className={styles.textField}
+        <AppTextField
           label="Фамилия"
-          variant="outlined"
-          fullWidth
           {...register("lastName", { required: "Введите фамилию" })}
           error={!!errors.lastName}
           helperText={errors.lastName?.message}
         />
 
-        <TextField
-          className={styles.textField}
+        <AppTextField
           label="Имя"
-          variant="outlined"
-          fullWidth
           {...register("firstName", { required: "Введите имя" })}
           error={!!errors.firstName}
           helperText={errors.firstName?.message}
         />
 
-        <TextField
-          className={styles.textField}
+        <AppTextField
           label="Отчество"
-          variant="outlined"
-          fullWidth
           {...register("middleName")}
           error={!!errors.middleName}
           helperText={errors.middleName?.message}
         />
       </div>
 
-      <Button type="submit" fullWidth className={styles.submitButton}>
+      <AppButton type="submit">
         Зарегистрироваться
-      </Button>
+      </AppButton>
     </div>
   );
 };

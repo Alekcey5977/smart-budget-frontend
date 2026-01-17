@@ -1,117 +1,18 @@
-@use "../../global.scss" as global;
-
-.root {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 16px 0;
-  background: global.$color-bg-main;
-}
-
-.phone {
-  width: 360px;
-  height: 800px;
-  background: global.$color-surface-main;
-  border-radius: 38px;
-  padding: 16px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  overflow: hidden;
-}
-
-.topBar {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: flex;
-  justify-content: flex-start;
-  z-index: 1;
-}
-
-.backButton {
-  background: global.$color-accent-main !important;
-  color: global.$color-text-main !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.form {
   width: 100%;
-}
-
-.header {
-  /* Это и есть "как на WelcomePage": заголовок не у верхней границы */
-  margin-top: 220px;
-  text-align: right;
-}
-
-.title {
-  margin: 0;
-  font-weight: 800 !important;
-  font-size: 42px !important;
-  line-height: 1.15;
-  color: global.$color-text-main;
-}
-
-.spacer {
-  flex: 1;
-}
-
-.formWrapper {
-  width: 100%;
-  padding-bottom: 20px;
-}
-
-.formArea {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
 .fields {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-
-.textField :global(.MuiOutlinedInput-root) {
-  border-radius: 12px;
-  background: #f9f4e8;
-}
-
-.textField :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: global.$color-accent-main;
-}
-
-.textField :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
-  border-width: 2px;
-}
-
-.textField :global(.MuiInputBase-input::placeholder) {
-  color: #b7b7b7;
-  opacity: 1;
-}
-
-.submitButton {
-  height: 64px;
-  border-radius: 14px !important;
-  background-color: global.$color-accent-main !important;
-  color: global.$color-text-main !important;
-  font-size: 18px !important;
-  text-transform: none !important;
-  box-shadow: none !important;
+  gap: 16px;
 }
 
 .helperText {
-  margin: 6px 4px 0;
-  font-size: 14px;
-  color: global.$color-muted-main;
+  margin: 0;
 }
 
 .link {

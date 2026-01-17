@@ -1,7 +1,9 @@
-import React from "react";
-import { Button, TextField, Typography } from "@mui/material";
+import React, { useCallback } from "react";
+import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useFormContext } from "react-hook-form";
+import AppButton from "@ui/AppButton";
+import AppTextField from "@ui/AppTextField";
 import styles from "../RegistrationPage.module.scss";
 
 const StepOne = ({ onContinue }) => {
@@ -14,21 +16,18 @@ const StepOne = ({ onContinue }) => {
 
   const password = watch("password");
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     const valid = await trigger(["email", "password", "confirmPassword"]);
     if (valid) {
       onContinue();
     }
-  };
+  }, [onContinue, trigger]);
 
   return (
-    <div className={styles.formArea}>
+    <div className={styles.form}>
       <div className={styles.fields}>
-        <TextField
-          className={styles.textField}
+        <AppTextField
           placeholder="Введите вашу почту"
-          variant="outlined"
-          fullWidth
           {...register("email", {
             required: "Введите почту",
             pattern: {
@@ -40,12 +39,9 @@ const StepOne = ({ onContinue }) => {
           helperText={errors.email?.message}
         />
 
-        <TextField
-          className={styles.textField}
+        <AppTextField
           placeholder="Введите ваш пароль"
           type="password"
-          variant="outlined"
-          fullWidth
           {...register("password", {
             required: "Введите пароль",
             minLength: {
@@ -57,12 +53,9 @@ const StepOne = ({ onContinue }) => {
           helperText={errors.password?.message}
         />
 
-        <TextField
-          className={styles.textField}
+        <AppTextField
           placeholder="Введите пароль еще раз"
           type="password"
-          variant="outlined"
-          fullWidth
           {...register("confirmPassword", {
             required: "Повторите пароль",
             validate: (value) =>
@@ -72,7 +65,12 @@ const StepOne = ({ onContinue }) => {
           helperText={errors.confirmPassword?.message}
         />
 
-        <Typography component="p" className={styles.helperText}>
+        <Typography
+          component="p"
+          variant="body2"
+          color="text.secondary"
+          className={styles.helperText}
+        >
           У вас есть аккаунт?{" "}
           <Link to="/login" className={styles.link}>
             Войдите
@@ -80,14 +78,12 @@ const StepOne = ({ onContinue }) => {
         </Typography>
       </div>
 
-      <Button
+      <AppButton
         type="button"
-        fullWidth
-        className={styles.submitButton}
         onClick={handleContinue}
       >
         Продолжить
-      </Button>
+      </AppButton>
     </div>
   );
 };
