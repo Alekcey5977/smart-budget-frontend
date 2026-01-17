@@ -2,7 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { IconButton, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
+<<<<<<< HEAD
 import PhoneLayout from "layout/PhoneLayout";
+=======
+import PhoneLayout from "@layout/PhoneLayout";
+>>>>>>> c1e6eb0 (Add dashboardEmptyPage)
 import styles from "./UnauthLayout.module.scss";
 
 export default function UnauthLayout({
