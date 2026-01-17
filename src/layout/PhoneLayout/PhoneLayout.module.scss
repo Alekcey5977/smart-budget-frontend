@@ -1,0 +1,27 @@
+@use "styles/colors.scss" as color;
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 0;
+  background: color.$color-bg-main;
+}
+
+.phone {
+  position: relative;
+
+  width: min(360px, calc(100% - 32px));
+  height: min(800px, calc(100vh - 32px));
+
+  background: color.$color-surface-main;
+  border-radius: 38px;
+  padding: 16px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}

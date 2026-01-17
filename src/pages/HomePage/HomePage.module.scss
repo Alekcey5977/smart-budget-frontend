@@ -1,10 +1,4 @@
-@use "../../colors.scss" as color;
-
-.avatar {
-  width: 44px;
-  height: 44px;
-  background: rgba(0, 0, 0, 0.18);
-}
+@use "styles/colors.scss" as color;
 
 .content {
   padding-top: 14px;
@@ -19,30 +13,28 @@
 .cardWideLarge {
   border-radius: 22px;
   padding: 14px;
-
   background: rgba(255, 255, 255, 0.35);
-
   border-color: rgba(0, 0, 0, 0.06);
-}
-
-.card {
-  flex: 1;
-  min-width: 0;
 }
 
 .cardRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
-.donut {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  border: 16px solid rgba(0, 0, 0, 0.35);
-  box-sizing: border-box;
+.cardRowLeft {
+  min-width: 0;
+}
+
+.donutWrap {
+  width: 75px;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .cardWide {
