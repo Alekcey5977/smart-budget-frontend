@@ -1,0 +1,55 @@
+@use "styles/colors.scss" as color;
+
+.content {
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.card,
+.cardWide,
+.cardWideLarge {
+  border-radius: 22px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardRowLeft {
+  min-width: 0;
+}
+
+.donutWrap {
+  width: 75px;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardWide {
+  min-height: 120px;
+}
+
+.cardWideLarge {
+  min-height: 240px;
+  flex: 1;
+}
+
+.center {
+  margin-top: 12px;
+  height: calc(100% - 36px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

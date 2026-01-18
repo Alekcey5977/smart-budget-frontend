@@ -23,7 +23,6 @@
 
 ## Структура проекта
 
-smart-budget-frontend/
 src/
 app/
 App.jsx # Корневой компонент приложения

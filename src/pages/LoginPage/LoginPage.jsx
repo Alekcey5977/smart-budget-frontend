@@ -1,17 +1,20 @@
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Typography } from "@mui/material";
 
-import UnauthLayout from "../../layout/UnauthLayout";
-import AppButton from "../../ui/AppButton";
-import AppTextField from "../../ui/AppTextField";
-
+import { login } from "store/auth/authSlice";
+import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
+import AppButton from "ui/AppButton/AppButton";
+import AppTextField from "ui/AppTextField/AppTextField";
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onSubmit = (e) => {
     e.preventDefault();
+    dispatch(login());
     navigate("/home");
   };
 

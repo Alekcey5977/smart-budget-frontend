@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { IconButton, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import PhoneLayout from "./PhoneLayout/PhoneLayout";
+import PhoneLayout from "layout/PhoneLayout";
 import styles from "./UnauthLayout.module.scss";
 
 export default function UnauthLayout({
