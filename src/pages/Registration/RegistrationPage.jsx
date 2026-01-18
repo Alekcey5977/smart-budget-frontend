@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import UnauthLayout from "@layout/UnauthLayout";
@@ -22,16 +22,16 @@ const RegistrationPage = () => {
     },
   });
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (step === 1) {
       navigate("/");
       return;
     }
 
     setStep(1);
-  };
+  }, [navigate, step]);
 
-  const goNext = () => setStep(2);
+  const goNext = useCallback(() => setStep(2), [setStep]);
 
   const handleRegister = (values) => {
     console.log("Регистрация", values);
