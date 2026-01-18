@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
       "@/*": ["*"],
       "@app/*": ["app/*"],
       "@layout/*": ["layout/*"],
       "@ui/*": ["ui/*"],
-      "styles/*": ["styles/*"]
+      "@store/*": ["store/*"],
+      "styles/*": ["styles/*"],
+      "@theme/*": ["app/theme/*"]
     }
-  },
-  "include": ["src"]
+  }
 }

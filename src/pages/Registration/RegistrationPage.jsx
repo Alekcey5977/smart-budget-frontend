@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import { IconButton, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+=======
+import React, { useCallback, useState } from "react";
+>>>>>>> fa7597f (fix: memoize registration handlers and align jsconfig paths)
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import StepOne from "./components/StepOne";
@@ -23,16 +27,16 @@ const RegistrationPage = () => {
     },
   });
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (step === 1) {
       navigate("/");
       return;
     }
 
     setStep(1);
-  };
+  }, [navigate, step]);
 
-  const goNext = () => setStep(2);
+  const goNext = useCallback(() => setStep(2), [setStep]);
 
   const handleRegister = (values) => {
     console.log("Регистрация", values);
