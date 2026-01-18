@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import App from "./App";
 import { theme } from "./theme/Tbank";
 import "@fontsource/manrope/800.css";
-import { store } from "@/store/store";
+import { store } from "store/store";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -18,5 +18,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </BrowserRouter>
       </ThemeProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
