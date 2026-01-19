@@ -2,16 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const STORAGE_KEY = "token1";
 
-const initialState = () => {
+const getInitialState = () => {
   const token = localStorage.getItem(STORAGE_KEY);
   return {
     isAuth: Boolean(token),
+    token: token ?? null,
   };
 };
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: initialState(),
+  initialState: getInitialState(),
   reducers: {
     login(state, action) {
       const token = action.payload?.token ?? "demo-token";
@@ -24,7 +25,7 @@ const authSlice = createSlice({
 
     logout() {
       localStorage.removeItem(STORAGE_KEY);
-      return { ...inintialState };
+      return getInitialState();
     },
   },
 });

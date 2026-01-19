@@ -1,0 +1,39 @@
+@use "styles/colors.scss" as color;
+
+.page {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bigAvatar {
+  width: 88px !important;
+  height: 88px !important;
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  margin: 0;
+  color: color.$color-text-main;
+  font-weight: 600;
+}
+
+.bottom {
+  padding-bottom: 8px;
+}
