@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import UnauthLayout from "@layout/UnauthLayout";
-import AppButton from "@ui/AppButton";
+import UnauthLayout from "layout/UnauthLayout";
+import AppButton from "ui/AppButton";
 import styles from "./WelcomePage.module.scss";
 
 export default function WelcomePage() {

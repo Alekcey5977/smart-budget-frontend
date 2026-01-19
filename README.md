@@ -25,42 +25,47 @@
 
 src/
 app/
-App.jsx
-AppRouter.jsx
-main.jsx
-global.scss
-index.html
+App.jsx # Корневой компонент приложения
+
+    AppRouter.jsx # Описание маршрутов (Routes/Route): какие страницы открываются по каким URL.
+
+    main.jsx # Точка входа
+
+hoc/
+PrivateRoute.jsx # обёртка для защиты приватных роутов: проверяет авторизацию
+
+    layout/
+
+    PhoneLayout/
+
+      PhoneLayout.jsx # Layout "телефона": задаёт одинаковые размеры/позиционирование/контейнер для всех экранов.
+
+      PhoneLayout.module.scss # Стили PhoneLayout: фон страницы, размеры "телефона", скругления, паддинги и т.п.
+
+    UnauthLayout.jsx # Лейаут неавторизованной зоны
+
+    UnauthLayout.module.scss # Стили UnauthLayout
+
+pages/
+LoginPage/
+LoginPage.jsx # Страница авторизации
+
+      LoginPage.module.scss # Стили LoginPage
+
+    WelcomePage/
+      WelcomePage.jsx # Приветственная страница
+
+      WelcomePage.module.scss # Стили WelcomePage
+
+store/
+auth/
+authSlice.js # slice авторизации
+
+      authSelectors.js # Селекторы для auth slice
+
+    store.js # Конфигурация Redux store (configureStore) и подключение редьюсеров.
+
 theme/
-Tbank.js
+Tbank.js # MUI тема
 
-    PrivateRoute/
-      PrivateRoute.jsx
-      index.js
-
-layout/
-PhoneLayout/
-PhoneLayout.jsx
-PhoneLayout.module.scss
-index.js
-
-    UnauthLayout/
-      UnauthLayout.jsx
-      UnauthLayout.module.scss
-      index.js
-
-    AuthLayout/
-      AuthLayout.jsx
-      AuthLayout.module.scss
-      index.js
-
-ui/
-AppButton/
-AppButton.jsx
-index.js
-
-    AppTextField/
-      AppTextField.jsx
-      index.js
-
-styles/
-colors.scss
+colors.scss # Общие SCSS-переменные (цвета/константы)
