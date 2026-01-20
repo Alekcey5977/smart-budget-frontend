@@ -37,3 +37,27 @@
 
   padding-top: 14px;
 }
+
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 224px; /* расстояние между аватаром/почтой и блоком полей */
+}
+
+.bottom {
+  padding-top: 18px;
+}
+
+.fields {
+  outline: 3px solid red;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

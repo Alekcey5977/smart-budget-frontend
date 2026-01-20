@@ -1,23 +1,20 @@
-import { Stack, Typography, Avatar } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
+import { Stack, Typography, Button } from "@mui/material";
 
-import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
-
+import AppAvatar from "ui/AppAvatar";
 import styles from "./ProfilePage.module.scss";
+import { useCallback } from "react";
 
 export default function ProfilePage() {
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     console.log("save");
-  };
+  }, []);
 
   return (
     <div className={styles.page}>
       <div className={styles.top}>
         <Stack alignItems="center" spacing={2}>
-          <Avatar className={styles.bigAvatar}>
-            <PersonIcon />
-          </Avatar>
+          <AppAvatar size="xl" />
 
           <Typography variant="h6" fontWeight={800}>
             user01.gmail.com
@@ -25,25 +22,27 @@ export default function ProfilePage() {
         </Stack>
 
         <div className={styles.fields}>
-          <Typography variant="body2" className={styles.label}>
-            Фамилия
-          </Typography>
-          <AppTextField />
-
-          <Typography variant="body2" className={styles.label}>
-            Имя
-          </Typography>
-          <AppTextField />
-
-          <Typography variant="body2" className={styles.label}>
-            Отчество
-          </Typography>
-          <AppTextField />
+          <AppTextField placeholder="Фамилия" />
+          <AppTextField placeholder="Имя" />
+          <AppTextField placeholder="Отчество" />
         </div>
       </div>
 
       <div className={styles.bottom}>
-        <AppButton onClick={handleSave}>Сохранить</AppButton>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleSave}
+          sx={{
+            height: 78,
+            borderRadius: 20,
+            boxShadow: "none",
+            textTransform: "none",
+            "&:hover": { boxShadow: "none" },
+          }}
+        >
+          Сохранить
+        </Button>
       </div>
     </div>
   );

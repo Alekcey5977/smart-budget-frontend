@@ -13,19 +13,19 @@
 .top {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 50px;
 }
 
 .bigAvatar {
-  width: 88px !important;
-  height: 88px !important;
+  width: 880px !important;
+  height: 880px !important;
   background: rgba(0, 0, 0, 0.18) !important;
 }
 
 .fields {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 30px;
 }
 
 .label {
