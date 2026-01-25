@@ -5,6 +5,7 @@ import { getIsAuth } from "store/auth/authsSelectors";
 
 import WelcomePage from "pages/WelcomePage/WelcomePage";
 import LoginPage from "pages/LoginPage/LoginPage";
+import RegistrationPage from "pages/Registration/RegistrationPage";
 import HomePage from "pages/HomePage/HomePage";
 
 import PrivateRoute from "app/PrivateRoute";
@@ -17,12 +18,17 @@ export default function AppRouter() {
     <Routes>
       <Route
         path="/"
-        element={isAuth ? <Navigate to="/" replace /> : <WelcomePage />}
+        element={isAuth ? <Navigate to="/home" replace /> : <WelcomePage />}
       />
 
       <Route
         path="/login"
-        element={isAuth ? <Navigate to="/login" replace /> : <LoginPage />}
+        element={isAuth ? <Navigate to="/home" replace /> : <LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={isAuth ? <Navigate to="/home" replace /> : <RegistrationPage />}
       />
 
       <Route element={<PrivateRoute />}>
