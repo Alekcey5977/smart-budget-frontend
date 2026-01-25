@@ -3,9 +3,9 @@ import { useDispatch } from "react-redux";
 import { Typography } from "@mui/material";
 
 import { login } from "store/auth/authSlice";
-import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
-import AppButton from "ui/AppButton/AppButton";
-import AppTextField from "ui/AppTextField/AppTextField";
+import UnauthLayout from "layout/UnauthLayout";
+import AppButton from "ui/AppButton";
+import AppTextField from "ui/AppTextField";
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
