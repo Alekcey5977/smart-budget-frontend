@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -13,7 +14,14 @@ export default function UnauthLayout({
   onBack,
 }) {
   const navigate = useNavigate();
-  const handleBack = onBack || (() => navigate(-1));
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+    navigate(-1);
+  }, [onBack, navigate]);
 
   return (
     <PhoneLayout>

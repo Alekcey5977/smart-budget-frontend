@@ -12,14 +12,6 @@ const RegistrationPage = () => {
 
   const methods = useForm({
     mode: "onBlur",
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-      lastName: "",
-      firstName: "",
-      middleName: "",
-    },
   });
 
   const goBack = useCallback(() => {
@@ -31,20 +23,16 @@ const RegistrationPage = () => {
     setStep(1);
   }, [navigate, step]);
 
-  const goNext = useCallback(() => setStep(2), [setStep]);
+  const goNext = useCallback(() => setStep(2), []);
 
-  const handleRegister = (values) => {
+  const handleRegister = useCallback((values) => {
     console.log("Регистрация", values);
-    // TODO: вызвать API и сохранить пользователя в store
-  };
+  }, []);
 
   return (
     <UnauthLayout showBack title="Регистрация" onBack={goBack}>
       <FormProvider {...methods}>
-        <form
-          className={styles.form}
-          onSubmit={methods.handleSubmit(handleRegister)}
-        >
+        <form className={styles.form} onSubmit={methods.handleSubmit(handleRegister)}>
           {step === 1 ? <StepOne onContinue={goNext} /> : <StepTwo />}
         </form>
       </FormProvider>
