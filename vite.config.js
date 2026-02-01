@@ -6,7 +6,15 @@ export default defineConfig({
   root: path.resolve(__dirname, "src/app"),
 
   plugins: [react()],
-
+  server: {
+    proxy: {
+      "/auth": {
+        target: "http:localhost:8000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   build: {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
