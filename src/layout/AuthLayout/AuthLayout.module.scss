@@ -4,22 +4,12 @@
   margin: -16px -16px 0;
   padding: 18px 16px;
   background: color.$color-accent-main;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   border-bottom-left-radius: 26px;
   border-bottom-right-radius: 26px;
-}
-
-.headerPage {
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.pageTitle {
-  font-weight: 700;
+  position: relative;
 }
 
 .avatar {
@@ -31,33 +21,7 @@
 .content {
   flex: 1;
   min-height: 0;
-
   display: flex;
   flex-direction: column;
-
   padding-top: 14px;
-}
-
-.page {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.top {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 224px; /* расстояние между аватаром/почтой и блоком полей */
-}
-
-.bottom {
-  padding-top: 18px;
-}
-
-.fields {
-  outline: 3px solid red;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }

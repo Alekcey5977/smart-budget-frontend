@@ -49,7 +49,6 @@ const authSlice = createSlice({
       state.token = null;
       state.status = "idle";
     },
-    // Очистить ошибку (например, при переходе на экран)
     clearError(state) {
       state.error = null;
     },
@@ -63,8 +62,6 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.isAuth = true;
-        // Проверь в Swagger, как точно называется поле с токеном!
-        // Обычно access_token. Если просто token, поправь тут.
         const token = action.payload.access_token || action.payload.token;
         state.token = token;
         localStorage.setItem(STORAGE_KEY, token);
