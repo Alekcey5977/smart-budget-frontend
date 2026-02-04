@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Stack, Typography } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import AppButton from "ui/AppButton/AppButton";
@@ -5,9 +6,10 @@ import AppTextField from "ui/AppTextField/AppTextField";
 import styles from "./ProfilePage.module.scss";
 
 export default function ProfilePage() {
-  const handleSave = () => {
+  // Убрал useCallback(), так как функция handleSave пока что очень простая и передается в обычную кнопку. Но по вашему комменту вернул обратно.
+  const handleSave = useCallback(() => {
     console.log("save");
-  };
+  }, []);
 
   return (
     <div className={styles.page}>
