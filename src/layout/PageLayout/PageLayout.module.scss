@@ -1,0 +1,36 @@
+@use "styles/colors.scss" as color;
+
+.header {
+  margin: -16px -16px 0;
+  padding: 18px 16px 18px;
+  background: color.$color-accent-main;
+  display: grid;
+  grid-template-columns: 60px 1fr 60px;
+  align-items: center;
+  border-bottom-left-radius: 26px;
+  border-bottom-right-radius: 26px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.backButton {
+  justify-self: start;
+}
+
+.title {
+  font-weight: 700;
+  text-align: center;
+  justify-self: center;
+  max-width: 100%;
+}
+
+.rightSpace {
+  width: 100%;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+  min-height: 0;
+}
