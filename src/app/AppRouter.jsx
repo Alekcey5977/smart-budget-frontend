@@ -5,6 +5,7 @@ import { getIsAuth } from "store/auth/authsSelectors";
 
 import WelcomePage from "pages/WelcomePage/WelcomePage";
 import LoginPage from "pages/LoginPage/LoginPage";
+import RegistrationPage from "pages/Registration/RegistrationPage";
 import HomePage from "pages/HomePage/HomePage";
 import ProfilePage from "pages/ProfilePage/ProfilePage";
 
