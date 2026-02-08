@@ -3,16 +3,16 @@ import { useSelector } from "react-redux";
 
 import { getIsAuth } from "store/auth/authsSelectors";
 
-import WelcomePage from "pages/WelcomePage/WelcomePage";
-import LoginPage from "pages/LoginPage/LoginPage";
-import RegistrationPage from "pages/Registration/RegistrationPage";
-import HomePage from "pages/HomePage/HomePage";
-import GoalsPage from "pages/GoalsPage/GoalsPage";
-import GoalCreatePage from "pages/GoalCreatePage/GoalCreatePage";
+import WelcomePage from "pages/WelcomePage";
+import LoginPage from "pages/LoginPage";
+import RegistrationPage from "pages/Registration";
+import HomePage from "pages/HomePage";
+import GoalsPage from "pages/GoalsPage";
+import GoalCreatePage from "pages/GoalCreatePage";
 
 import PrivateRoute from "app/PrivateRoute";
-import AuthLayout from "layout/AuthLayout/AuthLayout";
-import PageLayout from "layout/PageLayout/PageLayout";
+import AuthLayout from "layout/AuthLayout";
+import PageLayout from "layout/PageLayout";
 
 export default function AppRouter() {
   const isAuth = useSelector(getIsAuth);
