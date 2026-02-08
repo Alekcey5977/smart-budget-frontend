@@ -94,4 +94,7 @@ export const theme = createTheme({
       },
     },
   },
+  shape: {
+    avatar: 88,
+  },
 });
