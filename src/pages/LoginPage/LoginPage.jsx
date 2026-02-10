@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Typography } from "@mui/material";
+import { Typography, Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { login } from "store/auth/authSlice"; 
+import { useLoginMutation } from "services/auth/authApi";
+import { login, clearError } from "store/auth/authSlice";
 import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
 import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
@@ -12,27 +14,50 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [loginRequest, { isLoading, error: apiError }] = useLoginMutation();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onBlur" });
 
-  const onSubmit = (data) => {
-    console.log("Login form data:", data);
-    dispatch(login({ token: "demo-token" }));
-    navigate("/home");
+  const onSubmit = async (data) => {
+    try {
+      const response = await loginRequest({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+
+      const token = response.access_token || response.token;
+      dispatch(login({ token }));
+
+      navigate("/home");
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
   };
+
+  const errorMessage = apiError?.data?.detail || "Ошибка авторизации";
 
   return (
     <UnauthLayout showBack title="Авторизация">
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {typeof errorMessage === "string"
+              ? errorMessage
+              : JSON.stringify(errorMessage)}
+          </Alert>
+        )}
+
         <div className={styles.fields}>
           <AppTextField
             label="Email"
             placeholder="Введите вашу почту"
             error={!!errors.email}
             helperText={errors.email?.message}
+            disabled={isLoading}
             {...register("email", {
               required: "Почта обязательна",
               pattern: {
@@ -47,6 +72,7 @@ export default function LoginPage() {
             type="password"
             error={!!errors.password}
             helperText={errors.password?.message}
+            disabled={isLoading}
             {...register("password", {
               required: "Пароль обязателен",
               minLength: { value: 6, message: "Минимум 6 символов" },
@@ -66,7 +92,9 @@ export default function LoginPage() {
           </span>
         </Typography>
 
-        <AppButton type="submit">Войти</AppButton>
+        <AppButton type="submit" disabled={isLoading}>
+          {isLoading ? "Вход..." : "Войти"}
+        </AppButton>
       </form>
     </UnauthLayout>
   );

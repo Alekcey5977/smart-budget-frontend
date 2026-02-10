@@ -1,34 +1,48 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export default defineConfig({
-  root: path.resolve(__dirname, "src/app"),
-  plugins: [react()],
-  server: {
-    proxy: {
-      "/auth": {
-        target: "http:localhost:8000",
-        changeOrigin: true,
-        secure: false,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+
+  return {
+    plugins: [react()],
+
+    root: "src/app",
+
+    publicDir: "../../public",
+
+    build: {
+      outDir: "../../dist",
+      emptyOutDir: true,
+    },
+
+    server: {
+      proxy: {
+        "/auth": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
-  },
-  build: {
-    outDir: path.resolve(__dirname, "dist"),
-    emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      store: path.resolve(__dirname, "src/store"),
-      pages: path.resolve(__dirname, "src/pages"),
-      layout: path.resolve(__dirname, "src/layout"),
-      ui: path.resolve(__dirname, "src/ui"),
-      styles: path.resolve(__dirname, "src/styles"),
-      app: path.resolve(__dirname, "src/app"),
+
+    resolve: {
+      alias: {
+        src: path.resolve(__dirname, "./src"),
+        components: path.resolve(__dirname, "./src/components"),
+        pages: path.resolve(__dirname, "./src/pages"),
+        layout: path.resolve(__dirname, "./src/layout"),
+        store: path.resolve(__dirname, "./src/store"),
+        ui: path.resolve(__dirname, "./src/ui"),
+        styles: path.resolve(__dirname, "./src/styles"),
+        app: path.resolve(__dirname, "./src/app"),
+        services: path.resolve(__dirname, "./src/services"),
+      },
     },
-  },
+  };
 });
