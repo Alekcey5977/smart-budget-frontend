@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import {
   Avatar,
   IconButton,
@@ -12,15 +12,19 @@ import {
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
 export default function AuthLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+
+  const isProfilePage = location.pathname === "/profile";
 
   const openMenu = useCallback((e) => {
     setAnchorEl(e.currentTarget);
@@ -40,6 +44,10 @@ export default function AuthLayout() {
     dispatch(logout());
     navigate("/", { replace: true });
   }, [closeMenu, dispatch, navigate]);
+
+  const handleBack = useCallback(() => {
+    navigate("/home");
+  }, [navigate]);
 
   const menuPaperSx = useMemo(
     () => ({
@@ -61,14 +69,22 @@ export default function AuthLayout() {
   return (
     <PhoneLayout>
       <div className={styles.header}>
-        <IconButton aria-label="Профиль" onClick={openMenu}>
-          <Avatar className={styles.avatar}>
-            <PersonIcon />
-          </Avatar>
-        </IconButton>
+        {isProfilePage ? (
+          <IconButton onClick={handleBack} aria-label="Назад">
+            <ArrowBackIcon />
+          </IconButton>
+        ) : (
+          <IconButton aria-label="Профиль" onClick={openMenu}>
+            <Avatar className={styles.avatar}>
+              <PersonIcon />
+            </Avatar>
+          </IconButton>
+        )}
+
         <IconButton aria-label="Уведомления">
           <NotificationsNoneIcon />
         </IconButton>
+
         <Menu
           anchorEl={anchorEl}
           open={menuOpen}

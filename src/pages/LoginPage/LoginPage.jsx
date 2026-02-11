@@ -1,8 +1,7 @@
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { Typography } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { login } from "store/auth/authSlice"; 
+import { useLoginMutation } from "src/services/auth/authApi";
 import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
 import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
@@ -10,7 +9,8 @@ import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const location = useLocation();
+  const [loginRequest, { isLoading, error: apiError }] = useLoginMutation();
 
   const {
     register,
@@ -18,55 +18,57 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({ mode: "onBlur" });
 
-  const onSubmit = (data) => {
-    console.log("Login form data:", data);
-    dispatch(login({ token: "demo-token" }));
-    navigate("/home");
+  const successMessage = location.state?.message;
+
+  const onSubmit = async (data) => {
+    try {
+      await loginRequest({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+      navigate("/home");
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
   };
+
+  const errorMessage = apiError?.data?.detail || "Ошибка авторизации";
 
   return (
     <UnauthLayout showBack title="Авторизация">
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        {successMessage && !apiError && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {typeof errorMessage === "string"
+              ? errorMessage
+              : JSON.stringify(errorMessage)}
+          </Alert>
+        )}
         <div className={styles.fields}>
           <AppTextField
             label="Email"
-            placeholder="Введите вашу почту"
             error={!!errors.email}
             helperText={errors.email?.message}
-            {...register("email", {
-              required: "Почта обязательна",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Некорректный email",
-              },
-            })}
+            disabled={isLoading}
+            {...register("email", { required: "Почта обязательна" })}
           />
           <AppTextField
             label="Пароль"
-            placeholder="Введите ваш пароль"
             type="password"
             error={!!errors.password}
             helperText={errors.password?.message}
-            {...register("password", {
-              required: "Пароль обязателен",
-              minLength: { value: 6, message: "Минимум 6 символов" },
-            })}
+            disabled={isLoading}
+            {...register("password", { required: "Пароль обязателен" })}
           />
         </div>
-
-        <Typography variant="body2" className={styles.helperText}>
-          У вас нет аккаунта?{" "}
-          <span
-            className={styles.link}
-            onClick={() => navigate("/register")}
-            role="button"
-            tabIndex={0}
-          >
-            Зарегистрируйтесь
-          </span>
-        </Typography>
-
-        <AppButton type="submit">Войти</AppButton>
+        <AppButton type="submit" disabled={isLoading}>
+          {isLoading ? "Вход..." : "Войти"}
+        </AppButton>
       </form>
     </UnauthLayout>
   );
