@@ -14,6 +14,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
     register: builder.mutation({
       query: (userData) => ({
         url: "/register",
@@ -24,21 +25,17 @@ export const authApi = createApi({
           first_name: userData.firstName,
           last_name: userData.lastName,
           middle_name: userData.middleName || null,
-          is_active: true,
-          is_superuser: false,
-          is_verified: true,
         },
       }),
     }),
+
     getMe: builder.query({
       query: () => ({
         url: "/me",
         method: "GET",
       }),
+      transformResponse: (response) => response.user || response,
       providesTags: ["User"],
-      transformResponse: (response) => {
-        return response.user || response;
-      },
     }),
 
     updateUser: builder.mutation({
