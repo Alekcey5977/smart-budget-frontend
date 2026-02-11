@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import { getIsAuth } from "store/auth/authsSelectors";
 
 import WelcomePage from "pages/WelcomePage";
@@ -23,10 +22,15 @@ export default function AppRouter() {
         path="/"
         element={isAuth ? <Navigate to="/home" replace /> : <WelcomePage />}
       />
-
       <Route
         path="/login"
         element={isAuth ? <Navigate to="/home" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={
+          isAuth ? <Navigate to="/home" replace /> : <RegistrationPage />
+        }
       />
 
       <Route

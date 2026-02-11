@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import {
   Avatar,
   IconButton,
@@ -21,6 +21,7 @@ import { logout } from "store/auth/authSlice";
 
 export default function AuthLayout({ showBack = false, title = "" }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -43,6 +44,10 @@ export default function AuthLayout({ showBack = false, title = "" }) {
     dispatch(logout());
     navigate("/", { replace: true });
   }, [closeMenu, dispatch, navigate]);
+
+  const handleBack = useCallback(() => {
+    navigate("/home");
+  }, [navigate]);
 
   const menuPaperSx = useMemo(
     () => ({
