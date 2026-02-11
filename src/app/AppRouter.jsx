@@ -9,11 +9,10 @@ import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
 import GoalsPage from "pages/GoalsPage";
 import GoalCreatePage from "pages/GoalCreatePage";
-import ProfilePage from "pages/ProfilePage/ProfilePage";
+import ProfilePage from "pages/ProfilePage";
 
 import PrivateRoute from "app/PrivateRoute";
 import AuthLayout from "layout/AuthLayout";
-import PageLayout from "layout/PageLayout";
 
 export default function AppRouter() {
   const isAuth = useSelector(getIsAuth);
@@ -41,23 +40,13 @@ export default function AppRouter() {
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
-        <Route
-          path="/goals"
-          element={
-            <PageLayout title="Цели">
-              <GoalsPage />
-            </PageLayout>
-          }
-        />
+        <Route element={<AuthLayout showBack title="Цели" />}>
+          <Route path="/goals" element={<GoalsPage />} />
+        </Route>
 
-        <Route
-          path="/goals/create"
-          element={
-            <PageLayout title="Создание цели">
-              <GoalCreatePage />
-            </PageLayout>
-          }
-        />
+        <Route element={<AuthLayout showBack title="Создание цели" />}>
+          <Route path="/goals/create" element={<GoalCreatePage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
