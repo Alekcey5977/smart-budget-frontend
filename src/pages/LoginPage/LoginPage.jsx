@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useLoginMutation } from "src/services/auth/authApi";
@@ -9,6 +9,7 @@ import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loginRequest, { isLoading, error: apiError }] = useLoginMutation();
 
   const {
@@ -16,6 +17,8 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onBlur" });
+
+  const successMessage = location.state?.message;
 
   const onSubmit = async (data) => {
     try {
@@ -34,6 +37,11 @@ export default function LoginPage() {
   return (
     <UnauthLayout showBack title="Авторизация">
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        {successMessage && !apiError && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
         {apiError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {typeof errorMessage === "string"

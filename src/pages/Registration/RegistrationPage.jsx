@@ -30,7 +30,12 @@ const RegistrationPage = () => {
     async (values) => {
       try {
         await registerRequest(values).unwrap();
-        navigate("/login");
+        navigate("/login", {
+          state: {
+            message:
+              "Регистрация прошла успешно! Теперь можете войти в приложение",
+          },
+        });
       } catch (err) {
         console.error("Registration failed", err);
       }

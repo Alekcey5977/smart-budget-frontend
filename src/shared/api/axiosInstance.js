@@ -34,7 +34,10 @@ $api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
+    // Проверяем 401 ошибку.
+    // Флаг _retry нужен, чтобы предотвратить бесконечный цикл:
+    // если запрос уже один раз упал с 401 и мы попробовали обновить токен,
+    // но он снова упал - значит, обновление не помогло, и нужно прервать процесс.
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url.includes("/refresh")) {
         localStorage.removeItem("token1");
