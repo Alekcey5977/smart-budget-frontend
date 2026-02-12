@@ -4,19 +4,41 @@
   margin: -16px -16px 0;
   padding: 18px 16px;
   background: color.$color-accent-main;
+  border-bottom-left-radius: 26px;
+  border-bottom-right-radius: 26px;
+}
+
+.headerMain {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom-left-radius: 26px;
-  border-bottom-right-radius: 26px;
   position: relative;
   z-index: 10;
+}
+
+.headerPage {
+  display: grid;
+  grid-template-columns: 60px 1fr 60px;
+  align-items: center;
 }
 
 .avatar {
   width: 44px;
   height: 44px;
   background: rgba(0, 0, 0, 0.18);
+}
+
+.backButton {
+  justify-self: start;
+}
+
+.pageTitle {
+  text-align: center;
+  font-weight: 700;
+}
+
+.pageRight {
+  width: 100%;
 }
 
 .content {
