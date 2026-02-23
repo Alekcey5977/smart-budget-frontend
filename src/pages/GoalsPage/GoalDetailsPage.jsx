@@ -1,5 +1,6 @@
-import { Alert, Typography } from "@mui/material";
-import { useState } from "react";
+import { Alert, CircularProgress, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -7,22 +8,11 @@ import {
   useGetGoalsQuery,
   useUpdateGoalMutation,
 } from "services/goals/goalsApi";
+import { formatMoney } from "src/utils/formatMoney";
+import { toInputDate } from "src/utils/date";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import styles from "./GoalDetailsPage.module.scss";
-
-const moneyFormatter = new Intl.NumberFormat("ru-RU");
-
-function formatMoney(value) {
-  return moneyFormatter.format(Number(value || 0));
-}
-
-function getInputDate(value) {
-  if (!value) {
-    return "";
-  }
-  return String(value).slice(0, 10);
-}
 
 export default function GoalDetailsPage() {
   const { goalId } = useParams();
@@ -32,35 +22,50 @@ export default function GoalDetailsPage() {
   const [deleteGoal, { isLoading: isDeleting }] = useDeleteGoalMutation();
 
   const [errorText, setErrorText] = useState("");
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onSubmit",
+    defaultValues: {
+      title: "",
+      deadline: "",
+      amount: "",
+      totalAmount: "",
+    },
+  });
 
   const goal = goals.find((item) => item.id === goalId);
+
+  useEffect(() => {
+    if (!goal) {
+      return;
+    }
+
+    reset({
+      title: goal.title,
+      deadline: toInputDate(goal.deadline),
+      amount: goal.amount,
+      totalAmount: goal.total_amount,
+    });
+  }, [goal, reset]);
 
   const leftAmount =
     Number(goal?.total_amount || 0) - Number(goal?.amount || 0);
 
-  const handleSave = async (event) => {
-    event.preventDefault();
+  const handleSave = async (data) => {
     setErrorText("");
-
-    const formData = new FormData(event.currentTarget);
-    const title = String(formData.get("title") || "").trim();
-    const deadline = String(formData.get("deadline") || "");
-    const amount = Number(formData.get("amount") || 0);
-    const totalAmount = Number(formData.get("totalAmount") || 0);
-
-    if (!title.trim() || !deadline || !totalAmount) {
-      setErrorText("Заполните обязательные поля");
-      return;
-    }
 
     try {
       await updateGoal({
         goalId,
         data: {
-          title: title.trim(),
-          deadline: `${deadline}T00:00:00`,
-          amount: Number(amount || 0),
-          total_amount: Number(totalAmount),
+          title: data.title.trim(),
+          deadline: `${data.deadline}T00:00:00`,
+          amount: Number(data.amount || 0),
+          total_amount: Number(data.totalAmount),
         },
       }).unwrap();
       navigate("/goals");
@@ -98,9 +103,7 @@ export default function GoalDetailsPage() {
   if (isLoading) {
     return (
       <div className={styles.center}>
-        <Typography variant="body2" color="text.secondary">
-          Загрузка...
-        </Typography>
+        <CircularProgress size={24} />
       </div>
     );
   }
@@ -108,9 +111,9 @@ export default function GoalDetailsPage() {
   if (isError) {
     return (
       <div className={styles.center}>
-        <Typography variant="body2" color="text.secondary">
+        <Alert severity="error" className={styles.alert}>
           Не удалось загрузить цель
-        </Typography>
+        </Alert>
       </div>
     );
   }
@@ -118,22 +121,25 @@ export default function GoalDetailsPage() {
   if (!goal) {
     return (
       <div className={styles.center}>
-        <Typography variant="body2" color="text.secondary">
+        <Alert severity="warning" className={styles.alert}>
           Цель не найдена
-        </Typography>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSave}>
+    <form className={styles.form} onSubmit={handleSubmit(handleSave)}>
       {errorText && <Alert severity="error">{errorText}</Alert>}
 
       <div className={styles.field}>
         <Typography variant="body1">Название цели:</Typography>
         <AppTextField
-          name="title"
-          defaultValue={goal.title}
+          {...register("title", {
+            required: "Заполните поле",
+          })}
+          error={Boolean(errors.title)}
+          helperText={errors.title?.message}
           disabled={isUpdating || isDeleting}
         />
       </div>
@@ -141,9 +147,12 @@ export default function GoalDetailsPage() {
       <div className={styles.field}>
         <Typography variant="body1">Дедлайн:</Typography>
         <AppTextField
-          name="deadline"
+          {...register("deadline", {
+            required: "Заполните поле",
+          })}
           type="date"
-          defaultValue={getInputDate(goal.deadline)}
+          error={Boolean(errors.deadline)}
+          helperText={errors.deadline?.message}
           disabled={isUpdating || isDeleting}
         />
       </div>
@@ -151,9 +160,15 @@ export default function GoalDetailsPage() {
       <div className={styles.field}>
         <Typography variant="body1">Накоплено:</Typography>
         <AppTextField
-          name="amount"
+          {...register("amount", {
+            min: {
+              value: 0,
+              message: "Сумма не может быть меньше 0",
+            },
+          })}
           type="number"
-          defaultValue={goal.amount}
+          error={Boolean(errors.amount)}
+          helperText={errors.amount?.message}
           disabled={isUpdating || isDeleting}
         />
       </div>
@@ -161,9 +176,16 @@ export default function GoalDetailsPage() {
       <div className={styles.field}>
         <Typography variant="body1">Итоговая сумма цели:</Typography>
         <AppTextField
-          name="totalAmount"
+          {...register("totalAmount", {
+            required: "Заполните поле",
+            min: {
+              value: 1,
+              message: "Сумма должна быть больше 0",
+            },
+          })}
           type="number"
-          defaultValue={goal.total_amount}
+          error={Boolean(errors.totalAmount)}
+          helperText={errors.totalAmount?.message}
           disabled={isUpdating || isDeleting}
         />
       </div>

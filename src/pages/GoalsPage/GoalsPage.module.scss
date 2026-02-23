@@ -8,6 +8,12 @@
   gap: 12px;
 }
 
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
 .list {
   flex: 1;
   min-height: 0;
@@ -17,12 +23,16 @@
   gap: 12px;
 }
 
-.center {
+.state {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 160px;
+}
+
+.alert {
+  width: 100%;
 }
 
 .card {

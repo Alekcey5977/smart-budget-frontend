@@ -1,34 +1,58 @@
 import { Alert, Typography } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { useCreateGoalMutation } from "services/goals/goalsApi";
+import { getMonthsLeft } from "src/utils/date";
+import { formatMoney } from "src/utils/formatMoney";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import styles from "./GoalCreatePage.module.scss";
 
 export default function GoalCreatePage() {
   const navigate = useNavigate();
-  const [title, setTitle] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
   const [errorText, setErrorText] = useState("");
   const [createGoal, { isLoading }] = useCreateGoalMutation();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: "onSubmit",
+    defaultValues: {
+      title: "",
+      deadline: "",
+      totalAmount: "",
+    },
+  });
+  const deadline = watch("deadline");
+  const totalAmount = watch("totalAmount");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setErrorText("");
-
-    if (!title.trim() || !deadline || !totalAmount) {
-      setErrorText("Заполните все поля");
-      return;
+  const monthlyHint = useMemo(() => {
+    const total = Number(totalAmount || 0);
+    if (!deadline || total <= 0) {
+      return "";
     }
+
+    const monthsLeft = Math.ceil(getMonthsLeft(deadline));
+    if (monthsLeft <= 0) {
+      return "Дедлайн должен быть позже текущей даты";
+    }
+
+    const monthlyAmount = total / monthsLeft;
+    return `В среднем нужно откладывать ${formatMoney(monthlyAmount)} ₽ в месяц`;
+  }, [deadline, totalAmount]);
+
+  const onSubmit = async (data) => {
+    setErrorText("");
 
     try {
       await createGoal({
-        title: title.trim(),
-        deadline: `${deadline}T00:00:00`,
-        total_amount: Number(totalAmount),
+        title: data.title.trim(),
+        deadline: `${data.deadline}T00:00:00`,
+        total_amount: Number(data.totalAmount),
       }).unwrap();
       navigate("/goals");
     } catch (error) {
@@ -42,14 +66,17 @@ export default function GoalCreatePage() {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       {errorText && <Alert severity="error">{errorText}</Alert>}
 
       <div className={styles.field}>
         <Typography variant="body1">Название Цели:</Typography>
         <AppTextField
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          {...register("title", {
+            required: "Заполните поле",
+          })}
+          error={Boolean(errors.title)}
+          helperText={errors.title?.message}
           disabled={isLoading}
         />
       </div>
@@ -57,9 +84,12 @@ export default function GoalCreatePage() {
       <div className={styles.field}>
         <Typography variant="body1">Дедлайн:</Typography>
         <AppTextField
+          {...register("deadline", {
+            required: "Заполните поле",
+          })}
           type="date"
-          value={deadline}
-          onChange={(event) => setDeadline(event.target.value)}
+          error={Boolean(errors.deadline)}
+          helperText={errors.deadline?.message}
           disabled={isLoading}
         />
       </div>
@@ -67,11 +97,23 @@ export default function GoalCreatePage() {
       <div className={styles.field}>
         <Typography variant="body1">Итоговая сумма цели:</Typography>
         <AppTextField
+          {...register("totalAmount", {
+            required: "Заполните поле",
+            min: {
+              value: 1,
+              message: "Сумма должна быть больше 0",
+            },
+          })}
           type="number"
-          value={totalAmount}
-          onChange={(event) => setTotalAmount(event.target.value)}
+          error={Boolean(errors.totalAmount)}
+          helperText={errors.totalAmount?.message}
           disabled={isLoading}
         />
+        {monthlyHint && (
+          <Typography variant="body2" color="text.secondary">
+            {monthlyHint}
+          </Typography>
+        )}
       </div>
 
       <div className={styles.actions}>
