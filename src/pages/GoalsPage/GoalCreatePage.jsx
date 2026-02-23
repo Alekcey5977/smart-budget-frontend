@@ -110,9 +110,9 @@ export default function GoalCreatePage() {
           disabled={isLoading}
         />
         {monthlyHint && (
-          <Typography variant="body2" color="text.secondary">
+          <Alert severity="info">
             {monthlyHint}
-          </Typography>
+          </Alert>
         )}
       </div>
 
