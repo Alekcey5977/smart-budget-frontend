@@ -28,6 +28,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/users": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
 
