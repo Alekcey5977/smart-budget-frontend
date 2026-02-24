@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
-import { useNavigate } from "react-router-dom";
 
+import HomeGoalsCard from "./HomeGoalsCard";
 import styles from "./HomePage.module.scss";
 
 function DonutPlaceholder() {
@@ -32,8 +32,6 @@ function DonutPlaceholder() {
 }
 
 export default function HomePage() {
-  const navigate = useNavigate();
-
   return (
     <div className={styles.content}>
       <Stack direction="row" spacing={2}>
@@ -83,21 +81,7 @@ export default function HomePage() {
         </Paper>
       </Stack>
 
-      <Paper
-        variant="outlined"
-        className={`${styles.cardWide} ${styles.cardLink}`}
-        onClick={() => navigate("/goals")}
-      >
-        <Typography variant="subtitle1" fontWeight={700}>
-          Цели
-        </Typography>
-
-        <div className={styles.center}>
-          <Typography variant="body2" color="text.secondary">
-            Целей нет
-          </Typography>
-        </div>
-      </Paper>
+      <HomeGoalsCard />
 
       <Paper variant="outlined" className={styles.cardWideLarge}>
         <Typography variant="subtitle1" fontWeight={700}>

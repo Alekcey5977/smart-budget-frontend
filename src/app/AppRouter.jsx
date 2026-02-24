@@ -6,8 +6,7 @@ import WelcomePage from "pages/WelcomePage";
 import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
-import GoalsPage from "pages/GoalsPage";
-import GoalCreatePage from "pages/GoalCreatePage";
+import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
 import ProfilePage from "pages/ProfilePage";
 
 import PrivateRoute from "app/PrivateRoute";
@@ -33,11 +32,6 @@ export default function AppRouter() {
         }
       />
 
-      <Route
-        path="/register"
-        element={isAuth ? <Navigate to="/home" replace /> : <RegistrationPage />}
-      />
-
       <Route element={<PrivateRoute />}>
         <Route element={<AuthLayout />}>
           <Route path="/home" element={<HomePage />} />
@@ -50,6 +44,10 @@ export default function AppRouter() {
 
         <Route element={<AuthLayout showBack title="Создание цели" />}>
           <Route path="/goals/create" element={<GoalCreatePage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="Ваша цель" />}>
+          <Route path="/goals/:goalId" element={<GoalDetailsPage />} />
         </Route>
       </Route>
 
