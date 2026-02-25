@@ -34,13 +34,6 @@ export default function AppRouter() {
         }
       />
 
-      <Route
-        path="/register"
-        element={
-          isAuth ? <Navigate to="/home" replace /> : <RegistrationPage />
-        }
-      />
-
       <Route element={<PrivateRoute />}>
         <Route element={<AuthLayout />}>
           <Route path="/home" element={<HomePage />} />
@@ -55,6 +48,10 @@ export default function AppRouter() {
 
         <Route element={<AuthLayout showBack title="Создание цели" />}>
           <Route path="/goals/create" element={<GoalCreatePage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="Ваша цель" />}>
+          <Route path="/goals/:goalId" element={<GoalDetailsPage />} />
         </Route>
       </Route>
 

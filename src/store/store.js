@@ -8,7 +8,6 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [bankApi.reducerPath]: bankApi.reducer, // Новый RTK Query редьюсер
   },
-  // Добавляем middleware для кэширования и инвалидации
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)

@@ -23,8 +23,6 @@ function DonutPlaceholder() {
 }
 
 export default function HomePage() {
-  const navigate = useNavigate();
-
   return (
     <div className={styles.content}>
       <Stack direction="row" spacing={2}>
