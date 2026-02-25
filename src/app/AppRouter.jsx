@@ -6,9 +6,11 @@ import WelcomePage from "pages/WelcomePage";
 import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
-import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
-import ProfilePage from "pages/ProfilePage";
-
+import GoalsPage from "pages/GoalsPage";
+import GoalCreatePage from "pages/GoalCreatePage";
+import ProfilePage from "pages/ProfilePage/ProfilePage";
+import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
+import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
 import PrivateRoute from "app/PrivateRoute";
 import AuthLayout from "layout/AuthLayout";
 
@@ -36,6 +38,8 @@ export default function AppRouter() {
         <Route element={<AuthLayout />}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/bank-accounts" element={<BankAccountPage />} />
+          <Route path="/bank-accounts/add" element={<BankAccountAddPage />} />
         </Route>
 
         <Route element={<AuthLayout showBack title="Цели" />}>

@@ -14,15 +14,15 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
-export default function AuthLayout({ showBack = false, title = "" }) {
+export default function AuthLayout({ title = "" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -48,6 +48,10 @@ export default function AuthLayout({ showBack = false, title = "" }) {
   const handleBack = useCallback(() => {
     navigate("/home");
   }, [navigate]);
+
+  const isDashboard =
+    location.pathname === "/" || location.pathname === "/home";
+  const showBack = !isDashboard;
 
   const menuPaperSx = useMemo(
     () => ({
@@ -75,8 +79,7 @@ export default function AuthLayout({ showBack = false, title = "" }) {
           <>
             <IconButton
               className={styles.backButton}
-              onClick={() => navigate(-1)}
-              aria-label="Назад"
+              onClick={handleBack}
               sx={{
                 width: 47,
                 height: 37,
@@ -89,7 +92,11 @@ export default function AuthLayout({ showBack = false, title = "" }) {
               <ArrowBackIcon fontSize="small" />
             </IconButton>
 
-            <Typography variant="h6" component="h1" className={styles.pageTitle}>
+            <Typography
+              variant="h6"
+              component="h1"
+              className={styles.pageTitle}
+            >
               {title}
             </Typography>
 

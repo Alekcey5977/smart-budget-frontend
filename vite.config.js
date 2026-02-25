@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
-        "/purposes": {
+        "/users": {
           target: env.VITE_API_URL || "http://localhost:8000",
           changeOrigin: true,
           secure: false,
@@ -47,6 +47,7 @@ export default defineConfig(({ mode }) => {
         styles: path.resolve(__dirname, "./src/styles"),
         app: path.resolve(__dirname, "./src/app"),
         services: path.resolve(__dirname, "./src/services"),
+        utils: path.resolve(__dirname, "./src/utils"),
       },
     },
   };
