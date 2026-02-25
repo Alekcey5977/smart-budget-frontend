@@ -47,6 +47,7 @@ export default defineConfig(({ mode }) => {
         styles: path.resolve(__dirname, "./src/styles"),
         app: path.resolve(__dirname, "./src/app"),
         services: path.resolve(__dirname, "./src/services"),
+        utils: path.resolve(__dirname, "./src/utils"),
       },
     },
   };
