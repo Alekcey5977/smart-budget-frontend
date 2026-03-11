@@ -11,6 +11,21 @@ export const goalsApi = createApi({
         url: "/my",
         method: "GET",
       }),
+      transformResponse: (response) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+
+        if (Array.isArray(response?.goals)) {
+          return response.goals;
+        }
+
+        if (Array.isArray(response?.items)) {
+          return response.items;
+        }
+
+        return [];
+      },
       providesTags: ["Goals"],
     }),
     createGoal: builder.mutation({
