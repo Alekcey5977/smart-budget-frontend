@@ -24,6 +24,7 @@ export default function AuthLayout({ title = "" }) {
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [pageHeaderAction, setPageHeaderAction] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
   const openMenu = useCallback((event) => {
@@ -100,7 +101,7 @@ export default function AuthLayout({ title = "" }) {
               {title}
             </Typography>
 
-            <div className={styles.pageRight} />
+            <div className={styles.pageRight}>{pageHeaderAction}</div>
           </>
         ) : (
           <>
@@ -144,7 +145,7 @@ export default function AuthLayout({ title = "" }) {
       </div>
 
       <div className={styles.content}>
-        <Outlet />
+        <Outlet context={{ setPageHeaderAction }} />
       </div>
     </PhoneLayout>
   );

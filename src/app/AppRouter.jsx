@@ -7,6 +7,7 @@ import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
 import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
+import OperationsPage, { OperationDetailsPage } from "pages/OperationsPage";
 import ProfilePage from "pages/ProfilePage";
 import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
 import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
@@ -51,6 +52,14 @@ export default function AppRouter() {
 
         <Route element={<AuthLayout showBack title="Ваша цель" />}>
           <Route path="/goals/:goalId" element={<GoalDetailsPage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="История операций" />}>
+          <Route path="/operations" element={<OperationsPage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="Операция" />}>
+          <Route path="/operations/:operationId" element={<OperationDetailsPage />} />
         </Route>
       </Route>
 
