@@ -31,7 +31,7 @@ import {
   getExpenseCategorySegments,
   getLatestOperationsMonth,
   isIncomeOperation,
-} from "./operationHelpers";
+} from "utils/operationHelpers";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -98,7 +98,7 @@ export default function OperationsPage() {
     isLoading: isBootstrapLoading,
     isError: isBootstrapError,
   } = useGetTransactionsQuery({
-    limit: 100,
+    limit: 1,
     offset: 0,
   });
 
@@ -195,9 +195,7 @@ export default function OperationsPage() {
       return [];
     }
 
-    return [...filteredOperationsData].sort(
-      (a, b) => dayjs(b.created_at).valueOf() - dayjs(a.created_at).valueOf(),
-    );
+    return filteredOperationsData;
   }, [filteredOperationsData, noSelectedCategories]);
 
   const groupedOperations = useMemo(() => {

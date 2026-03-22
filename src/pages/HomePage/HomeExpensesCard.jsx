@@ -11,7 +11,7 @@ import {
   getExpenseCategorySegments,
   getLatestOperationsMonth,
   isIncomeOperation,
-} from "pages/OperationsPage/operationHelpers";
+} from "utils/operationHelpers";
 import styles from "./HomePage.module.scss";
 
 dayjs.locale("ru");

@@ -7,7 +7,8 @@ import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
 import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
-import OperationsPage, { OperationDetailsPage } from "pages/OperationsPage";
+import OperationsPage from "pages/OperationsPage";
+import OperationDetailsPage from "pages/OperationDetailsPage";
 import ProfilePage from "pages/ProfilePage";
 import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
 import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
@@ -58,7 +59,7 @@ export default function AppRouter() {
           <Route path="/operations" element={<OperationsPage />} />
         </Route>
 
-        <Route element={<AuthLayout showBack title="Операция" />}>
+        <Route element={<AuthLayout showBack title="Детали операции" />}>
           <Route path="/operations/:operationId" element={<OperationDetailsPage />} />
         </Route>
       </Route>

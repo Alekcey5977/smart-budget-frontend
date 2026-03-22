@@ -4,7 +4,7 @@ import {
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
-} from "./operationHelpers";
+} from "utils/operationHelpers";
 import styles from "./OperationsPage.module.scss";
 
 export default function OperationListItem({ operation, onOpen }) {

@@ -15,13 +15,13 @@ import {
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatMoney } from "utils/formatMoney";
 import {
   formatOperationDateTime,
   getOperationColor,
   getOperationSignedAmount,
   getOperationTitle,
-} from "./operationHelpers";
+} from "utils/operationHelpers";
 import styles from "./OperationDetailsPage.module.scss";
 
 export default function OperationDetailsPage() {

@@ -1,6 +1,4 @@
 import { CircularProgress, Paper, Typography } from "@mui/material";
-import dayjs from "dayjs";
-import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
@@ -10,31 +8,18 @@ import {
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
-} from "pages/OperationsPage/operationHelpers";
+} from "utils/operationHelpers";
 import styles from "./HomePage.module.scss";
 
 export default function HomeOperationsCard() {
   const navigate = useNavigate();
 
-  const filters = useMemo(
-    () => ({
-      limit: 20,
-      offset: 0,
-    }),
-    [],
-  );
+  const { data, isLoading, isError } = useGetTransactionsQuery({
+    limit: 3,
+    offset: 0,
+  });
 
-  const { data, isLoading, isError } = useGetTransactionsQuery(filters);
-
-  const operations = useMemo(() => {
-    if (!Array.isArray(data)) {
-      return [];
-    }
-
-    return [...data]
-      .sort((a, b) => dayjs(b.created_at).valueOf() - dayjs(a.created_at).valueOf())
-      .slice(0, 3);
-  }, [data]);
+  const operations = Array.isArray(data) ? data : [];
 
   return (
     <Paper
