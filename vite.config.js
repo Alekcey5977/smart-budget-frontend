@@ -37,6 +37,16 @@ export default defineConfig(({ mode }) => {
             return null;
           },
         },
+        "/users": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/purposes": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
     resolve: {

@@ -140,6 +140,10 @@ export default function AppRouter() {
         >
           <Route index element={<GoalCreatePage />} />
         </Route>
+
+        <Route element={<AuthLayout showBack title="Ваша цель" />}>
+          <Route path="/goals/:goalId" element={<GoalDetailsPage />} />
+        </Route>
       </Route>
 
       {/* Если путь не найден — кидаем на главную */}
