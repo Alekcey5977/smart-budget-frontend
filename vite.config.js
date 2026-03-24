@@ -7,35 +7,38 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const env = loadEnv(mode, __dirname, "");
+  const target = env.VITE_API_URL || "http://localhost:8000";
 
   return {
     plugins: [react()],
-
     root: "src/app",
-
     publicDir: "../../public",
-
     build: {
       outDir: "../../dist",
       emptyOutDir: true,
     },
-
     server: {
       proxy: {
-        "/auth": {
-          target: env.VITE_API_URL || "http://localhost:8000",
+        "/auth": { target, changeOrigin: true, secure: false },
+        "/users": { target, changeOrigin: true, secure: false },
+        "/history": { target, changeOrigin: true, secure: false },
+        "/notifications": {
+          target: env.VITE_API_URL || "http://127.0.0.1:8000", // Заменили localhost на 127.0.0.1
           changeOrigin: true,
-          secure: false,
-        },
-        "/users": {
-          target: env.VITE_API_URL || "http://localhost:8000",
-          changeOrigin: true,
-          secure: false,
+          ws: true,
+          bypass: (req) => {
+            // Если это запрос на апгрейд до сокета, не трогаем его
+            if (req.headers.upgrade === "websocket") return null;
+            // Только если это обычный GET запрос за страницей, отдаем index.html
+            if (req.method === "GET" && req.headers.accept?.includes("html")) {
+              return "/index.html";
+            }
+            return null;
+          },
         },
       },
     },
-
     resolve: {
       alias: {
         src: path.resolve(__dirname, "./src"),

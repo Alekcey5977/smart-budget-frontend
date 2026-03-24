@@ -1,6 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import {
+  notificationApi,
+  useGetUnreadNotificationsCountQuery,
+} from "services/auth/notificationApi";
 import {
   Avatar,
   IconButton,
@@ -9,6 +13,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Badge,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
@@ -18,57 +23,121 @@ import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
-export default function AuthLayout({ title = "" }) {
+export default function AuthLayout({ title = "", headerRightContent = null }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const token = useSelector((state) => state?.auth?.token);
+  const user = useSelector((state) => state?.auth?.user);
+
+  // Получаем количество непрочитанных уведомлений
+  const { data: unreadCount = 0, refetch: refetchUnreadCount } =
+    useGetUnreadNotificationsCountQuery(undefined, {
+      pollingInterval: 30000,
+      skip: !token,
+    });
+
+  // WebSocket подключение
+  useEffect(() => {
+    if (!token || !user?.id) {
+      console.log("Нет токена или ID пользователя, WebSocket не подключается");
+      return;
+    }
+
+    // Формируем правильный URL для WebSocket
+    const wsProtocol = "ws:";
+    const wsHost = "localhost:8080";
+    const userId = user.id;
+    const wsUrl = `${wsProtocol}//${wsHost}/notifications/new/s/${userId}/`;
+
+    console.log(" Подключение к WebSocket:", wsUrl);
+
+    let socket = null;
+    let reconnectTimer = null;
+
+    const connectWebSocket = () => {
+      try {
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => {
+          console.log(" WebSocket подключен успешно");
+        };
+
+        socket.onmessage = (event) => {
+          console.log(" Получено сообщение через WebSocket:", event.data);
+
+          try {
+            const data = JSON.parse(event.data);
+            console.log(" Разобранные данные:", data);
+
+            // Инвалидируем кэш для обновления списка уведомлений и счетчика
+            dispatch(
+              notificationApi.util.invalidateTags([
+                "Notifications",
+                "UnreadNotificationsCount",
+              ]),
+            );
+
+            // Дополнительно обновляем счетчик
+            refetchUnreadCount();
+          } catch (error) {
+            console.error("Ошибка при разборе WebSocket сообщения:", error);
+          }
+        };
+
+        socket.onerror = (error) => {
+          console.error(" Ошибка WebSocket:", error);
+        };
+
+        socket.onclose = (event) => {
+          console.log(
+            " WebSocket закрыт. Код:",
+            event.code,
+            "Причина:",
+            event.reason,
+          );
+
+          // Попытка переподключения через 5 секунд
+          reconnectTimer = setTimeout(() => {
+            console.log(" Попытка переподключения WebSocket...");
+            connectWebSocket();
+          }, 5000);
+        };
+      } catch (error) {
+        console.error("Ошибка при создании WebSocket:", error);
+      }
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+      }
+    };
+  }, [token, user?.id, dispatch, refetchUnreadCount]);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
-
-  const openMenu = useCallback((event) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const closeMenu = useCallback(() => {
-    setAnchorEl(null);
-  }, []);
-
-  const goProfile = useCallback(() => {
-    closeMenu();
-    navigate("/profile");
-  }, [closeMenu, navigate]);
+  const openMenu = (e) => setAnchorEl(e.currentTarget);
+  const closeMenu = () => setAnchorEl(null);
 
   const handleLogout = useCallback(() => {
     closeMenu();
     dispatch(logout());
     navigate("/", { replace: true });
-  }, [closeMenu, dispatch, navigate]);
-
-  const handleBack = useCallback(() => {
-    navigate("/home");
-  }, [navigate]);
+  }, [dispatch, navigate]);
 
   const isDashboard =
     location.pathname === "/" || location.pathname === "/home";
   const showBack = !isDashboard;
 
-  const menuPaperSx = useMemo(
-    () => ({
-      borderRadius: 2,
-      boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-    }),
-    [],
-  );
-
-  const menuItemSx = useMemo(
-    () => ({
-      py: 1.2,
-      px: 2,
-      gap: 1.2,
-    }),
-    [],
-  );
+  const handleNotificationsClick = () => {
+    navigate("/notifications");
+  };
 
   return (
     <PhoneLayout>
@@ -79,70 +148,54 @@ export default function AuthLayout({ title = "" }) {
           <>
             <IconButton
               className={styles.backButton}
-              onClick={handleBack}
+              onClick={() => navigate("/home")}
               sx={{
-                width: 47,
-                height: 37,
-                borderRadius: "15px",
                 bgcolor: "primary.main",
                 color: "text.primary",
-                "&:hover": { bgcolor: "primary.main" },
+                borderRadius: "15px",
               }}
             >
               <ArrowBackIcon fontSize="small" />
             </IconButton>
-
-            <Typography
-              variant="h6"
-              component="h1"
-              className={styles.pageTitle}
-            >
+            <Typography variant="h6" className={styles.pageTitle}>
               {title}
             </Typography>
-
-            <div className={styles.pageRight} />
+            <div className={styles.pageRight}>{headerRightContent}</div>
           </>
         ) : (
           <>
-            <IconButton aria-label="Профиль" onClick={openMenu}>
+            <IconButton onClick={openMenu}>
               <Avatar className={styles.avatar}>
                 <PersonIcon />
               </Avatar>
             </IconButton>
 
-            <IconButton aria-label="Уведомления">
+            <IconButton onClick={handleNotificationsClick}>
               <NotificationsNoneIcon />
             </IconButton>
 
-            <Menu
-              anchorEl={anchorEl}
-              open={menuOpen}
-              onClose={closeMenu}
-              PaperProps={{ sx: menuPaperSx }}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
-            >
-              <MenuItem onClick={goProfile} sx={menuItemSx}>
+            <Menu anchorEl={anchorEl} open={menuOpen} onClose={closeMenu}>
+              <MenuItem
+                onClick={() => {
+                  closeMenu();
+                  navigate("/profile");
+                }}
+              >
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText primary="Профиль" />
               </MenuItem>
-
-              <MenuItem
-                onClick={handleLogout}
-                sx={{ ...menuItemSx, color: "error.main" }}
-              >
+              <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
                 <ListItemIcon sx={{ color: "error.main" }}>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Выйти из аккаунта" />
+                <ListItemText primary="Выйти" />
               </MenuItem>
             </Menu>
           </>
         )}
       </div>
-
       <div className={styles.content}>
         <Outlet />
       </div>

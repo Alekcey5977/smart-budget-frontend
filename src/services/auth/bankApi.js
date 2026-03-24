@@ -5,7 +5,7 @@ export const bankApi = createApi({
   reducerPath: "bankApi",
   // Базовый путь до "me"
   baseQuery: axiosBaseQuery({ baseUrl: "/users/me" }),
-  tagTypes: ["BankAccount"],
+  tagTypes: ["BankAccount", "History"],
   endpoints: (builder) => ({
     // Получить список (GET /users/me/bank_accounts)
     getBankAccounts: builder.query({
@@ -13,7 +13,7 @@ export const bankApi = createApi({
         url: "/bank_accounts", // С буквой S на конце
         method: "GET",
       }),
-      providesTags: ["BankAccount"],
+      providesTags: ["BankAccount", "History"],
     }),
 
     // Добавить счет (POST /users/me/bank_account)
@@ -27,7 +27,7 @@ export const bankApi = createApi({
           bank: data.bank,
         },
       }),
-      invalidatesTags: ["BankAccount"],
+      invalidatesTags: ["BankAccount", "History"],
     }),
 
     // Удалить счет (DELETE /users/me/bank_account/{id})
@@ -36,7 +36,7 @@ export const bankApi = createApi({
         url: `/bank_account/${id}`, // БЕЗ буквы S
         method: "DELETE",
       }),
-      invalidatesTags: ["BankAccount"],
+      invalidatesTags: ["BankAccount", "History"],
     }),
   }),
 });
