@@ -14,6 +14,7 @@ import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
+  useUpdateTransactionCategoryMutation,
 } from "services/transactions/transactionsApi";
 import { formatMoney } from "utils/formatMoney";
 import {
@@ -28,8 +29,12 @@ export default function OperationDetailsPage() {
   const { operationId } = useParams();
   const location = useLocation();
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
-  const [selectedCategoryName, setSelectedCategoryName] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [currentOperation, setCurrentOperation] = useState(null);
+  const [errorText, setErrorText] = useState("");
   const categoryDialogOpen = Boolean(categoryAnchorEl);
+  const [updateTransactionCategory, { isLoading: isUpdatingCategory }] =
+    useUpdateTransactionCategoryMutation();
 
   const { data: operationsData, isLoading, isError } = useGetTransactionsQuery({
     limit: 100,
@@ -43,12 +48,17 @@ export default function OperationDetailsPage() {
   const accounts = Array.isArray(accountsData) ? accountsData : [];
 
   const operation = useMemo(() => {
+    const fromQuery = operations.find((item) => item.id === operationId);
+    if (fromQuery) {
+      return fromQuery;
+    }
+
     const fromState = location.state?.operation;
     if (fromState?.id === operationId) {
       return fromState;
     }
 
-    return operations.find((item) => item.id === operationId);
+    return null;
   }, [location.state, operationId, operations]);
 
   useEffect(() => {
@@ -56,8 +66,57 @@ export default function OperationDetailsPage() {
       return;
     }
 
-    setSelectedCategoryName(operation.category_name || "");
+    setCurrentOperation(operation);
+    setSelectedCategoryId(operation.category_id ?? null);
   }, [operation]);
+
+  const visibleOperation = currentOperation || operation;
+  const selectedCategory = categories.find(
+    (category) => Number(category.id) === Number(selectedCategoryId),
+  );
+
+  const handleCategoryClose = () => {
+    setCategoryAnchorEl(null);
+    setSelectedCategoryId(visibleOperation?.category_id ?? null);
+  };
+
+  const handleCategorySave = async () => {
+    if (!visibleOperation || selectedCategoryId == null) {
+      handleCategoryClose();
+      return;
+    }
+
+    if (Number(selectedCategoryId) === Number(visibleOperation.category_id)) {
+      setCategoryAnchorEl(null);
+      return;
+    }
+
+    setErrorText("");
+
+    try {
+      const updatedOperation = await updateTransactionCategory({
+        transactionId: visibleOperation.id,
+        category_id: Number(selectedCategoryId),
+      }).unwrap();
+
+      setCurrentOperation(updatedOperation);
+      setSelectedCategoryId(updatedOperation.category_id ?? null);
+      setCategoryAnchorEl(null);
+    } catch (error) {
+      const message = error?.data?.detail;
+      const status = error?.status;
+
+      if (status === 401) {
+        setErrorText("Нужно заново войти в аккаунт");
+      } else if (status === 404) {
+        setErrorText("Не удалось изменить категорию");
+      } else if (typeof message === "string" && message !== "Not Found") {
+        setErrorText(message);
+      } else {
+        setErrorText("Не удалось сохранить категорию");
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -91,6 +150,8 @@ export default function OperationDetailsPage() {
 
   return (
     <div className={styles.root}>
+      {errorText && <Alert severity="error">{errorText}</Alert>}
+
       <div className={styles.topBar}>
         <IconButton aria-label="Удалить" size="small">
           <DeleteOutlineIcon />
@@ -100,15 +161,15 @@ export default function OperationDetailsPage() {
       <div className={styles.amountCard}>
         <div
           className={styles.operationCircle}
-          style={{ backgroundColor: getOperationColor(operation) }}
+          style={{ backgroundColor: getOperationColor(visibleOperation) }}
         />
 
         <div className={styles.amountCardRight}>
           <Typography variant="h5" className={styles.amountValue}>
-            {getOperationSignedAmount(operation)}
+            {getOperationSignedAmount(visibleOperation)}
           </Typography>
           <Typography variant="h6" fontWeight={700}>
-            {getOperationTitle(operation)}
+            {getOperationTitle(visibleOperation)}
           </Typography>
         </div>
       </div>
@@ -135,7 +196,7 @@ export default function OperationDetailsPage() {
         <div className={styles.detailBlock}>
           <div className={styles.detailLabel}>Дата и время</div>
           <Typography variant="h6" fontWeight={700}>
-            {formatOperationDateTime(operation.created_at)}
+            {formatOperationDateTime(visibleOperation.created_at)}
           </Typography>
         </div>
 
@@ -143,12 +204,13 @@ export default function OperationDetailsPage() {
           <div className={styles.detailBlock}>
             <div className={styles.detailLabel}>Категория</div>
             <Typography variant="h6" fontWeight={700}>
-              {selectedCategoryName || operation.category_name || "—"}
+              {selectedCategory?.name || visibleOperation.category_name || "—"}
             </Typography>
           </div>
 
           <IconButton
             aria-label="Изменить категорию"
+            disabled={isUpdatingCategory}
             onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
           >
             <EditOutlinedIcon />
@@ -159,7 +221,7 @@ export default function OperationDetailsPage() {
       <Popover
         open={categoryDialogOpen}
         anchorEl={categoryAnchorEl}
-        onClose={() => setCategoryAnchorEl(null)}
+        onClose={handleCategoryClose}
         disablePortal
         anchorOrigin={{
           vertical: "top",
@@ -177,18 +239,34 @@ export default function OperationDetailsPage() {
               key={category.id}
               type="button"
               className={`${styles.categoryButton} ${
-                selectedCategoryName === category.name
+                Number(selectedCategoryId) === Number(category.id)
                   ? styles.categoryButtonActive
                   : ""
               }`}
-              onClick={() => {
-                setSelectedCategoryName(category.name);
-                setCategoryAnchorEl(null);
-              }}
+              onClick={() => setSelectedCategoryId(category.id)}
             >
               {category.name}
             </button>
           ))}
+        </div>
+
+        <div className={styles.popoverActions}>
+          <button
+            type="button"
+            className={styles.popoverActionButton}
+            onClick={handleCategoryClose}
+            disabled={isUpdatingCategory}
+          >
+            Отмена
+          </button>
+          <button
+            type="button"
+            className={styles.popoverActionButton}
+            onClick={handleCategorySave}
+            disabled={isUpdatingCategory}
+          >
+            {isUpdatingCategory ? "Сохранение..." : "ОК"}
+          </button>
         </div>
       </Popover>
     </div>

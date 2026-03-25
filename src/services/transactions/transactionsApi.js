@@ -62,8 +62,19 @@ export const transactionsApi = createApi({
       }),
       providesTags: ["TransactionCategories"],
     }),
+    updateTransactionCategory: builder.mutation({
+      query: ({ transactionId, category_id }) => ({
+        url: `/${transactionId}/category`,
+        method: "PATCH",
+        data: { category_id },
+      }),
+      invalidatesTags: ["Transactions"],
+    }),
   }),
 });
 
-export const { useGetTransactionsQuery, useGetTransactionCategoriesQuery } =
-  transactionsApi;
+export const {
+  useGetTransactionsQuery,
+  useGetTransactionCategoriesQuery,
+  useUpdateTransactionCategoryMutation,
+} = transactionsApi;
