@@ -45,7 +45,7 @@ function buildTransactionsPayload(filters = {}) {
 export const transactionsApi = createApi({
   reducerPath: "transactionsApi",
   baseQuery: axiosBaseQuery({ baseUrl: "/transactions" }),
-  tagTypes: ["Transactions", "TransactionCategories"],
+  tagTypes: ["Transactions", "Transaction", "TransactionCategories"],
   endpoints: (builder) => ({
     getTransactions: builder.query({
       query: (filters) => ({
@@ -54,6 +54,15 @@ export const transactionsApi = createApi({
         data: buildTransactionsPayload(filters),
       }),
       providesTags: ["Transactions"],
+    }),
+    getTransactionById: builder.query({
+      query: (transactionId) => ({
+        url: `/${transactionId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, transactionId) => [
+        { type: "Transaction", id: transactionId },
+      ],
     }),
     getTransactionCategories: builder.query({
       query: () => ({
@@ -68,13 +77,17 @@ export const transactionsApi = createApi({
         method: "PATCH",
         data: { category_id },
       }),
-      invalidatesTags: ["Transactions"],
+      invalidatesTags: (result, error, { transactionId }) => [
+        "Transactions",
+        { type: "Transaction", id: transactionId },
+      ],
     }),
   }),
 });
 
 export const {
   useGetTransactionsQuery,
+  useGetTransactionByIdQuery,
   useGetTransactionCategoriesQuery,
   useUpdateTransactionCategoryMutation,
 } = transactionsApi;

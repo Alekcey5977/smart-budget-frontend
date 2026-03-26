@@ -59,23 +59,28 @@ export default function OperationsPage() {
   const { setPageHeaderAction } = useOutletContext() || {};
 
   const now = dayjs();
-  const [dateFrom, setDateFrom] = useState(now.startOf("month"));
-  const [dateTo, setDateTo] = useState(now.endOf("month"));
+  const [filters, setFilters] = useState({
+    dateFrom: now.startOf("month"),
+    dateTo: now.endOf("month"),
+    minAmount: "",
+    maxAmount: "",
+    categoryIds: [],
+  });
+  const [filterDrafts, setFilterDrafts] = useState({
+    dateFrom: now.startOf("month"),
+    dateTo: now.endOf("month"),
+    minAmount: "",
+    maxAmount: "",
+    categoryIds: [],
+  });
 
   const [periodDialogOpen, setPeriodDialogOpen] = useState(false);
-  const [periodDraftFrom, setPeriodDraftFrom] = useState(now.startOf("month"));
-  const [periodDraftTo, setPeriodDraftTo] = useState(now.endOf("month"));
   const [periodTarget, setPeriodTarget] = useState("from");
   const [periodInitialized, setPeriodInitialized] = useState(false);
 
   const [amountDialogOpen, setAmountDialogOpen] = useState(false);
-  const [minAmount, setMinAmount] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
-  const [minDraft, setMinDraft] = useState("");
-  const [maxDraft, setMaxDraft] = useState("");
 
   const [categoriesDialogOpen, setCategoriesDialogOpen] = useState(false);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   const [categoriesInitialized, setCategoriesInitialized] = useState(false);
 
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
@@ -86,17 +91,25 @@ export default function OperationsPage() {
       return;
     }
 
-    setSelectedCategoryIds(categories.map((item) => Number(item.id)));
+    const categoryIds = categories.map((item) => Number(item.id));
+    setFilters((prev) => ({
+      ...prev,
+      categoryIds,
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      categoryIds,
+    }));
     setCategoriesInitialized(true);
   }, [categories, categoriesInitialized]);
 
   const noSelectedCategories =
-    categories.length > 0 && selectedCategoryIds.length === 0;
+    categories.length > 0 && filters.categoryIds.length === 0;
 
   const {
-    data: bootstrapOperationsData,
-    isLoading: isBootstrapLoading,
-    isError: isBootstrapError,
+    data: latestOperationsData,
+    isLoading: isLatestOperationsLoading,
+    isError: isLatestOperationsError,
   } = useGetTransactionsQuery({
     limit: 1,
     offset: 0,
@@ -105,9 +118,9 @@ export default function OperationsPage() {
   const latestMonthDate = useMemo(
     () =>
       getLatestOperationsMonth(
-        Array.isArray(bootstrapOperationsData) ? bootstrapOperationsData : [],
+        Array.isArray(latestOperationsData) ? latestOperationsData : [],
       ),
-    [bootstrapOperationsData],
+    [latestOperationsData],
   );
 
   const defaultPeriodFrom = useMemo(
@@ -124,8 +137,8 @@ export default function OperationsPage() {
       return;
     }
 
-    if (!Array.isArray(bootstrapOperationsData)) {
-      if (isBootstrapError) {
+    if (!Array.isArray(latestOperationsData)) {
+      if (isLatestOperationsError) {
         setPeriodInitialized(true);
       }
       return;
@@ -134,15 +147,21 @@ export default function OperationsPage() {
     const from = latestMonthDate.startOf("month");
     const to = latestMonthDate.endOf("month");
 
-    setDateFrom(from);
-    setDateTo(to);
-    setPeriodDraftFrom(from);
-    setPeriodDraftTo(to);
+    setFilters((prev) => ({
+      ...prev,
+      dateFrom: from,
+      dateTo: to,
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      dateFrom: from,
+      dateTo: to,
+    }));
     setPeriodInitialized(true);
-  }, [bootstrapOperationsData, latestMonthDate, periodInitialized, isBootstrapError]);
+  }, [latestOperationsData, latestMonthDate, periodInitialized, isLatestOperationsError]);
 
   const hasCategoryFilter =
-    categories.length > 0 && selectedCategoryIds.length !== categories.length;
+    categories.length > 0 && filters.categoryIds.length !== categories.length;
 
   const transactionsFilters = useMemo(() => {
     const payload = {
@@ -151,31 +170,27 @@ export default function OperationsPage() {
     };
 
     if (periodInitialized) {
-      payload.start_date = dateFrom.startOf("day").toISOString();
-      payload.end_date = dateTo.endOf("day").toISOString();
+      payload.start_date = filters.dateFrom.startOf("day").toISOString();
+      payload.end_date = filters.dateTo.endOf("day").toISOString();
     }
 
-    if (minAmount !== "") {
-      payload.min_amount = Number(minAmount);
+    if (filters.minAmount !== "") {
+      payload.min_amount = Number(filters.minAmount);
     }
 
-    if (maxAmount !== "") {
-      payload.max_amount = Number(maxAmount);
+    if (filters.maxAmount !== "") {
+      payload.max_amount = Number(filters.maxAmount);
     }
 
-    if (hasCategoryFilter && selectedCategoryIds.length > 0) {
-      payload.category_ids = selectedCategoryIds;
+    if (hasCategoryFilter && filters.categoryIds.length > 0) {
+      payload.category_ids = filters.categoryIds;
     }
 
     return payload;
   }, [
     periodInitialized,
-    dateFrom,
-    dateTo,
-    minAmount,
-    maxAmount,
+    filters,
     hasCategoryFilter,
-    selectedCategoryIds,
   ]);
 
   const {
@@ -267,31 +282,51 @@ export default function OperationsPage() {
     ]);
   }, [incomeTotal]);
 
-  const amountFilterActive = minAmount !== "" || maxAmount !== "";
+  const amountFilterActive = filters.minAmount !== "" || filters.maxAmount !== "";
   const categoryFilterActive = hasCategoryFilter;
   const periodFilterActive =
     periodInitialized &&
-    (!dateFrom.isSame(defaultPeriodFrom, "day") ||
-      !dateTo.isSame(defaultPeriodTo, "day"));
+    (!filters.dateFrom.isSame(defaultPeriodFrom, "day") ||
+      !filters.dateTo.isSame(defaultPeriodTo, "day"));
 
   const resetPeriodFilter = useCallback(() => {
-    setDateFrom(defaultPeriodFrom);
-    setDateTo(defaultPeriodTo);
-    setPeriodDraftFrom(defaultPeriodFrom);
-    setPeriodDraftTo(defaultPeriodTo);
+    setFilters((prev) => ({
+      ...prev,
+      dateFrom: defaultPeriodFrom,
+      dateTo: defaultPeriodTo,
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      dateFrom: defaultPeriodFrom,
+      dateTo: defaultPeriodTo,
+    }));
     setPeriodDialogOpen(false);
   }, [defaultPeriodFrom, defaultPeriodTo]);
 
   const resetAmountFilter = useCallback(() => {
-    setMinDraft("");
-    setMaxDraft("");
-    setMinAmount("");
-    setMaxAmount("");
+    setFilters((prev) => ({
+      ...prev,
+      minAmount: "",
+      maxAmount: "",
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      minAmount: "",
+      maxAmount: "",
+    }));
     setAmountDialogOpen(false);
   }, []);
 
   const resetCategories = useCallback(() => {
-    setSelectedCategoryIds(categories.map((item) => Number(item.id)));
+    const categoryIds = categories.map((item) => Number(item.id));
+    setFilters((prev) => ({
+      ...prev,
+      categoryIds,
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      categoryIds,
+    }));
   }, [categories]);
 
   const resetAllFilters = useCallback(() => {
@@ -341,15 +376,18 @@ export default function OperationsPage() {
   ]);
 
   const openPeriodDialog = () => {
-    setPeriodDraftFrom(dateFrom);
-    setPeriodDraftTo(dateTo);
+    setFilterDrafts((prev) => ({
+      ...prev,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
+    }));
     setPeriodTarget("from");
     setPeriodDialogOpen(true);
   };
 
   const applyPeriodFilter = () => {
-    let from = periodDraftFrom.startOf("day");
-    let to = periodDraftTo.endOf("day");
+    let from = filterDrafts.dateFrom.startOf("day");
+    let to = filterDrafts.dateTo.endOf("day");
 
     if (from.isAfter(to)) {
       const tmp = from;
@@ -357,27 +395,45 @@ export default function OperationsPage() {
       to = tmp.endOf("day");
     }
 
-    setDateFrom(from);
-    setDateTo(to);
+    setFilters((prev) => ({
+      ...prev,
+      dateFrom: from,
+      dateTo: to,
+    }));
     setPeriodDialogOpen(false);
   };
 
   const openAmountDialog = () => {
-    setMinDraft(minAmount);
-    setMaxDraft(maxAmount);
+    setFilterDrafts((prev) => ({
+      ...prev,
+      minAmount: filters.minAmount,
+      maxAmount: filters.maxAmount,
+    }));
     setAmountDialogOpen(true);
   };
 
   const applyAmountFilter = () => {
-    const minValue = minDraft === "" ? "" : String(Math.max(0, Number(minDraft)));
-    const maxValue = maxDraft === "" ? "" : String(Math.max(0, Number(maxDraft)));
+    const minValue =
+      filterDrafts.minAmount === ""
+        ? ""
+        : String(Math.max(0, Number(filterDrafts.minAmount)));
+    const maxValue =
+      filterDrafts.maxAmount === ""
+        ? ""
+        : String(Math.max(0, Number(filterDrafts.maxAmount)));
 
     if (minValue !== "" && maxValue !== "" && Number(minValue) > Number(maxValue)) {
-      setMinAmount(maxValue);
-      setMaxAmount(minValue);
+      setFilters((prev) => ({
+        ...prev,
+        minAmount: maxValue,
+        maxAmount: minValue,
+      }));
     } else {
-      setMinAmount(minValue);
-      setMaxAmount(maxValue);
+      setFilters((prev) => ({
+        ...prev,
+        minAmount: minValue,
+        maxAmount: maxValue,
+      }));
     }
 
     setAmountDialogOpen(false);
@@ -386,13 +442,42 @@ export default function OperationsPage() {
   const toggleCategory = (categoryId) => {
     const normalizedId = Number(categoryId);
 
-    setSelectedCategoryIds((prev) => {
-      if (prev.includes(normalizedId)) {
-        return prev.filter((item) => item !== normalizedId);
+    setFilterDrafts((prev) => {
+      if (prev.categoryIds.includes(normalizedId)) {
+        return {
+          ...prev,
+          categoryIds: prev.categoryIds.filter((item) => item !== normalizedId),
+        };
       }
 
-      return [...prev, normalizedId];
+      return {
+        ...prev,
+        categoryIds: [...prev.categoryIds, normalizedId],
+      };
     });
+  };
+
+  const openCategoriesDialog = () => {
+    setFilterDrafts((prev) => ({
+      ...prev,
+      categoryIds: [...filters.categoryIds],
+    }));
+    setCategoriesDialogOpen(true);
+  };
+
+  const applyCategoriesFilter = () => {
+    setFilters((prev) => ({
+      ...prev,
+      categoryIds: [...filterDrafts.categoryIds],
+    }));
+    setCategoriesDialogOpen(false);
+  };
+
+  const resetCategoryDrafts = () => {
+    setFilterDrafts((prev) => ({
+      ...prev,
+      categoryIds: categories.map((item) => Number(item.id)),
+    }));
   };
 
   const dialogPaperSx = {
@@ -402,7 +487,7 @@ export default function OperationsPage() {
   };
 
   const renderListContent = () => {
-    if (!periodInitialized || isBootstrapLoading || isFilteredLoading) {
+    if (!periodInitialized || isLatestOperationsLoading || isFilteredLoading) {
       return (
         <div className={styles.listState}>
           <CircularProgress size={24} />
@@ -410,7 +495,7 @@ export default function OperationsPage() {
       );
     }
 
-    if (isBootstrapError || isFilteredError) {
+    if (isLatestOperationsError || isFilteredError) {
       return (
         <div className={styles.listState}>
           <Alert severity="error" className={styles.alert}>
@@ -462,7 +547,7 @@ export default function OperationsPage() {
           onClick={periodFilterActive ? resetPeriodFilter : openPeriodDialog}
         >
           <span className={styles.filterButtonLabel}>
-            {getPeriodLabel(dateFrom, dateTo)}
+            {getPeriodLabel(filters.dateFrom, filters.dateTo)}
           </span>
           {periodFilterActive ? <CloseIcon /> : <ArrowDropDownIcon />}
         </button>
@@ -479,7 +564,7 @@ export default function OperationsPage() {
         <button
           type="button"
           className={styles.filterButton}
-          onClick={categoryFilterActive ? resetCategories : () => setCategoriesDialogOpen(true)}
+          onClick={categoryFilterActive ? resetCategories : openCategoriesDialog}
         >
           <span className={styles.filterButtonLabel}>Категория</span>
           {categoryFilterActive ? <CloseIcon /> : <ArrowDropDownIcon />}
@@ -529,20 +614,20 @@ export default function OperationsPage() {
               className={`${styles.rangeFieldButton} ${periodTarget === "from" ? styles.rangeFieldButtonActive : ""}`}
               onClick={() => setPeriodTarget("from")}
             >
-              От: {formatDateForFilterLabel(periodDraftFrom)}
+              От: {formatDateForFilterLabel(filterDrafts.dateFrom)}
             </button>
             <button
               type="button"
               className={`${styles.rangeFieldButton} ${periodTarget === "to" ? styles.rangeFieldButtonActive : ""}`}
               onClick={() => setPeriodTarget("to")}
             >
-              До: {formatDateForFilterLabel(periodDraftTo)}
+              До: {formatDateForFilterLabel(filterDrafts.dateTo)}
             </button>
           </div>
 
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
             <DateCalendar
-              value={periodTarget === "from" ? periodDraftFrom : periodDraftTo}
+              value={periodTarget === "from" ? filterDrafts.dateFrom : filterDrafts.dateTo}
               onChange={(newValue) => {
                 if (!newValue) {
                   return;
@@ -550,17 +635,23 @@ export default function OperationsPage() {
 
                 if (periodTarget === "from") {
                   const fromValue = newValue.startOf("day");
-                  setPeriodDraftFrom(fromValue);
-                  if (fromValue.isAfter(periodDraftTo)) {
-                    setPeriodDraftTo(fromValue.endOf("day"));
-                  }
+                  setFilterDrafts((prev) => ({
+                    ...prev,
+                    dateFrom: fromValue,
+                    dateTo: fromValue.isAfter(prev.dateTo)
+                      ? fromValue.endOf("day")
+                      : prev.dateTo,
+                  }));
                   setPeriodTarget("to");
                 } else {
                   const toValue = newValue.endOf("day");
-                  setPeriodDraftTo(toValue);
-                  if (toValue.isBefore(periodDraftFrom)) {
-                    setPeriodDraftFrom(toValue.startOf("day"));
-                  }
+                  setFilterDrafts((prev) => ({
+                    ...prev,
+                    dateTo: toValue,
+                    dateFrom: toValue.isBefore(prev.dateFrom)
+                      ? toValue.startOf("day")
+                      : prev.dateFrom,
+                  }));
                 }
               }}
               className={styles.monthCalendar}
@@ -603,14 +694,24 @@ export default function OperationsPage() {
             <AppTextField
               placeholder="От"
               type="number"
-              value={minDraft}
-              onChange={(event) => setMinDraft(event.target.value)}
+              value={filterDrafts.minAmount}
+              onChange={(event) =>
+                setFilterDrafts((prev) => ({
+                  ...prev,
+                  minAmount: event.target.value,
+                }))
+              }
             />
             <AppTextField
               placeholder="До"
               type="number"
-              value={maxDraft}
-              onChange={(event) => setMaxDraft(event.target.value)}
+              value={filterDrafts.maxAmount}
+              onChange={(event) =>
+                setFilterDrafts((prev) => ({
+                  ...prev,
+                  maxAmount: event.target.value,
+                }))
+              }
             />
           </div>
         </DialogContent>
@@ -648,7 +749,9 @@ export default function OperationsPage() {
                 onClick={() => toggleCategory(category.id)}
               >
                 {category.name}
-                <Checkbox checked={selectedCategoryIds.includes(Number(category.id))} />
+                <Checkbox
+                  checked={filterDrafts.categoryIds.includes(Number(category.id))}
+                />
               </button>
             ))}
 
@@ -658,14 +761,14 @@ export default function OperationsPage() {
           <button
             type="button"
             className={styles.dialogActionButton}
-            onClick={resetCategories}
+            onClick={resetCategoryDrafts}
           >
             Сбросить
           </button>
           <button
             type="button"
             className={styles.dialogActionButton}
-            onClick={() => setCategoriesDialogOpen(false)}
+            onClick={applyCategoriesFilter}
           >
             ОК
           </button>

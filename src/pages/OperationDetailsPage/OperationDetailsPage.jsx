@@ -7,13 +7,13 @@ import {
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   useGetTransactionCategoriesQuery,
-  useGetTransactionsQuery,
+  useGetTransactionByIdQuery,
   useUpdateTransactionCategoryMutation,
 } from "services/transactions/transactionsApi";
 import { formatMoney } from "utils/formatMoney";
@@ -27,66 +27,47 @@ import styles from "./OperationDetailsPage.module.scss";
 
 export default function OperationDetailsPage() {
   const { operationId } = useParams();
-  const location = useLocation();
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [currentOperation, setCurrentOperation] = useState(null);
   const [errorText, setErrorText] = useState("");
   const categoryDialogOpen = Boolean(categoryAnchorEl);
   const [updateTransactionCategory, { isLoading: isUpdatingCategory }] =
     useUpdateTransactionCategoryMutation();
 
-  const { data: operationsData, isLoading, isError } = useGetTransactionsQuery({
-    limit: 100,
-    offset: 0,
-  });
+  const { data: operationData, isLoading, isError } =
+    useGetTransactionByIdQuery(operationId, {
+      skip: !operationId,
+    });
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const { data: accountsData = [] } = useGetBankAccountsQuery();
 
-  const operations = Array.isArray(operationsData) ? operationsData : [];
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
   const accounts = Array.isArray(accountsData) ? accountsData : [];
-
-  const operation = useMemo(() => {
-    const fromQuery = operations.find((item) => item.id === operationId);
-    if (fromQuery) {
-      return fromQuery;
-    }
-
-    const fromState = location.state?.operation;
-    if (fromState?.id === operationId) {
-      return fromState;
-    }
-
-    return null;
-  }, [location.state, operationId, operations]);
+  const operation = operationData ?? null;
 
   useEffect(() => {
     if (!operation) {
       return;
     }
 
-    setCurrentOperation(operation);
     setSelectedCategoryId(operation.category_id ?? null);
   }, [operation]);
-
-  const visibleOperation = currentOperation || operation;
   const selectedCategory = categories.find(
     (category) => Number(category.id) === Number(selectedCategoryId),
   );
 
   const handleCategoryClose = () => {
     setCategoryAnchorEl(null);
-    setSelectedCategoryId(visibleOperation?.category_id ?? null);
+    setSelectedCategoryId(operation?.category_id ?? null);
   };
 
   const handleCategorySave = async () => {
-    if (!visibleOperation || selectedCategoryId == null) {
+    if (!operation || selectedCategoryId == null) {
       handleCategoryClose();
       return;
     }
 
-    if (Number(selectedCategoryId) === Number(visibleOperation.category_id)) {
+    if (Number(selectedCategoryId) === Number(operation.category_id)) {
       setCategoryAnchorEl(null);
       return;
     }
@@ -94,27 +75,14 @@ export default function OperationDetailsPage() {
     setErrorText("");
 
     try {
-      const updatedOperation = await updateTransactionCategory({
-        transactionId: visibleOperation.id,
+      await updateTransactionCategory({
+        transactionId: operation.id,
         category_id: Number(selectedCategoryId),
       }).unwrap();
-
-      setCurrentOperation(updatedOperation);
-      setSelectedCategoryId(updatedOperation.category_id ?? null);
       setCategoryAnchorEl(null);
-    } catch (error) {
-      const message = error?.data?.detail;
-      const status = error?.status;
-
-      if (status === 401) {
-        setErrorText("Нужно заново войти в аккаунт");
-      } else if (status === 404) {
-        setErrorText("Не удалось изменить категорию");
-      } else if (typeof message === "string" && message !== "Not Found") {
-        setErrorText(message);
-      } else {
-        setErrorText("Не удалось сохранить категорию");
-      }
+    } catch {
+      setSelectedCategoryId(operation.category_id ?? null);
+      setErrorText("Произошла ошибка при изменении категории");
     }
   };
 
@@ -161,15 +129,15 @@ export default function OperationDetailsPage() {
       <div className={styles.amountCard}>
         <div
           className={styles.operationCircle}
-          style={{ backgroundColor: getOperationColor(visibleOperation) }}
+          style={{ backgroundColor: getOperationColor(operation) }}
         />
 
         <div className={styles.amountCardRight}>
           <Typography variant="h5" className={styles.amountValue}>
-            {getOperationSignedAmount(visibleOperation)}
+            {getOperationSignedAmount(operation)}
           </Typography>
           <Typography variant="h6" fontWeight={700}>
-            {getOperationTitle(visibleOperation)}
+            {getOperationTitle(operation)}
           </Typography>
         </div>
       </div>
@@ -196,7 +164,7 @@ export default function OperationDetailsPage() {
         <div className={styles.detailBlock}>
           <div className={styles.detailLabel}>Дата и время</div>
           <Typography variant="h6" fontWeight={700}>
-            {formatOperationDateTime(visibleOperation.created_at)}
+            {formatOperationDateTime(operation.created_at)}
           </Typography>
         </div>
 
@@ -204,7 +172,7 @@ export default function OperationDetailsPage() {
           <div className={styles.detailBlock}>
             <div className={styles.detailLabel}>Категория</div>
             <Typography variant="h6" fontWeight={700}>
-              {selectedCategory?.name || visibleOperation.category_name || "—"}
+              {selectedCategory?.name || operation.category_name || "—"}
             </Typography>
           </div>
 
