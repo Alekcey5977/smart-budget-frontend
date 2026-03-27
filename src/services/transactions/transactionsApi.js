@@ -55,6 +55,41 @@ export const transactionsApi = createApi({
       }),
       providesTags: ["Transactions"],
     }),
+    getAllTransactions: builder.query({
+      async queryFn(filters = {}, _api, _extraOptions, fetchWithBQ) {
+        const pageSize = 100;
+        let offset = 0;
+        let allTransactions = [];
+
+        while (true) {
+          const result = await fetchWithBQ({
+            url: "/",
+            method: "POST",
+            data: buildTransactionsPayload({
+              ...filters,
+              limit: pageSize,
+              offset,
+            }),
+          });
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          const page = Array.isArray(result.data) ? result.data : [];
+          allTransactions = [...allTransactions, ...page];
+
+          if (page.length < pageSize) {
+            break;
+          }
+
+          offset += pageSize;
+        }
+
+        return { data: allTransactions };
+      },
+      providesTags: ["Transactions"],
+    }),
     getTransactionById: builder.query({
       query: (transactionId) => ({
         url: `/${transactionId}`,
@@ -87,6 +122,7 @@ export const transactionsApi = createApi({
 
 export const {
   useGetTransactionsQuery,
+  useGetAllTransactionsQuery,
   useGetTransactionByIdQuery,
   useGetTransactionCategoriesQuery,
   useUpdateTransactionCategoryMutation,

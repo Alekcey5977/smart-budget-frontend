@@ -4,10 +4,12 @@ import "dayjs/locale/ru";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
+import {
+  useGetAllTransactionsQuery,
+  useGetTransactionsQuery,
+} from "services/transactions/transactionsApi";
 import {
   buildDonutGradient,
-  filterOperationsByMonth,
   getExpenseCategorySegments,
   getLatestOperationsMonth,
   isIncomeOperation,
@@ -24,25 +26,46 @@ function getMonthLabel(value) {
 export default function HomeExpensesCard() {
   const navigate = useNavigate();
 
-  const { data, isLoading, isError } = useGetTransactionsQuery({
-    limit: 100,
+  const {
+    data: latestOperationsData,
+    isLoading: isLatestOperationsLoading,
+    isError: isLatestOperationsError,
+  } = useGetTransactionsQuery({
+    limit: 1,
     offset: 0,
   });
 
-  const operations = Array.isArray(data) ? data : [];
-
   const currentMonthDate = useMemo(
-    () => getLatestOperationsMonth(operations),
+    () =>
+      getLatestOperationsMonth(
+        Array.isArray(latestOperationsData) ? latestOperationsData : [],
+      ),
+    [latestOperationsData],
+  );
+
+  const monthFilters = useMemo(
+    () => ({
+      start_date: currentMonthDate.startOf("month").toISOString(),
+      end_date: currentMonthDate.endOf("month").toISOString(),
+    }),
+    [currentMonthDate],
+  );
+
+  const {
+    data: monthOperationsData,
+    isLoading: isMonthOperationsLoading,
+    isError: isMonthOperationsError,
+  } = useGetAllTransactionsQuery(monthFilters);
+
+  const operations = Array.isArray(monthOperationsData) ? monthOperationsData : [];
+
+  const monthExpenses = useMemo(
+    () => operations.filter((operation) => !isIncomeOperation(operation)),
     [operations],
   );
 
-  const monthExpenses = useMemo(
-    () =>
-      filterOperationsByMonth(operations, currentMonthDate).filter(
-        (operation) => !isIncomeOperation(operation),
-      ),
-    [operations, currentMonthDate],
-  );
+  const isLoading = isLatestOperationsLoading || isMonthOperationsLoading;
+  const isError = isLatestOperationsError || isMonthOperationsError;
 
   const segments = useMemo(
     () => getExpenseCategorySegments(monthExpenses, 3),

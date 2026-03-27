@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 import {
+  useGetAllTransactionsQuery,
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
@@ -164,10 +165,7 @@ export default function OperationsPage() {
     categories.length > 0 && filters.categoryIds.length !== categories.length;
 
   const transactionsFilters = useMemo(() => {
-    const payload = {
-      limit: 100,
-      offset: 0,
-    };
+    const payload = {};
 
     if (periodInitialized) {
       payload.start_date = filters.dateFrom.startOf("day").toISOString();
@@ -197,7 +195,7 @@ export default function OperationsPage() {
     data: filteredOperationsData,
     isLoading: isFilteredLoading,
     isError: isFilteredError,
-  } = useGetTransactionsQuery(transactionsFilters, {
+  } = useGetAllTransactionsQuery(transactionsFilters, {
     skip: !periodInitialized || noSelectedCategories,
   });
 
