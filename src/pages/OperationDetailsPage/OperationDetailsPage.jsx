@@ -5,7 +5,6 @@ import {
   Popover,
   Typography,
 } from "@mui/material";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -54,6 +53,9 @@ export default function OperationDetailsPage() {
   }, [operation]);
   const selectedCategory = categories.find(
     (category) => Number(category.id) === Number(selectedCategoryId),
+  );
+  const account = accounts.find(
+    (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
 
   const handleCategoryClose = () => {
@@ -114,17 +116,9 @@ export default function OperationDetailsPage() {
     );
   }
 
-  const account = accounts[0];
-
   return (
     <div className={styles.root}>
       {errorText && <Alert severity="error">{errorText}</Alert>}
-
-      <div className={styles.topBar}>
-        <IconButton aria-label="Удалить" size="small">
-          <DeleteOutlineIcon />
-        </IconButton>
-      </div>
 
       <div className={styles.amountCard}>
         <div
@@ -157,7 +151,7 @@ export default function OperationDetailsPage() {
         <div className={styles.detailBlock}>
           <div className={styles.detailLabel}>Карта списание</div>
           <Typography variant="h6" fontWeight={700}>
-            {account ? account.bank_account_name : "—"}
+            {account?.bank_account_name || "—"}
           </Typography>
         </div>
 
