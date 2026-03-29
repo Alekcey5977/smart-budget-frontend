@@ -24,7 +24,6 @@ export default function NotificationDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Определяю тип уведомления из state или URL
   const notificationType = location.state?.type || "notification";
   const isHistory = notificationType === "history";
 
@@ -32,14 +31,13 @@ export default function NotificationDetailsPage() {
   console.log("Notification type:", notificationType);
   console.log("Is history:", isHistory);
 
-  // Выбираю нужный хук в зависимости от типа
   const {
     data: notificationData,
     isLoading: notificationLoading,
     isError: notificationError,
     error: notificationErrorData,
   } = useGetNotificationByIdQuery(id, {
-    skip: isHistory || !id, // Пропускаю если это history
+    skip: isHistory || !id,
   });
 
   const {
@@ -48,13 +46,12 @@ export default function NotificationDetailsPage() {
     isError: historyError,
     error: historyErrorData,
   } = useGetHistoryByIdQuery(id, {
-    skip: !isHistory || !id, // Пропускаю если это notification
+    skip: !isHistory || !id,
   });
 
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [deleteNotification] = useDeleteNotificationMutation();
 
-  // Определяю данные в зависимости от типа
   const notification = useMemo(() => {
     if (isHistory) {
       return historyData;
@@ -66,7 +63,7 @@ export default function NotificationDetailsPage() {
   const isError = isHistory ? historyError : notificationError;
   const error = isHistory ? historyErrorData : notificationErrorData;
   const handleDelete = async () => {
-    if (!id || isHistory) return; // History нельзя удалить
+    if (!id || isHistory) return;
 
     if (window.confirm("Удалить это уведомление?")) {
       try {

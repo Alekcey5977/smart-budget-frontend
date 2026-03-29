@@ -27,14 +27,12 @@ export default function NotificationsPage() {
   const [tabIndex, setTabIndex] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
-  // History - системные уведомления
   const {
     data: history = [],
     isLoading: hLoading,
     refetch: refetchHistory,
   } = useGetHistoryQuery();
 
-  // Notifications - оповещательные уведомления
   const {
     data: notifications = [],
     isLoading: nLoading,
@@ -46,11 +44,9 @@ export default function NotificationsPage() {
 
   const isLoading = hLoading || nLoading;
 
-  // Логирую данные для отладки
   console.log("History (системные) данные:", history);
   console.log("Notifications (оповещательные) данные:", notifications);
 
-  // Форматирую системные уведомления
   const systemNotifications = useMemo(() => {
     return [...history]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -61,11 +57,10 @@ export default function NotificationsPage() {
         created_at: item.created_at,
         is_read: true,
         type: "SYSTEM",
-        category: "history", // добавляю категорию для навигации
+        category: "history",
       }));
   }, [history]);
 
-  // Форматирую оповещательные уведомления
   const alertNotifications = useMemo(() => {
     return [...notifications]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -76,7 +71,7 @@ export default function NotificationsPage() {
         created_at: item.created_at,
         is_read: item.is_read || false,
         type: item.type || "ALERT",
-        category: "notification", // добавляю категорию для навигации
+        category: "notification",
       }));
   }, [notifications]);
 
@@ -119,7 +114,6 @@ export default function NotificationsPage() {
       console.log("Category:", item.category);
 
       if (item.id) {
-        // Передаю тип уведомления через state
         const url = `/notifications/${item.id}`;
         console.log("Navigating to:", url, "with type:", item.category);
         navigate(url, {
@@ -257,12 +251,12 @@ export default function NotificationsPage() {
             >
               {item.created_at
                 ? new Date(item.created_at).toLocaleString("ru-RU", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : ""}
             </Typography>
           </Paper>

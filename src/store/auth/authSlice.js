@@ -8,7 +8,7 @@ const getInitialState = () => {
   return {
     isAuth: Boolean(token),
     token: token ?? null,
-    user: null, // Убрал thunk`и и status/error, они управляются RTK Query
+    user: null,
   };
 };
 
@@ -31,7 +31,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Поставил addMatcher вместо addCase для связи RTK Query и Redux Store.
       .addMatcher(
         authApi.endpoints.login.matchFulfilled,
         (state, { payload }) => {

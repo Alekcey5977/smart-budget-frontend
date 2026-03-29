@@ -5,6 +5,8 @@ import {
   notificationApi,
   useGetUnreadNotificationsCountQuery,
 } from "services/auth/notificationApi";
+import { useGetMyAvatarQuery } from "services/auth/avatarApi";
+import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import {
   Avatar,
   IconButton,
@@ -19,6 +21,7 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditIcon from "@mui/icons-material/Edit";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -30,27 +33,27 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const token = useSelector((state) => state?.auth?.token);
   const user = useSelector((state) => state?.auth?.user);
 
-  // Получаем количество непрочитанных уведомлений
   const { data: unreadCount = 0, refetch: refetchUnreadCount } =
     useGetUnreadNotificationsCountQuery(undefined, {
       pollingInterval: 30000,
       skip: !token,
     });
 
-  // WebSocket подключение
+  const { data: myAvatar } = useGetMyAvatarQuery(undefined, {
+    skip: !token,
+  });
+
+  const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
+
   useEffect(() => {
     if (!token || !user?.id) {
-      console.log("Нет токена или ID пользователя, WebSocket не подключается");
       return;
     }
 
-    // Формируем правильный URL для WebSocket
     const wsProtocol = "ws:";
     const wsHost = "localhost:8080";
     const userId = user.id;
     const wsUrl = `${wsProtocol}//${wsHost}/notifications/new/s/${userId}/`;
-
-    console.log(" Подключение к WebSocket:", wsUrl);
 
     let socket = null;
     let reconnectTimer = null;
@@ -60,17 +63,12 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
         socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {
-          console.log(" WebSocket подключен успешно");
         };
 
         socket.onmessage = (event) => {
-          console.log(" Получено сообщение через WebSocket:", event.data);
-
           try {
             const data = JSON.parse(event.data);
-            console.log(" Разобранные данные:", data);
 
-            // Инвалидируем кэш для обновления списка уведомлений и счетчика
             dispatch(
               notificationApi.util.invalidateTags([
                 "Notifications",
@@ -78,33 +76,20 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
               ]),
             );
 
-            // Дополнительно обновляем счетчик
             refetchUnreadCount();
           } catch (error) {
-            console.error("Ошибка при разборе WebSocket сообщения:", error);
           }
         };
 
         socket.onerror = (error) => {
-          console.error(" Ошибка WebSocket:", error);
         };
 
         socket.onclose = (event) => {
-          console.log(
-            " WebSocket закрыт. Код:",
-            event.code,
-            "Причина:",
-            event.reason,
-          );
-
-          // Попытка переподключения через 5 секунд
           reconnectTimer = setTimeout(() => {
-            console.log(" Попытка переподключения WebSocket...");
             connectWebSocket();
           }, 5000);
         };
       } catch (error) {
-        console.error("Ошибка при создании WebSocket:", error);
       }
     };
 
@@ -165,16 +150,37 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
         ) : (
           <>
             <IconButton onClick={openMenu}>
-              <Avatar className={styles.avatar}>
-                <PersonIcon />
+              <Avatar
+                className={styles.avatar}
+                src={myAvatar?.id ? `/images/images/${myAvatar.id}` : null}
+                sx={{
+                  bgcolor: myAvatar?.id ? "transparent" : "primary.main",
+                  width: 40,
+                  height: 40,
+                }}
+              >
+                {!myAvatar?.id && <PersonIcon />}
               </Avatar>
             </IconButton>
 
             <IconButton onClick={handleNotificationsClick}>
-              <NotificationsNoneIcon />
+              <Badge badgeContent={unreadCount} color="error">
+                <NotificationsNoneIcon />
+              </Badge>
             </IconButton>
 
             <Menu anchorEl={anchorEl} open={menuOpen} onClose={closeMenu}>
+              <MenuItem
+                onClick={() => {
+                  closeMenu();
+                  setIsAvatarSelectorOpen(true);
+                }}
+              >
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Сменить аватар" />
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   closeMenu();
@@ -199,6 +205,11 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
       <div className={styles.content}>
         <Outlet />
       </div>
+
+      <AvatarSelector
+        open={isAvatarSelectorOpen}
+        onClose={() => setIsAvatarSelectorOpen(false)}
+      />
     </PhoneLayout>
   );
 }

@@ -93,7 +93,6 @@ export default function AppRouter() {
         }
       />
 
-      {/* ПРИВАТНЫЕ РОУТЫ (Только для авторизованных) */}
       <Route element={<PrivateRoute />}>
         <Route element={<AuthLayout />}>
           <Route path="/home" element={<HomePage />} />
@@ -102,7 +101,6 @@ export default function AppRouter() {
           <Route path="/bank-accounts/add" element={<BankAccountAddPage />} />
         </Route>
 
-        {/* Layout для списка уведомлений (Заголовок + Галочка) */}
         <Route
           path="/notifications"
           element={
@@ -115,8 +113,6 @@ export default function AppRouter() {
           <Route index element={<NotificationsPage />} />
         </Route>
 
-        {/* Layout для деталей уведомления (Заголовок + Корзина) */}
-        {/* ИСПРАВЛЕНИЕ: path перенесен сюда, чтобы useParams() работал в кнопке */}
         <Route
           path="/notifications/:id"
           element={
@@ -129,7 +125,6 @@ export default function AppRouter() {
           <Route index element={<NotificationDetailsPage />} />
         </Route>
 
-        {/* Layout для целей */}
         <Route path="/goals" element={<AuthLayout title="Цели" />}>
           <Route index element={<GoalsPage />} />
         </Route>
@@ -142,7 +137,6 @@ export default function AppRouter() {
         </Route>
       </Route>
 
-      {/* Если путь не найден — кидаем на главную */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

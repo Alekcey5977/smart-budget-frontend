@@ -23,14 +23,13 @@ export default defineConfig(({ mode }) => {
         "/auth": { target, changeOrigin: true, secure: false },
         "/users": { target, changeOrigin: true, secure: false },
         "/history": { target, changeOrigin: true, secure: false },
+        "/images": { target, changeOrigin: true, secure: false },
         "/notifications": {
-          target: env.VITE_API_URL || "http://127.0.0.1:8000", // Заменили localhost на 127.0.0.1
+          target: env.VITE_API_URL || "http://127.0.0.1:8000",
           changeOrigin: true,
           ws: true,
           bypass: (req) => {
-            // Если это запрос на апгрейд до сокета, не трогаем его
             if (req.headers.upgrade === "websocket") return null;
-            // Только если это обычный GET запрос за страницей, отдаем index.html
             if (req.method === "GET" && req.headers.accept?.includes("html")) {
               return "/index.html";
             }

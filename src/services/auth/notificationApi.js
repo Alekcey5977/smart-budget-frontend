@@ -48,6 +48,7 @@ export const notificationApi = createApi({
         url: "/notifications/user/me/unread/count",
         method: "GET",
       }),
+      transformResponse: (response) => response?.count ?? 0,
       providesTags: ["UnreadNotificationsCount"],
     }),
 
