@@ -107,7 +107,7 @@ const AccountCard = ({ account, onDelete }) => {
 
 export default function BankAccountsPage() {
   const navigate = useNavigate();
-  const { data, isLoading, isError, refetch } = useGetBankAccountsQuery();
+  const { data, isLoading, isError } = useGetBankAccountsQuery();
   const [deleteBankAccount, { isLoading: isDeleting }] =
     useDeleteBankAccountMutation();
 
@@ -138,7 +138,6 @@ export default function BankAccountsPage() {
         message: `Счет "${selectedAccount.bank_account_name || selectedAccount.name}" успешно удален`,
         severity: "success",
       });
-      refetch();
     } catch (error) {
       console.error("Error deleting account:", error);
       setSnackbar({
@@ -153,7 +152,7 @@ export default function BankAccountsPage() {
       setDeleteDialogOpen(false);
       setSelectedAccount(null);
     }
-  }, [selectedAccount, deleteBankAccount, refetch]);
+  }, [selectedAccount, deleteBankAccount]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteDialogOpen(false);

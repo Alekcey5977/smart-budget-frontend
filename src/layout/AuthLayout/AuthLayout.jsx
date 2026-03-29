@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import {
-  notificationApi,
-  useGetUnreadNotificationsCountQuery,
-} from "services/auth/notificationApi";
+import { useNotifications } from "hooks/useNotifications";
+import { getAuthToken, getAuthUser } from "store/auth/authsSelectors";
 import {
   Avatar,
   IconButton,
@@ -14,6 +12,7 @@ import {
   ListItemIcon,
   ListItemText,
   Badge,
+  Box,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
@@ -27,98 +26,10 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const token = useSelector((state) => state?.auth?.token);
-  const user = useSelector((state) => state?.auth?.user);
+  const token = useSelector(getAuthToken);
+  const user = useSelector(getAuthUser);
 
-  // Получаем количество непрочитанных уведомлений
-  const { data: unreadCount = 0, refetch: refetchUnreadCount } =
-    useGetUnreadNotificationsCountQuery(undefined, {
-      pollingInterval: 30000,
-      skip: !token,
-    });
-
-  // WebSocket подключение
-  useEffect(() => {
-    if (!token || !user?.id) {
-      console.log("Нет токена или ID пользователя, WebSocket не подключается");
-      return;
-    }
-
-    // Формируем правильный URL для WebSocket
-    const wsProtocol = "ws:";
-    const wsHost = "localhost:8080";
-    const userId = user.id;
-    const wsUrl = `${wsProtocol}//${wsHost}/notifications/new/s/${userId}/`;
-
-    console.log(" Подключение к WebSocket:", wsUrl);
-
-    let socket = null;
-    let reconnectTimer = null;
-
-    const connectWebSocket = () => {
-      try {
-        socket = new WebSocket(wsUrl);
-
-        socket.onopen = () => {
-          console.log(" WebSocket подключен успешно");
-        };
-
-        socket.onmessage = (event) => {
-          console.log(" Получено сообщение через WebSocket:", event.data);
-
-          try {
-            const data = JSON.parse(event.data);
-            console.log(" Разобранные данные:", data);
-
-            // Инвалидируем кэш для обновления списка уведомлений и счетчика
-            dispatch(
-              notificationApi.util.invalidateTags([
-                "Notifications",
-                "UnreadNotificationsCount",
-              ]),
-            );
-
-            // Дополнительно обновляем счетчик
-            refetchUnreadCount();
-          } catch (error) {
-            console.error("Ошибка при разборе WebSocket сообщения:", error);
-          }
-        };
-
-        socket.onerror = (error) => {
-          console.error(" Ошибка WebSocket:", error);
-        };
-
-        socket.onclose = (event) => {
-          console.log(
-            " WebSocket закрыт. Код:",
-            event.code,
-            "Причина:",
-            event.reason,
-          );
-
-          // Попытка переподключения через 5 секунд
-          reconnectTimer = setTimeout(() => {
-            console.log(" Попытка переподключения WebSocket...");
-            connectWebSocket();
-          }, 5000);
-        };
-      } catch (error) {
-        console.error("Ошибка при создании WebSocket:", error);
-      }
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-      }
-    };
-  }, [token, user?.id, dispatch, refetchUnreadCount]);
+  const { unreadCount } = useNotifications();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -153,6 +64,8 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                 bgcolor: "primary.main",
                 color: "text.primary",
                 borderRadius: "15px",
+                width: 40,
+                height: 40,
               }}
             >
               <ArrowBackIcon fontSize="small" />
@@ -164,17 +77,48 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
           </>
         ) : (
           <>
-            <IconButton onClick={openMenu}>
-              <Avatar className={styles.avatar}>
+            <Box sx={{ position: "relative" }}>
+              <Avatar
+                className={styles.avatar}
+                onClick={openMenu}
+                sx={{
+                  bgcolor: "primary.main",
+                  width: 40,
+                  height: 40,
+                  cursor: "pointer",
+                }}
+              >
                 <PersonIcon />
               </Avatar>
+            </Box>
+
+            <IconButton
+              onClick={handleNotificationsClick}
+              sx={{ width: 40, height: 40 }}
+            >
+              <Badge
+                color="error"
+                variant="dot"
+                invisible={!unreadCount || unreadCount === 0}
+                overlap="circular"
+              >
+                <NotificationsNoneIcon />
+              </Badge>
             </IconButton>
 
-            <IconButton onClick={handleNotificationsClick}>
-              <NotificationsNoneIcon />
-            </IconButton>
-
-            <Menu anchorEl={anchorEl} open={menuOpen} onClose={closeMenu}>
+            <Menu
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={closeMenu}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+            >
               <MenuItem
                 onClick={() => {
                   closeMenu();

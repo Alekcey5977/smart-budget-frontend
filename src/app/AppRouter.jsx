@@ -7,11 +7,7 @@ import {
 } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getIsAuth } from "store/auth/authsSelectors";
-import { IconButton } from "@mui/material";
 
-// Иконки для шапки уведомлений
-import CheckIcon from "@mui/icons-material/Check";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 // Страницы
 import WelcomePage from "pages/WelcomePage";
@@ -27,50 +23,11 @@ import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
 // Уведомления
 import NotificationsPage from "pages/NotificationPage/NotificationsPage";
 import NotificationDetailsPage from "pages/NotificationPage/NotificationDetailsPage";
+import NotificationsLayout from "pages/NotificationPage/NotificationsLayout";
+import NotificationDetailsLayout from "pages/NotificationPage/NotificationDetailsLayout";
 import PrivateRoute from "app/PrivateRoute";
 import AuthLayout from "layout/AuthLayout";
 
-// API
-import {
-  useMarkAllNotificationsAsReadMutation,
-  useDeleteNotificationMutation,
-} from "services/auth/notificationApi";
-
-function MarkAllReadButton() {
-  const [markAll] = useMarkAllNotificationsAsReadMutation();
-
-  return (
-    <IconButton aria-label="Прочитать все" onClick={() => markAll()}>
-      <CheckIcon />
-    </IconButton>
-  );
-}
-
-function NotificationDeleteButton() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [deleteNotif] = useDeleteNotificationMutation();
-
-  const handleDelete = async () => {
-    // Проверка, что id существует, чтобы не отправить запрос на undefined
-    if (!id) return;
-
-    if (window.confirm("Удалить это уведомление?")) {
-      try {
-        await deleteNotif(id).unwrap();
-        navigate("/notifications", { replace: true });
-      } catch (error) {
-        console.error("Ошибка при удалении:", error);
-      }
-    }
-  };
-
-  return (
-    <IconButton aria-label="Удалить" onClick={handleDelete}>
-      <DeleteOutlineIcon />
-    </IconButton>
-  );
-}
 // ОСНОВНОЙ РОУТЕР
 
 export default function AppRouter() {
@@ -105,12 +62,7 @@ export default function AppRouter() {
         {/* Layout для списка уведомлений (Заголовок + Галочка) */}
         <Route
           path="/notifications"
-          element={
-            <AuthLayout
-              title="Уведомления"
-              headerRightContent={<MarkAllReadButton />}
-            />
-          }
+          element={<NotificationsLayout />}
         >
           <Route index element={<NotificationsPage />} />
         </Route>
@@ -119,12 +71,7 @@ export default function AppRouter() {
         {/* ИСПРАВЛЕНИЕ: path перенесен сюда, чтобы useParams() работал в кнопке */}
         <Route
           path="/notifications/:id"
-          element={
-            <AuthLayout
-              title="Уведомление"
-              headerRightContent={<NotificationDeleteButton />}
-            />
-          }
+          element={<NotificationDetailsLayout />}
         >
           <Route index element={<NotificationDetailsPage />} />
         </Route>

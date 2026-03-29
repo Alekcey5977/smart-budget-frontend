@@ -48,6 +48,13 @@ export const notificationApi = createApi({
         url: "/notifications/user/me/unread/count",
         method: "GET",
       }),
+      transformResponse: (response) => {
+        let count =
+          typeof response === "object" && response !== null
+            ? response.count ?? response.unread_count ?? response.unreadCount ?? 0
+            : Number(response) || 0;
+        return { count };
+      },
       providesTags: ["UnreadNotificationsCount"],
     }),
 
@@ -60,6 +67,7 @@ export const notificationApi = createApi({
         { type: "Notifications", id },
         { type: "Notifications", id: "LIST" },
         "UnreadNotificationsCount",
+        "History",
       ],
     }),
 
@@ -71,6 +79,7 @@ export const notificationApi = createApi({
       invalidatesTags: [
         { type: "Notifications", id: "LIST" },
         "UnreadNotificationsCount",
+        "History",
       ],
     }),
 

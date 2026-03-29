@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -11,6 +11,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import InfoIcon from "@mui/icons-material/Info";
+import { formatDateTimeRu } from "utils/date";
 
 import {
   useGetNotificationByIdQuery,
@@ -24,22 +25,16 @@ export default function NotificationDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Определяю тип уведомления из state или URL
   const notificationType = location.state?.type || "notification";
   const isHistory = notificationType === "history";
 
-  console.log("Notification ID:", id);
-  console.log("Notification type:", notificationType);
-  console.log("Is history:", isHistory);
-
-  // Выбираю нужный хук в зависимости от типа
   const {
     data: notificationData,
     isLoading: notificationLoading,
     isError: notificationError,
     error: notificationErrorData,
   } = useGetNotificationByIdQuery(id, {
-    skip: isHistory || !id, // Пропускаю если это history
+    skip: isHistory || !id,
   });
 
   const {
@@ -48,13 +43,12 @@ export default function NotificationDetailsPage() {
     isError: historyError,
     error: historyErrorData,
   } = useGetHistoryByIdQuery(id, {
-    skip: !isHistory || !id, // Пропускаю если это notification
+    skip: !isHistory || !id,
   });
 
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [deleteNotification] = useDeleteNotificationMutation();
 
-  // Определяю данные в зависимости от типа
   const notification = useMemo(() => {
     if (isHistory) {
       return historyData;
@@ -62,12 +56,20 @@ export default function NotificationDetailsPage() {
     return notificationData;
   }, [isHistory, historyData, notificationData]);
 
+  const markedAsReadRef = useRef(false);
+
+  useEffect(() => {
+    if (notification && !notification.is_read && !isHistory && !markedAsReadRef.current) {
+      markedAsReadRef.current = true;
+      markAsRead(id).unwrap().catch(console.error);
+    }
+  }, [notification, isHistory, id, markAsRead]);
+
   const isLoading = isHistory ? historyLoading : notificationLoading;
   const isError = isHistory ? historyError : notificationError;
   const error = isHistory ? historyErrorData : notificationErrorData;
   const handleDelete = async () => {
-    if (!id || isHistory) return; // History нельзя удалить
-
+    if (!id || isHistory) return;
     if (window.confirm("Удалить это уведомление?")) {
       try {
         await deleteNotification(id).unwrap();
@@ -127,21 +129,8 @@ export default function NotificationDetailsPage() {
     );
   }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <Box sx={{ p: 2, maxWidth: 800, margin: "0 auto", minHeight: "100vh" }}>
-      {/* Шапка с кнопками */}
       <Box
         sx={{
           display: "flex",
@@ -159,7 +148,6 @@ export default function NotificationDetailsPage() {
         </Button>
       </Box>
 
-      {/* Карточка уведомления */}
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 2 }}>
         <Box sx={{ mb: 2 }}>
           <Typography
@@ -175,12 +163,11 @@ export default function NotificationDetailsPage() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
             <AccessTimeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
             <Typography variant="caption" color="text.secondary">
-              {formatDate(notification.created_at || notification.createdAt)}
+              {formatDateTimeRu(notification.created_at || notification.createdAt)}
             </Typography>
           </Box>
         </Box>
 
-        {/* Текст уведомления */}
         <Typography
           variant="body1"
           sx={{
@@ -196,7 +183,6 @@ export default function NotificationDetailsPage() {
             "Нет текста уведомления"}
         </Typography>
 
-        {/* Дополнительная информация */}
         {notification.additional_data && (
           <Box sx={{ mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>

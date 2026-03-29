@@ -27,14 +27,12 @@ export default function NotificationsPage() {
   const [tabIndex, setTabIndex] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
-  // History - системные уведомления
   const {
     data: history = [],
     isLoading: hLoading,
     refetch: refetchHistory,
   } = useGetHistoryQuery();
 
-  // Notifications - оповещательные уведомления
   const {
     data: notifications = [],
     isLoading: nLoading,
@@ -46,11 +44,6 @@ export default function NotificationsPage() {
 
   const isLoading = hLoading || nLoading;
 
-  // Логирую данные для отладки
-  console.log("History (системные) данные:", history);
-  console.log("Notifications (оповещательные) данные:", notifications);
-
-  // Форматирую системные уведомления
   const systemNotifications = useMemo(() => {
     return [...history]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -61,11 +54,10 @@ export default function NotificationsPage() {
         created_at: item.created_at,
         is_read: true,
         type: "SYSTEM",
-        category: "history", // добавляю категорию для навигации
+        category: "history",
       }));
   }, [history]);
 
-  // Форматирую оповещательные уведомления
   const alertNotifications = useMemo(() => {
     return [...notifications]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -76,7 +68,7 @@ export default function NotificationsPage() {
         created_at: item.created_at,
         is_read: item.is_read || false,
         type: item.type || "ALERT",
-        category: "notification", // добавляю категорию для навигации
+        category: "notification",
       }));
   }, [notifications]);
 
@@ -114,14 +106,8 @@ export default function NotificationsPage() {
 
   const handleNotificationClick = useCallback(
     (item) => {
-      console.log("Clicked notification:", item);
-      console.log("Notification ID:", item.id);
-      console.log("Category:", item.category);
-
       if (item.id) {
-        // Передаю тип уведомления через state
         const url = `/notifications/${item.id}`;
-        console.log("Navigating to:", url, "with type:", item.category);
         navigate(url, {
           state: {
             type: item.category,
@@ -181,17 +167,6 @@ export default function NotificationsPage() {
         <Tab label="Оповещательные" />
       </Tabs>
 
-      {tabIndex === 1 && alertNotifications.length > 0 && hasUnreadAlerts && (
-        <Button
-          onClick={handleMarkAllRead}
-          size="small"
-          variant="outlined"
-          sx={{ mb: 2, display: "block", mx: "auto" }}
-        >
-          Прочитать все
-        </Button>
-      )}
-
       {filteredItems.length === 0 ? (
         <Typography textAlign="center" color="text.secondary" mt={4}>
           {tabIndex === 0
@@ -221,6 +196,19 @@ export default function NotificationsPage() {
               },
             }}
           >
+            {item.category === "notification" && !item.is_read && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "16px",
+                  left: "8px",
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  bgcolor: "error.main",
+                }}
+              />
+            )}
             <Box
               sx={{
                 display: "flex",

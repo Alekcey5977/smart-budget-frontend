@@ -5,6 +5,7 @@ import { bankApi } from "services/auth/bankApi";
 import { goalsApi } from "services/goals/goalsApi";
 import { notificationApi } from "services/auth/notificationApi";
 import { historyApi } from "services/auth/historyApi";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
