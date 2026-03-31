@@ -23,6 +23,42 @@ function getMonthLabel(value) {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
+function HomeExpensesLegend({ isLoading, isError, segments }) {
+  if (isLoading) {
+    return (
+      <div className={styles.expensesLoading}>
+        <CircularProgress size={18} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        Ошибка данных
+      </Typography>
+    );
+  }
+
+  if (segments.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        Расходов нет
+      </Typography>
+    );
+  }
+
+  return segments.map((segment) => (
+    <div key={segment.label} className={styles.expensesLegendItem}>
+      <span
+        className={styles.expensesLegendColor}
+        style={{ backgroundColor: segment.color }}
+      />
+      <span className={styles.expensesLegendText}>{segment.label}</span>
+    </div>
+  ));
+}
+
 export default function HomeExpensesCard() {
   const navigate = useNavigate();
 
@@ -57,7 +93,10 @@ export default function HomeExpensesCard() {
     isError: isMonthOperationsError,
   } = useGetAllTransactionsQuery(monthFilters);
 
-  const operations = Array.isArray(monthOperationsData) ? monthOperationsData : [];
+  const operations = useMemo(
+    () => (Array.isArray(monthOperationsData) ? monthOperationsData : []),
+    [monthOperationsData],
+  );
 
   const monthExpenses = useMemo(
     () => operations.filter((operation) => !isIncomeOperation(operation)),
@@ -89,29 +128,11 @@ export default function HomeExpensesCard() {
 
       <div className={styles.expensesCardContent}>
         <div className={styles.expensesLegend}>
-          {isLoading ? (
-            <div className={styles.expensesLoading}>
-              <CircularProgress size={18} />
-            </div>
-          ) : isError ? (
-            <Typography variant="body2" color="text.secondary">
-              Ошибка данных
-            </Typography>
-          ) : segments.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              Расходов нет
-            </Typography>
-          ) : (
-            segments.map((segment) => (
-              <div key={segment.label} className={styles.expensesLegendItem}>
-                <span
-                  className={styles.expensesLegendColor}
-                  style={{ backgroundColor: segment.color }}
-                />
-                <span className={styles.expensesLegendText}>{segment.label}</span>
-              </div>
-            ))
-          )}
+          <HomeExpensesLegend
+            isLoading={isLoading}
+            isError={isError}
+            segments={segments}
+          />
         </div>
 
         <div className={styles.donutWrap}>

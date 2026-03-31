@@ -1,4 +1,5 @@
 import { CircularProgress, Paper, Typography } from "@mui/material";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
@@ -11,6 +12,80 @@ import {
 } from "utils/operationHelpers";
 import styles from "./HomePage.module.scss";
 
+function HomeOperationsContent({
+  isLoading,
+  isError,
+  operations,
+  onOperationClick,
+}) {
+  if (isLoading) {
+    return (
+      <div className={styles.center}>
+        <CircularProgress size={24} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.center}>
+        <Typography variant="body2" color="text.secondary">
+          Не удалось загрузить операции
+        </Typography>
+      </div>
+    );
+  }
+
+  if (operations.length === 0) {
+    return (
+      <div className={styles.center}>
+        <Typography variant="body2" color="text.secondary">
+          Операций нет
+        </Typography>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.operationsList}>
+      {operations.map((operation) => (
+        <button
+          key={operation.id}
+          type="button"
+          className={styles.operationItem}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOperationClick(operation);
+          }}
+        >
+          <div
+            className={styles.operationCircle}
+            style={{ backgroundColor: getOperationColor(operation) }}
+          />
+
+          <div className={styles.operationMain}>
+            <div className={styles.operationTitle}>{getOperationTitle(operation)}</div>
+
+            <div className={styles.operationDate}>
+              {formatOperationDateShort(operation.created_at)}
+            </div>
+          </div>
+
+          <div
+            className={
+              isIncomeOperation(operation)
+                ? styles.operationIncome
+                : styles.operationExpense
+            }
+          >
+            {getOperationSignedAmount(operation)}
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function HomeOperationsCard() {
   const navigate = useNavigate();
 
@@ -19,7 +94,16 @@ export default function HomeOperationsCard() {
     offset: 0,
   });
 
-  const operations = Array.isArray(data) ? data : [];
+  const operations = useMemo(
+    () => (Array.isArray(data) ? data : []),
+    [data],
+  );
+
+  const handleOpenOperation = (operation) => {
+    navigate(`/operations/${operation.id}`, {
+      state: { operation },
+    });
+  };
 
   return (
     <Paper
@@ -31,66 +115,12 @@ export default function HomeOperationsCard() {
         Последние операции
       </Typography>
 
-      {isLoading ? (
-        <div className={styles.center}>
-          <CircularProgress size={24} />
-        </div>
-      ) : isError ? (
-        <div className={styles.center}>
-          <Typography variant="body2" color="text.secondary">
-            Не удалось загрузить операции
-          </Typography>
-        </div>
-      ) : operations.length === 0 ? (
-        <div className={styles.center}>
-          <Typography variant="body2" color="text.secondary">
-            Операций нет
-          </Typography>
-        </div>
-      ) : (
-        <>
-          <div className={styles.operationsList}>
-            {operations.map((operation) => (
-              <button
-                key={operation.id}
-                type="button"
-                className={styles.operationItem}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  navigate(`/operations/${operation.id}`, {
-                    state: { operation },
-                  });
-                }}
-              >
-                <div
-                  className={styles.operationCircle}
-                  style={{ backgroundColor: getOperationColor(operation) }}
-                />
-
-                <div className={styles.operationMain}>
-                  <div className={styles.operationTitle}>
-                    {getOperationTitle(operation)}
-                  </div>
-
-                  <div className={styles.operationDate}>
-                    {formatOperationDateShort(operation.created_at)}
-                  </div>
-                </div>
-
-                <div
-                  className={
-                    isIncomeOperation(operation)
-                      ? styles.operationIncome
-                      : styles.operationExpense
-                  }
-                >
-                  {getOperationSignedAmount(operation)}
-                </div>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      <HomeOperationsContent
+        isLoading={isLoading}
+        isError={isError}
+        operations={operations}
+        onOperationClick={handleOpenOperation}
+      />
 
       {!isLoading && !isError && operations.length > 0 && (
         <button
