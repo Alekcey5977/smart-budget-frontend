@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
+import { useGetMyAvatarQuery } from "services/auth/avatarApi";
 import {
   Avatar,
   IconButton,
@@ -14,6 +16,7 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditIcon from "@mui/icons-material/Edit";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -22,6 +25,10 @@ export default function AuthLayout({ title = "" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
+  const { data: myAvatar } = useGetMyAvatarQuery();
+
+  const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -105,8 +112,16 @@ export default function AuthLayout({ title = "" }) {
         ) : (
           <>
             <IconButton aria-label="Профиль" onClick={openMenu}>
-              <Avatar className={styles.avatar}>
-                <PersonIcon />
+              <Avatar
+                className={styles.avatar}
+                src={myAvatar?.id ? `/images/${myAvatar.id}` : null}
+                sx={{
+                  bgcolor: myAvatar?.id ? "transparent" : "primary.main",
+                  width: 40,
+                  height: 40,
+                }}
+              >
+                {!myAvatar?.id && <PersonIcon />}
               </Avatar>
             </IconButton>
 
@@ -122,6 +137,18 @@ export default function AuthLayout({ title = "" }) {
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
             >
+              <MenuItem
+                onClick={() => {
+                  closeMenu();
+                  setIsAvatarSelectorOpen(true);
+                }}
+                sx={menuItemSx}
+              >
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Сменить аватар" />
+              </MenuItem>
               <MenuItem onClick={goProfile} sx={menuItemSx}>
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
@@ -146,6 +173,11 @@ export default function AuthLayout({ title = "" }) {
       <div className={styles.content}>
         <Outlet />
       </div>
+
+      <AvatarSelector
+        open={isAvatarSelectorOpen}
+        onClose={() => setIsAvatarSelectorOpen(false)}
+      />
     </PhoneLayout>
   );
 }
