@@ -1,5 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
+import { transactionsApi } from "services/transactions/transactionsApi";
 import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
+import { $api } from "src/shared/api/axiosInstance";
 
 export const bankApi = createApi({
   reducerPath: "bankApi",
@@ -18,15 +20,36 @@ export const bankApi = createApi({
 
     // Добавить счет (POST /users/me/bank_account)
     addBankAccount: builder.mutation({
-      query: (data) => ({
-        url: "/bank_account", // БЕЗ буквы S на конце
-        method: "POST",
-        data: {
-          bank_account_number: data.number,
-          bank_account_name: data.name,
-          bank: data.bank,
-        },
-      }),
+      async queryFn(data, api, _extraOptions, fetchWithBQ) {
+        const result = await fetchWithBQ({
+          url: "/bank_account",
+          method: "POST",
+          data: {
+            bank_account_number: data.number,
+            bank_account_name: data.name,
+            bank: data.bank,
+          },
+        });
+
+        if (result.error) {
+          return { error: result.error };
+        }
+
+        const bankAccountId = result.data?.bank_account_id;
+
+        if (bankAccountId) {
+          try {
+            await $api.post(`/sync/${bankAccountId}`);
+          } catch {
+          } finally {
+            api.dispatch(
+              transactionsApi.util.invalidateTags(["Transactions"]),
+            );
+          }
+        }
+
+        return { data: result.data };
+      },
       invalidatesTags: ["BankAccount"],
     }),
 
