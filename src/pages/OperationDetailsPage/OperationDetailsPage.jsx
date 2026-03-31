@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
@@ -37,11 +37,20 @@ export default function OperationDetailsPage() {
     useGetTransactionByIdQuery(operationId, {
       skip: !operationId,
     });
-  const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
-  const { data: accountsData = [] } = useGetBankAccountsQuery();
+  const operationType = operationData?.type;
+  const { data: categoriesData } = useGetTransactionCategoriesQuery(
+    operationType ? { type: operationType } : undefined,
+  );
+  const { data: accountsData } = useGetBankAccountsQuery();
 
-  const categories = Array.isArray(categoriesData) ? categoriesData : [];
-  const accounts = Array.isArray(accountsData) ? accountsData : [];
+  const categories = useMemo(
+    () => (Array.isArray(categoriesData) ? categoriesData : []),
+    [categoriesData],
+  );
+  const accounts = useMemo(
+    () => (Array.isArray(accountsData) ? accountsData : []),
+    [accountsData],
+  );
   const operation = operationData ?? null;
 
   useEffect(() => {

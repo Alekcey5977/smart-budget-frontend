@@ -100,9 +100,10 @@ export const transactionsApi = createApi({
       ],
     }),
     getTransactionCategories: builder.query({
-      query: () => ({
+      query: (filters = {}) => ({
         url: "/categories",
         method: "GET",
+        params: filters.type ? { type: filters.type } : undefined,
       }),
       providesTags: ["TransactionCategories"],
     }),
