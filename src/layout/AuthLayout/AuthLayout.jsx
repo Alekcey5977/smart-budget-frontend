@@ -18,6 +18,7 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditIcon from "@mui/icons-material/Edit";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -30,6 +31,10 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const user = useSelector(getAuthUser);
 
   const { unreadCount } = useNotifications();
+
+  const { data: myAvatar } = useGetMyAvatarQuery();
+
+  const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -143,6 +148,11 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
       <div className={styles.content}>
         <Outlet />
       </div>
+
+      <AvatarSelector
+        open={isAvatarSelectorOpen}
+        onClose={() => setIsAvatarSelectorOpen(false)}
+      />
     </PhoneLayout>
   );
 }
