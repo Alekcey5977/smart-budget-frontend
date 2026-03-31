@@ -108,7 +108,7 @@ export default function AvatarSelector({ open, onClose }) {
             <Grid container spacing={2} justifyContent="center">
               {avatarsList.map((avatar) => {
                 const isSelected = selectedAvatarId === avatar.id;
-                const imageUrl = `/images/images/${avatar.id}`;
+                const imageUrl = `/images/${avatar.id}`;
                 return (
                   <Grid item key={avatar.id}>
                     <Box

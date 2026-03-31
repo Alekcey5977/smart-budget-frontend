@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
@@ -25,11 +25,8 @@ export default function AuthLayout({ title = "" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const token = useSelector((state) => state?.auth?.token);
 
-  const { data: myAvatar } = useGetMyAvatarQuery(undefined, {
-    skip: !token,
-  });
+  const { data: myAvatar } = useGetMyAvatarQuery();
 
   const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
 
@@ -117,7 +114,7 @@ export default function AuthLayout({ title = "" }) {
             <IconButton aria-label="Профиль" onClick={openMenu}>
               <Avatar
                 className={styles.avatar}
-                src={myAvatar?.id ? `/images/images/${myAvatar.id}` : null}
+                src={myAvatar?.id ? `/images/${myAvatar.id}` : null}
                 sx={{
                   bgcolor: myAvatar?.id ? "transparent" : "primary.main",
                   width: 40,
