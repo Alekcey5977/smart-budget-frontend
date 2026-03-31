@@ -13,7 +13,14 @@ export const historyApi = createApi({
       }),
       providesTags: ["History"],
     }),
+    getHistoryById: builder.query({
+      query: (id) => ({
+        url: `/history/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "History", id }],
+    }),
   }),
 });
 
-export const { useGetHistoryQuery } = historyApi;
+export const { useGetHistoryQuery, useGetHistoryByIdQuery } = historyApi;

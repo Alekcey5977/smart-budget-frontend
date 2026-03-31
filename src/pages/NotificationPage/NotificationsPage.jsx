@@ -6,7 +6,6 @@ import {
   Paper,
   CircularProgress,
   Box,
-  Button,
   IconButton,
   Alert,
   Snackbar,
@@ -22,29 +21,106 @@ import { useGetHistoryQuery } from "services/auth/historyApi";
 
 import styles from "./NotificationsPage.module.scss";
 
-export default function NotificationsPage() {
-  const navigate = useNavigate();
-  const [tabIndex, setTabIndex] = useState(0);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMessage }) => {
+  if (items.length === 0) {
+    return (
+      <Typography textAlign="center" color="text.secondary" mt={4}>
+        {emptyMessage}
+      </Typography>
+    );
+  }
 
-  const {
-    data: history = [],
-    isLoading: hLoading,
-    refetch: refetchHistory,
-  } = useGetHistoryQuery();
+  return (
+    <>
+      {items.map((item) => (
+        <Paper
+          key={item.id}
+          variant="outlined"
+          className={styles.notificationCard}
+          onClick={() => onNotificationClick(item)}
+          sx={{
+            mb: 2,
+            p: 2,
+            borderRadius: "16px",
+            position: "relative",
+            cursor: "pointer",
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            transition: "all 0.2s",
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            },
+          }}
+        >
+          {item.category === "notification" && !item.is_read && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "16px",
+                left: "8px",
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                bgcolor: "error.main",
+              }}
+            />
+          )}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Typography
+              variant="subtitle1"
+              fontWeight={700}
+              color="text.primary"
+              sx={{ flexGrow: 1, pr: 1 }}
+            >
+              {item.title}
+            </Typography>
+            {item.category === "notification" && (
+              <IconButton
+                size="small"
+                onClick={(e) => onDelete(item.id, e)}
+                sx={{ p: 0.5, mt: -0.5, mr: -0.5 }}
+              ></IconButton>
+            )}
+          </Box>
 
-  const {
-    data: notifications = [],
-    isLoading: nLoading,
-    refetch: refetchNotifications,
-  } = useGetNotificationsQuery();
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {item.message}
+          </Typography>
 
-  const [markAllNotificationsAsRead] = useMarkAllNotificationsAsReadMutation();
-  const [deleteNotification] = useDeleteNotificationMutation();
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            display="block"
+            sx={{ mt: 2 }}
+          >
+            {item.created_at
+              ? new Date(item.created_at).toLocaleString("ru-RU", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : ""}
+          </Typography>
+        </Paper>
+      ))}
+    </>
+  );
+};
 
-  const isLoading = hLoading || nLoading;
+const HistoryList = ({ onNotificationClick }) => {
+  const { data: history = [], isLoading } = useGetHistoryQuery();
 
-  const systemNotifications = useMemo(() => {
+  const items = useMemo(() => {
     return [...history]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .map((item) => ({
@@ -58,7 +134,22 @@ export default function NotificationsPage() {
       }));
   }, [history]);
 
-  const alertNotifications = useMemo(() => {
+  if (isLoading) return <LoadingIndicator />;
+
+  return (
+    <NotificationsListLayout
+      items={items}
+      onNotificationClick={onNotificationClick}
+      emptyMessage="Системных уведомлений пока нет"
+    />
+  );
+};
+
+const AlertsList = ({ onNotificationClick, showSnackbar }) => {
+  const { data: notifications = [], isLoading, refetch } = useGetNotificationsQuery();
+  const [deleteNotification] = useDeleteNotificationMutation();
+
+  const items = useMemo(() => {
     return [...notifications]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .map((item) => ({
@@ -72,43 +163,50 @@ export default function NotificationsPage() {
       }));
   }, [notifications]);
 
-  const filteredItems = useMemo(() => {
-    if (tabIndex === 0) {
-      return systemNotifications;
-    }
-    if (tabIndex === 1) {
-      return alertNotifications;
-    }
-    return [];
-  }, [tabIndex, systemNotifications, alertNotifications]);
-
-  const hasUnreadAlerts = useMemo(
-    () => alertNotifications.some((n) => !n.is_read),
-    [alertNotifications],
-  );
-
   const handleDelete = useCallback(
     async (id, event) => {
       event.stopPropagation();
       if (window.confirm("Удалить это уведомление?")) {
         try {
           await deleteNotification(id).unwrap();
-          setSnackbar({ open: true, message: "Уведомление удалено" });
-          refetchNotifications();
+          showSnackbar("Уведомление удалено");
+          refetch();
         } catch (error) {
           console.error("Error deleting:", error);
-          setSnackbar({ open: true, message: "Ошибка при удалении" });
+          showSnackbar("Ошибка при удалении");
         }
       }
     },
-    [deleteNotification, refetchNotifications],
+    [deleteNotification, refetch, showSnackbar],
   );
+
+  if (isLoading) return <LoadingIndicator />;
+
+  return (
+    <NotificationsListLayout
+      items={items}
+      onNotificationClick={onNotificationClick}
+      onDelete={handleDelete}
+      emptyMessage="Оповещательных уведомлений пока нет"
+    />
+  );
+};
+
+const LoadingIndicator = () => (
+  <Box display="flex" justifyContent="center" mt={10}>
+    <CircularProgress />
+  </Box>
+);
+
+export default function NotificationsPage() {
+  const navigate = useNavigate();
+  const [tabIndex, setTabIndex] = useState(0);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
   const handleNotificationClick = useCallback(
     (item) => {
       if (item.id) {
-        const url = `/notifications/${item.id}`;
-        navigate(url, {
+        navigate(`/notifications/${item.id}`, {
           state: {
             type: item.category,
             notification: item,
@@ -119,33 +217,9 @@ export default function NotificationsPage() {
     [navigate],
   );
 
-  const handleMarkAllRead = async () => {
-    if (window.confirm("Отметить все уведомления как прочитанные?")) {
-      try {
-        await markAllNotificationsAsRead().unwrap();
-        setSnackbar({
-          open: true,
-          message: "Все уведомления отмечены как прочитанные",
-        });
-        refetchNotifications();
-      } catch (error) {
-        console.error("Error marking all as read:", error);
-        setSnackbar({ open: true, message: "Ошибка при отметке" });
-      }
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ open: false, message: "" });
-  };
-
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={10}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const showSnackbar = useCallback((message) => {
+    setSnackbar({ open: true, message });
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -167,104 +241,23 @@ export default function NotificationsPage() {
         <Tab label="Оповещательные" />
       </Tabs>
 
-      {filteredItems.length === 0 ? (
-        <Typography textAlign="center" color="text.secondary" mt={4}>
-          {tabIndex === 0
-            ? "Системных уведомлений пока нет"
-            : "Оповещательных уведомлений пока нет"}
-        </Typography>
+      {tabIndex === 0 ? (
+        <HistoryList onNotificationClick={handleNotificationClick} />
       ) : (
-        filteredItems.map((item) => (
-          <Paper
-            key={item.id}
-            variant="outlined"
-            className={styles.notificationCard}
-            onClick={() => handleNotificationClick(item)}
-            sx={{
-              mb: 2,
-              p: 2,
-              borderRadius: "16px",
-              position: "relative",
-              cursor: "pointer",
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "divider",
-              transition: "all 0.2s",
-              "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              },
-            }}
-          >
-            {item.category === "notification" && !item.is_read && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "16px",
-                  left: "8px",
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  bgcolor: "error.main",
-                }}
-              />
-            )}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                color="text.primary"
-                sx={{ flexGrow: 1, pr: 1 }}
-              >
-                {item.title}
-              </Typography>
-              {item.category === "notification" && (
-                <IconButton
-                  size="small"
-                  onClick={(e) => handleDelete(item.id, e)}
-                  sx={{ p: 0.5, mt: -0.5, mr: -0.5 }}
-                ></IconButton>
-              )}
-            </Box>
-
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {item.message}
-            </Typography>
-
-            <Typography
-              variant="caption"
-              color="text.disabled"
-              display="block"
-              sx={{ mt: 2 }}
-            >
-              {item.created_at
-                ? new Date(item.created_at).toLocaleString("ru-RU", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : ""}
-            </Typography>
-          </Paper>
-        ))
+        <AlertsList
+          onNotificationClick={handleNotificationClick}
+          showSnackbar={showSnackbar}
+        />
       )}
 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          onClose={handleCloseSnackbar}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity="success"
           sx={{ width: "100%" }}
         >
@@ -274,3 +267,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+

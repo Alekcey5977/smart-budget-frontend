@@ -4,7 +4,7 @@ import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
 export const notificationApi = createApi({
   reducerPath: "notificationApi",
   baseQuery: axiosBaseQuery(),
-  tagTypes: ["Notifications", "UnreadNotificationsCount", "History"],
+  tagTypes: ["Notifications", "UnreadNotificationsCount"],
   endpoints: (builder) => ({
     getNotifications: builder.query({
       query: () => ({
@@ -35,13 +35,6 @@ export const notificationApi = createApi({
         }
       },
     }),
-    getHistoryById: builder.query({
-      query: (id) => ({
-        url: `/history/${id}`,
-        method: "GET",
-      }),
-      providesTags: (result, error, id) => [{ type: "History", id }],
-    }),
 
     getUnreadNotificationsCount: builder.query({
       query: () => ({
@@ -49,11 +42,7 @@ export const notificationApi = createApi({
         method: "GET",
       }),
       transformResponse: (response) => {
-        let count =
-          typeof response === "object" && response !== null
-            ? response.count ?? response.unread_count ?? response.unreadCount ?? 0
-            : Number(response) || 0;
-        return { count };
+        return { count: response?.count ?? 0 };
       },
       providesTags: ["UnreadNotificationsCount"],
     }),
@@ -67,7 +56,6 @@ export const notificationApi = createApi({
         { type: "Notifications", id },
         { type: "Notifications", id: "LIST" },
         "UnreadNotificationsCount",
-        "History",
       ],
     }),
 
@@ -79,7 +67,6 @@ export const notificationApi = createApi({
       invalidatesTags: [
         { type: "Notifications", id: "LIST" },
         "UnreadNotificationsCount",
-        "History",
       ],
     }),
 
@@ -100,7 +87,6 @@ export const notificationApi = createApi({
 export const {
   useGetNotificationsQuery,
   useGetNotificationByIdQuery,
-  useGetHistoryByIdQuery,
   useGetUnreadNotificationsCountQuery,
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
