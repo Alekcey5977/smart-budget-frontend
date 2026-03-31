@@ -38,8 +38,11 @@ export default function OperationDetailsPage() {
       skip: !operationId,
     });
   const operationType = operationData?.type;
-  const { data: categoriesData } = useGetTransactionCategoriesQuery(
-    operationType ? { type: operationType } : undefined,
+  const { currentData: categoriesData } = useGetTransactionCategoriesQuery(
+    { type: operationType },
+    {
+      skip: !operationType,
+    },
   );
   const { data: accountsData } = useGetBankAccountsQuery();
 
@@ -52,6 +55,15 @@ export default function OperationDetailsPage() {
     [accountsData],
   );
   const operation = operationData ?? null;
+  const visibleCategories = useMemo(() => {
+    if (!operationType) {
+      return categories;
+    }
+
+    return categories.filter(
+      (category) => category?.type == null || category.type === operationType,
+    );
+  }, [categories, operationType]);
 
   useEffect(() => {
     if (!operation) {
@@ -205,7 +217,7 @@ export default function OperationDetailsPage() {
         PaperProps={{ className: styles.popoverPaper }}
       >
         <div className={styles.categoryList}>
-          {categories.map((category) => (
+          {visibleCategories.map((category) => (
             <button
               key={category.id}
               type="button"
