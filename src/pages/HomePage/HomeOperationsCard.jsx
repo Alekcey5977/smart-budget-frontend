@@ -16,7 +16,6 @@ function HomeOperationsContent({
   isLoading,
   isError,
   operations,
-  onOperationClick,
 }) {
   if (isLoading) {
     return (
@@ -53,32 +52,27 @@ function HomeOperationsContent({
           key={operation.id}
           type="button"
           className={styles.operationItem}
-          onClick={(event) => {
-            event.stopPropagation();
-            onOperationClick(operation);
-          }}
+          onClick={operation.onClick}
         >
           <div
             className={styles.operationCircle}
-            style={{ backgroundColor: getOperationColor(operation) }}
+            style={{ backgroundColor: operation.color }}
           />
 
           <div className={styles.operationMain}>
-            <div className={styles.operationTitle}>{getOperationTitle(operation)}</div>
+            <div className={styles.operationTitle}>{operation.title}</div>
 
-            <div className={styles.operationDate}>
-              {formatOperationDateShort(operation.created_at)}
-            </div>
+            <div className={styles.operationDate}>{operation.date}</div>
           </div>
 
           <div
             className={
-              isIncomeOperation(operation)
+              operation.isIncome
                 ? styles.operationIncome
                 : styles.operationExpense
             }
           >
-            {getOperationSignedAmount(operation)}
+            {operation.signedAmount}
           </div>
         </button>
       ))}
@@ -94,16 +88,24 @@ export default function HomeOperationsCard() {
     offset: 0,
   });
 
-  const operations = useMemo(
-    () => (Array.isArray(data) ? data : []),
-    [data],
-  );
+  const operations = useMemo(() => {
+    const source = Array.isArray(data) ? data : [];
 
-  const handleOpenOperation = (operation) => {
-    navigate(`/operations/${operation.id}`, {
-      state: { operation },
-    });
-  };
+    return source.map((operation) => ({
+      ...operation,
+      color: getOperationColor(operation),
+      title: getOperationTitle(operation),
+      date: formatOperationDateShort(operation.created_at),
+      isIncome: isIncomeOperation(operation),
+      signedAmount: getOperationSignedAmount(operation),
+      onClick: (event) => {
+        event.stopPropagation();
+        navigate(`/operations/${operation.id}`, {
+          state: { operation },
+        });
+      },
+    }));
+  }, [data, navigate]);
 
   return (
     <Paper
@@ -119,7 +121,6 @@ export default function HomeOperationsCard() {
         isLoading={isLoading}
         isError={isError}
         operations={operations}
-        onOperationClick={handleOpenOperation}
       />
 
       {!isLoading && !isError && operations.length > 0 && (
