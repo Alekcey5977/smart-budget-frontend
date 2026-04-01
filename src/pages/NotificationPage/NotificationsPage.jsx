@@ -54,7 +54,7 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
             },
           }}
         >
-          {item.category === "notification" && !item.is_read && (
+          {item.is_read === false && (
             <Box
               sx={{
                 position: "absolute",
@@ -82,7 +82,7 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
             >
               {item.title}
             </Typography>
-            {item.category === "notification" && (
+            {Boolean(onDelete) && (
               <IconButton
                 size="small"
                 onClick={(e) => onDelete(item.id, e)}
@@ -121,15 +121,11 @@ const HistoryList = ({ onNotificationClick }) => {
   const { data: history = [], isLoading } = useGetHistoryQuery();
 
   const items = useMemo(() => {
-    return [...history]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .map((item) => ({
-        id: item.id,
+    return [...history].map((item) => ({
+      id: item.id,
         title: item.title || "Системное уведомление",
         message: item.body || item.message || "Действие в системе",
         created_at: item.created_at,
-        is_read: true,
-        type: "SYSTEM",
         category: "history",
       }));
   }, [history]);
@@ -146,14 +142,12 @@ const HistoryList = ({ onNotificationClick }) => {
 };
 
 const AlertsList = ({ onNotificationClick, showSnackbar }) => {
-  const { data: notifications = [], isLoading, refetch } = useGetNotificationsQuery();
+  const { data: notifications = [], isLoading } = useGetNotificationsQuery();
   const [deleteNotification] = useDeleteNotificationMutation();
 
   const items = useMemo(() => {
-    return [...notifications]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .map((item) => ({
-        id: item.id,
+    return [...notifications].map((item) => ({
+      id: item.id,
         title: item.title || "Оповещение",
         message: item.message || item.body || item.text || "Новое уведомление",
         created_at: item.created_at,
@@ -170,14 +164,13 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
         try {
           await deleteNotification(id).unwrap();
           showSnackbar("Уведомление удалено");
-          refetch();
         } catch (error) {
           console.error("Error deleting:", error);
           showSnackbar("Ошибка при удалении");
         }
       }
     },
-    [deleteNotification, refetch, showSnackbar],
+    [deleteNotification, showSnackbar],
   );
 
   if (isLoading) return <LoadingIndicator />;
