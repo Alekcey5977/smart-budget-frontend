@@ -11,16 +11,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-
     root: "src/app",
-
     publicDir: "../../public",
-
     build: {
       outDir: "../../dist",
       emptyOutDir: true,
     },
-
     server: {
       proxy: {
         "/auth": {
@@ -43,9 +39,13 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/images": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
-
     resolve: {
       alias: {
         src: path.resolve(__dirname, "./src"),
