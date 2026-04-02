@@ -121,13 +121,13 @@ const HistoryList = ({ onNotificationClick }) => {
   const { data: history = [], isLoading } = useGetHistoryQuery();
 
   const items = useMemo(() => {
-    return [...history].map((item) => ({
+    return history.map((item) => ({
       id: item.id,
-        title: item.title || "Системное уведомление",
-        message: item.body || item.message || "Действие в системе",
-        created_at: item.created_at,
-        category: "history",
-      }));
+      title: item.title || "Системное уведомление",
+      message: item.body || item.message || "Действие в системе",
+      created_at: item.created_at,
+      category: "history",
+    }));
   }, [history]);
 
   if (isLoading) return <LoadingIndicator />;
@@ -146,15 +146,14 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
   const [deleteNotification] = useDeleteNotificationMutation();
 
   const items = useMemo(() => {
-    return [...notifications].map((item) => ({
+    return notifications.map((item) => ({
       id: item.id,
-        title: item.title || "Оповещение",
-        message: item.message || item.body || item.text || "Новое уведомление",
-        created_at: item.created_at,
-        is_read: item.is_read || false,
-        type: item.type || "ALERT",
-        category: "notification",
-      }));
+      title: item.title || "Оповещение",
+      message: item.message || item.body || item.text || "Новое уведомление",
+      created_at: item.created_at,
+      is_read: item.is_read || false,
+      category: "notification",
+    }));
   }, [notifications]);
 
   const handleDelete = useCallback(

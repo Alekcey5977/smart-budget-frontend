@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -15,7 +15,6 @@ import { formatDateTimeRu } from "utils/date";
 
 import {
   useGetNotificationByIdQuery,
-  useMarkNotificationAsReadMutation,
   useDeleteNotificationMutation,
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
@@ -89,16 +88,7 @@ const DetailContent = ({ data }) => (
 const AlertDetails = ({ id, onBack }) => {
   const navigate = useNavigate();
   const { data, isLoading, isError, error } = useGetNotificationByIdQuery(id);
-  const [markAsRead] = useMarkNotificationAsReadMutation();
   const [deleteNotification] = useDeleteNotificationMutation();
-  const markedAsReadRef = useRef(false);
-
-  useEffect(() => {
-    if (data && !data.is_read && !markedAsReadRef.current) {
-      markedAsReadRef.current = true;
-      markAsRead(id).unwrap().catch(console.error);
-    }
-  }, [data, id, markAsRead]);
 
   const handleDelete = async () => {
     if (window.confirm("Удалить это уведомление?")) {

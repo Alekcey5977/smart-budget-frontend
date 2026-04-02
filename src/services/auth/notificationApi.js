@@ -29,9 +29,8 @@ export const notificationApi = createApi({
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled;
         if (data && !data.is_read) {
-          dispatch(
-            notificationApi.util.invalidateTags(["UnreadNotificationsCount"]),
-          );
+          dispatch(notificationApi.util.invalidateTags(["UnreadNotificationsCount"]));
+          dispatch(notificationApi.endpoints.markNotificationAsRead.initiate(id));
         }
       },
     }),
