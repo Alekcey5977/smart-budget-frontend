@@ -7,11 +7,10 @@ import {
   useGetMerchantImageMappingsQuery,
 } from "services/images/imagesApi";
 import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
+import OperationIcon from "ui/OperationIcon";
 import {
   buildImageMappingLookup,
   formatOperationDateShort,
-  getOperationColor,
-  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
@@ -22,6 +21,8 @@ function HomeOperationsContent({
   isLoading,
   isError,
   operations,
+  merchantImageLookup,
+  categoryImageLookup,
 }) {
   if (isLoading) {
     return (
@@ -60,9 +61,11 @@ function HomeOperationsContent({
           className={styles.operationItem}
           onClick={operation.onClick}
         >
-          <div
+          <OperationIcon
+            operation={operation}
+            merchantImageLookup={merchantImageLookup}
+            categoryImageLookup={categoryImageLookup}
             className={styles.operationCircle}
-            style={operation.iconStyle}
           />
 
           <div className={styles.operationMain}>
@@ -108,23 +111,8 @@ export default function HomeOperationsCard() {
     const source = Array.isArray(data) ? data : [];
 
     return source.map((operation) => {
-      const color = getOperationColor(operation);
-      const iconUrl = getOperationImageUrl(
-        operation,
-        merchantImageLookup,
-        categoryImageLookup,
-      );
-
       return {
         ...operation,
-        color,
-        iconStyle: iconUrl
-          ? {
-              backgroundImage: `url(${iconUrl})`,
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-            }
-          : { backgroundColor: color },
         title: getOperationTitle(operation),
         date: formatOperationDateShort(operation.created_at),
         isIncome: isIncomeOperation(operation),
@@ -137,7 +125,7 @@ export default function HomeOperationsCard() {
         },
       };
     });
-  }, [categoryImageLookup, data, merchantImageLookup, navigate]);
+  }, [data, navigate]);
 
   return (
     <Paper
@@ -153,6 +141,8 @@ export default function HomeOperationsCard() {
         isLoading={isLoading}
         isError={isError}
         operations={operations}
+        merchantImageLookup={merchantImageLookup}
+        categoryImageLookup={categoryImageLookup}
       />
 
       {!isLoading && !isError && operations.length > 0 && (

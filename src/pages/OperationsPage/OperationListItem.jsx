@@ -1,7 +1,6 @@
+import OperationIcon from "ui/OperationIcon";
 import {
   formatOperationDateShort,
-  getOperationColor,
-  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
@@ -14,28 +13,17 @@ export default function OperationListItem({
   merchantImageLookup,
   categoryImageLookup,
 }) {
-  const iconUrl = getOperationImageUrl(
-    operation,
-    merchantImageLookup,
-    categoryImageLookup,
-  );
-  const iconStyle = iconUrl
-    ? {
-        backgroundImage: `url(${iconUrl})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }
-    : { backgroundColor: getOperationColor(operation) };
-
   return (
     <button
       type="button"
       className={styles.operationItem}
       onClick={() => onOpen(operation.id)}
     >
-      <div
+      <OperationIcon
+        operation={operation}
+        merchantImageLookup={merchantImageLookup}
+        categoryImageLookup={categoryImageLookup}
         className={styles.operationCircle}
-        style={iconStyle}
       />
 
       <div className={styles.operationMain}>

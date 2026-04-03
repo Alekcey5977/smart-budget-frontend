@@ -19,12 +19,11 @@ import {
   useGetTransactionByIdQuery,
   useUpdateTransactionCategoryMutation,
 } from "services/transactions/transactionsApi";
+import OperationIcon from "ui/OperationIcon";
 import { formatMoney } from "utils/formatMoney";
 import {
   buildImageMappingLookup,
   formatOperationDateTime,
-  getOperationColor,
-  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
 } from "utils/operationHelpers";
@@ -94,18 +93,6 @@ export default function OperationDetailsPage() {
   const account = accounts.find(
     (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
-  const iconUrl = getOperationImageUrl(
-    operation,
-    merchantImageLookup,
-    categoryImageLookup,
-  );
-  const iconStyle = iconUrl
-    ? {
-        backgroundImage: `url(${iconUrl})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }
-    : { backgroundColor: getOperationColor(operation) };
 
   const handleCategoryClose = () => {
     setCategoryAnchorEl(null);
@@ -170,9 +157,11 @@ export default function OperationDetailsPage() {
       {errorText && <Alert severity="error">{errorText}</Alert>}
 
       <div className={styles.amountCard}>
-        <div
+        <OperationIcon
+          operation={operation}
+          merchantImageLookup={merchantImageLookup}
+          categoryImageLookup={categoryImageLookup}
           className={styles.operationCircle}
-          style={iconStyle}
         />
 
         <div className={styles.amountCardRight}>
