@@ -2,23 +2,22 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { transactionsApi } from "services/transactions/transactionsApi";
 import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
 import { $api } from "src/shared/api/axiosInstance";
+import { historyApi } from "./historyApi";
+import { notificationApi } from "./notificationApi";
 
 export const bankApi = createApi({
   reducerPath: "bankApi",
-  // Базовый путь до "me"
   baseQuery: axiosBaseQuery({ baseUrl: "/users/me" }),
-  tagTypes: ["BankAccount"],
+  tagTypes: ["BankAccount", "History"],
   endpoints: (builder) => ({
-    // Получить список (GET /users/me/bank_accounts)
     getBankAccounts: builder.query({
       query: () => ({
-        url: "/bank_accounts", // С буквой S на конце
+        url: "/bank_accounts",
         method: "GET",
       }),
-      providesTags: ["BankAccount"],
+      providesTags: ["BankAccount", "History"],
     }),
 
-    // Добавить счет (POST /users/me/bank_account)
     addBankAccount: builder.mutation({
       async queryFn(data, api, _extraOptions, fetchWithBQ) {
         const result = await fetchWithBQ({
@@ -51,15 +50,38 @@ export const bankApi = createApi({
         return { data: result.data };
       },
       invalidatesTags: ["BankAccount"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(historyApi.util.invalidateTags(["History"]));
+          dispatch(
+            notificationApi.util.invalidateTags([
+              "UnreadNotificationsCount",
+              { type: "Notifications", id: "LIST" },
+            ]),
+          );
+        } catch {}
+      },
     }),
 
-    // Удалить счет (DELETE /users/me/bank_account/{id})
     deleteBankAccount: builder.mutation({
       query: (id) => ({
-        url: `/bank_account/${id}`, // БЕЗ буквы S
+        url: `/bank_account/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["BankAccount"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(historyApi.util.invalidateTags(["History"]));
+          dispatch(
+            notificationApi.util.invalidateTags([
+              "UnreadNotificationsCount",
+              { type: "Notifications", id: "LIST" },
+            ]),
+          );
+        } catch {}
+      },
     }),
   }),
 });

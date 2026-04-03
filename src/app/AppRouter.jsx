@@ -1,7 +1,15 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getIsAuth } from "store/auth/authsSelectors";
 
+
+// Страницы
 import WelcomePage from "pages/WelcomePage";
 import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
@@ -10,10 +18,21 @@ import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
 import OperationsPage from "pages/OperationsPage";
 import OperationDetailsPage from "pages/OperationDetailsPage";
 import ProfilePage from "pages/ProfilePage";
+import GoalsPage from "pages/GoalsPage";
+import GoalCreatePage from "pages/GoalsPage/GoalCreatePage";
+import ProfilePage from "pages/ProfilePage/ProfilePage";
 import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
 import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
+
+// Уведомления
+import NotificationsPage from "pages/NotificationPage/NotificationsPage";
+import NotificationDetailsPage from "pages/NotificationPage/NotificationDetailsPage";
+import NotificationsLayout from "pages/NotificationPage/NotificationsLayout";
+import NotificationDetailsLayout from "pages/NotificationPage/NotificationDetailsLayout";
 import PrivateRoute from "app/PrivateRoute";
 import AuthLayout from "layout/AuthLayout";
+
+// ОСНОВНОЙ РОУТЕР
 
 export default function AppRouter() {
   const isAuth = useSelector(getIsAuth);
@@ -35,6 +54,7 @@ export default function AppRouter() {
         }
       />
 
+      {/* ПРИВАТНЫЕ РОУТЫ (Только для авторизованных) */}
       <Route element={<PrivateRoute />}>
         <Route element={<AuthLayout />}>
           <Route path="/home" element={<HomePage />} />
@@ -43,12 +63,33 @@ export default function AppRouter() {
           <Route path="/bank-accounts/add" element={<BankAccountAddPage />} />
         </Route>
 
-        <Route element={<AuthLayout showBack title="Цели" />}>
-          <Route path="/goals" element={<GoalsPage />} />
+        {/* Layout для списка уведомлений (Заголовок + Галочка) */}
+        <Route
+          path="/notifications"
+          element={<NotificationsLayout />}
+        >
+          <Route index element={<NotificationsPage />} />
         </Route>
 
-        <Route element={<AuthLayout showBack title="Создание цели" />}>
-          <Route path="/goals/create" element={<GoalCreatePage />} />
+        {/* Layout для деталей уведомления (Заголовок + Корзина) */}
+        {/* ИСПРАВЛЕНИЕ: path перенесен сюда, чтобы useParams() работал в кнопке */}
+        <Route
+          path="/notifications/:id"
+          element={<NotificationDetailsLayout />}
+        >
+          <Route index element={<NotificationDetailsPage />} />
+        </Route>
+
+        {/* Layout для целей */}
+        <Route path="/goals" element={<AuthLayout title="Цели" />}>
+          <Route index element={<GoalsPage />} />
+        </Route>
+
+        <Route
+          path="/goals/create"
+          element={<AuthLayout title="Создание цели" />}
+        >
+          <Route index element={<GoalCreatePage />} />
         </Route>
 
         <Route element={<AuthLayout showBack title="Ваша цель" />}>
@@ -64,6 +105,7 @@ export default function AppRouter() {
         </Route>
       </Route>
 
+      {/* Если путь не найден — кидаем на главную */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

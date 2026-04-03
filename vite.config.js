@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "");
+  const target = env.VITE_API_URL || "http://localhost:8000";
 
   return {
     plugins: [react()],
@@ -19,10 +20,22 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        "/auth": {
-          target: env.VITE_API_URL || "http://localhost:8000",
+        "/auth": { target, changeOrigin: true, secure: false },
+        "/users": { target, changeOrigin: true, secure: false },
+        "/history": { target, changeOrigin: true, secure: false },
+        "/notifications": {
+          target: env.VITE_API_URL || "http://127.0.0.1:8000", // Заменили localhost на 127.0.0.1
           changeOrigin: true,
-          secure: false,
+          ws: true,
+          bypass: (req) => {
+            // Если это запрос на апгрейд до сокета, не трогаем его
+            if (req.headers.upgrade === "websocket") return null;
+            // Только если это обычный GET запрос за страницей, отдаем index.html
+            if (req.method === "GET" && req.headers.accept?.includes("html")) {
+              return "/index.html";
+            }
+            return null;
+          },
         },
         "/users": {
           target: env.VITE_API_URL || "http://localhost:8000",
@@ -58,6 +71,7 @@ export default defineConfig(({ mode }) => {
         app: path.resolve(__dirname, "./src/app"),
         services: path.resolve(__dirname, "./src/services"),
         utils: path.resolve(__dirname, "./src/utils"),
+        hooks: path.resolve(__dirname, "./src/hooks"),
       },
     },
   };
