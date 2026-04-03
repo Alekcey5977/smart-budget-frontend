@@ -2,10 +2,16 @@ import { CircularProgress, Paper, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  useGetCategoryImageMappingsQuery,
+  useGetMerchantImageMappingsQuery,
+} from "services/images/imagesApi";
 import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
 import {
+  buildImageMappingLookup,
   formatOperationDateShort,
   getOperationColor,
+  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
@@ -56,7 +62,7 @@ function HomeOperationsContent({
         >
           <div
             className={styles.operationCircle}
-            style={{ backgroundColor: operation.color }}
+            style={operation.iconStyle}
           />
 
           <div className={styles.operationMain}>
@@ -87,25 +93,51 @@ export default function HomeOperationsCard() {
     limit: 3,
     offset: 0,
   });
+  const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
+  const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
+  const merchantImageLookup = useMemo(
+    () => buildImageMappingLookup(merchantImageMappings),
+    [merchantImageMappings],
+  );
+  const categoryImageLookup = useMemo(
+    () => buildImageMappingLookup(categoryImageMappings),
+    [categoryImageMappings],
+  );
 
   const operations = useMemo(() => {
     const source = Array.isArray(data) ? data : [];
 
-    return source.map((operation) => ({
-      ...operation,
-      color: getOperationColor(operation),
-      title: getOperationTitle(operation),
-      date: formatOperationDateShort(operation.created_at),
-      isIncome: isIncomeOperation(operation),
-      signedAmount: getOperationSignedAmount(operation),
-      onClick: (event) => {
-        event.stopPropagation();
-        navigate(`/operations/${operation.id}`, {
-          state: { operation },
-        });
-      },
-    }));
-  }, [data, navigate]);
+    return source.map((operation) => {
+      const color = getOperationColor(operation);
+      const iconUrl = getOperationImageUrl(
+        operation,
+        merchantImageLookup,
+        categoryImageLookup,
+      );
+
+      return {
+        ...operation,
+        color,
+        iconStyle: iconUrl
+          ? {
+              backgroundImage: `url(${iconUrl})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }
+          : { backgroundColor: color },
+        title: getOperationTitle(operation),
+        date: formatOperationDateShort(operation.created_at),
+        isIncome: isIncomeOperation(operation),
+        signedAmount: getOperationSignedAmount(operation),
+        onClick: (event) => {
+          event.stopPropagation();
+          navigate(`/operations/${operation.id}`, {
+            state: { operation },
+          });
+        },
+      };
+    });
+  }, [categoryImageLookup, data, merchantImageLookup, navigate]);
 
   return (
     <Paper

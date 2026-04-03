@@ -3,6 +3,7 @@ import authReducer from "store/auth/authSlice";
 import { authApi } from "services/auth/authApi";
 import { bankApi } from "services/auth/bankApi";
 import { goalsApi } from "services/goals/goalsApi";
+import { imagesApi } from "services/images/imagesApi";
 import { transactionsApi } from "services/transactions/transactionsApi";
 import { avatarApi } from "services/auth/avatarApi";
 
@@ -12,6 +13,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [bankApi.reducerPath]: bankApi.reducer,
     [goalsApi.reducerPath]: goalsApi.reducer,
+    [imagesApi.reducerPath]: imagesApi.reducer,
     [transactionsApi.reducerPath]: transactionsApi.reducer,
     [avatarApi.reducerPath]: avatarApi.reducer,
   },
@@ -20,6 +22,7 @@ export const store = configureStore({
       .concat(authApi.middleware)
       .concat(bankApi.middleware)
       .concat(goalsApi.middleware)
+      .concat(imagesApi.middleware)
       .concat(transactionsApi.middleware)
       .concat(avatarApi.middleware),
 });

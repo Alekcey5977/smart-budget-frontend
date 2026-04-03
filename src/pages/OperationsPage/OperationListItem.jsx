@@ -1,13 +1,32 @@
 import {
   formatOperationDateShort,
   getOperationColor,
+  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
 } from "utils/operationHelpers";
 import styles from "./OperationsPage.module.scss";
 
-export default function OperationListItem({ operation, onOpen }) {
+export default function OperationListItem({
+  operation,
+  onOpen,
+  merchantImageLookup,
+  categoryImageLookup,
+}) {
+  const iconUrl = getOperationImageUrl(
+    operation,
+    merchantImageLookup,
+    categoryImageLookup,
+  );
+  const iconStyle = iconUrl
+    ? {
+        backgroundImage: `url(${iconUrl})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }
+    : { backgroundColor: getOperationColor(operation) };
+
   return (
     <button
       type="button"
@@ -16,7 +35,7 @@ export default function OperationListItem({ operation, onOpen }) {
     >
       <div
         className={styles.operationCircle}
-        style={{ backgroundColor: getOperationColor(operation) }}
+        style={iconStyle}
       />
 
       <div className={styles.operationMain}>

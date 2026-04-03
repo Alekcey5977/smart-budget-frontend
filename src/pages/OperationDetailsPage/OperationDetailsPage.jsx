@@ -11,14 +11,20 @@ import { useParams } from "react-router-dom";
 
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
+  useGetCategoryImageMappingsQuery,
+  useGetMerchantImageMappingsQuery,
+} from "services/images/imagesApi";
+import {
   useGetTransactionCategoriesQuery,
   useGetTransactionByIdQuery,
   useUpdateTransactionCategoryMutation,
 } from "services/transactions/transactionsApi";
 import { formatMoney } from "utils/formatMoney";
 import {
+  buildImageMappingLookup,
   formatOperationDateTime,
   getOperationColor,
+  getOperationImageUrl,
   getOperationSignedAmount,
   getOperationTitle,
 } from "utils/operationHelpers";
@@ -45,6 +51,8 @@ export default function OperationDetailsPage() {
     },
   );
   const { data: accountsData } = useGetBankAccountsQuery();
+  const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
+  const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
 
   const categories = useMemo(
     () => (Array.isArray(categoriesData) ? categoriesData : []),
@@ -53,6 +61,14 @@ export default function OperationDetailsPage() {
   const accounts = useMemo(
     () => (Array.isArray(accountsData) ? accountsData : []),
     [accountsData],
+  );
+  const merchantImageLookup = useMemo(
+    () => buildImageMappingLookup(merchantImageMappings),
+    [merchantImageMappings],
+  );
+  const categoryImageLookup = useMemo(
+    () => buildImageMappingLookup(categoryImageMappings),
+    [categoryImageMappings],
   );
   const operation = operationData ?? null;
   const visibleCategories = useMemo(() => {
@@ -78,6 +94,18 @@ export default function OperationDetailsPage() {
   const account = accounts.find(
     (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
+  const iconUrl = getOperationImageUrl(
+    operation,
+    merchantImageLookup,
+    categoryImageLookup,
+  );
+  const iconStyle = iconUrl
+    ? {
+        backgroundImage: `url(${iconUrl})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }
+    : { backgroundColor: getOperationColor(operation) };
 
   const handleCategoryClose = () => {
     setCategoryAnchorEl(null);
@@ -144,7 +172,7 @@ export default function OperationDetailsPage() {
       <div className={styles.amountCard}>
         <div
           className={styles.operationCircle}
-          style={{ backgroundColor: getOperationColor(operation) }}
+          style={iconStyle}
         />
 
         <div className={styles.amountCardRight}>

@@ -40,6 +40,64 @@ export function getOperationColor(operation) {
   return OPERATION_COLORS[index];
 }
 
+export function buildImageMappingLookup(mappings) {
+  const lookup = new Map();
+
+  if (!Array.isArray(mappings)) {
+    return lookup;
+  }
+
+  mappings.forEach((item) => {
+    if (item?.entity_id == null || !item?.image_id) {
+      return;
+    }
+
+    lookup.set(String(item.entity_id), String(item.image_id));
+  });
+
+  return lookup;
+}
+
+export function getOperationImageId(
+  operation,
+  merchantImageLookup,
+  categoryImageLookup,
+) {
+  if (operation?.merchant_id != null) {
+    const merchantImageId = merchantImageLookup?.get(String(operation.merchant_id));
+    if (merchantImageId) {
+      return merchantImageId;
+    }
+  }
+
+  if (operation?.category_id != null) {
+    const categoryImageId = categoryImageLookup?.get(String(operation.category_id));
+    if (categoryImageId) {
+      return categoryImageId;
+    }
+  }
+
+  return null;
+}
+
+export function getOperationImageUrl(
+  operation,
+  merchantImageLookup,
+  categoryImageLookup,
+) {
+  const imageId = getOperationImageId(
+    operation,
+    merchantImageLookup,
+    categoryImageLookup,
+  );
+
+  if (!imageId) {
+    return null;
+  }
+
+  return `/images/${imageId}`;
+}
+
 export function getOperationSignedAmount(operation) {
   const sign = isIncomeOperation(operation) ? "+" : "-";
   const amount = Math.abs(Number(operation?.amount || 0));

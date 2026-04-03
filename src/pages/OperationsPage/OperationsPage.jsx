@@ -19,6 +19,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 import {
+  useGetCategoryImageMappingsQuery,
+  useGetMerchantImageMappingsQuery,
+} from "services/images/imagesApi";
+import {
   useGetAllTransactionsQuery,
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
@@ -28,6 +32,7 @@ import AppTextField from "ui/AppTextField";
 import OperationListItem from "./OperationListItem";
 import {
   buildDonutGradient,
+  buildImageMappingLookup,
   formatOperationsGroupTitle,
   getExpenseCategorySegments,
   getLatestOperationsMonth,
@@ -86,6 +91,16 @@ export default function OperationsPage() {
 
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
+  const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
+  const merchantImageLookup = useMemo(
+    () => buildImageMappingLookup(merchantImageMappings),
+    [merchantImageMappings],
+  );
+  const categoryImageLookup = useMemo(
+    () => buildImageMappingLookup(categoryImageMappings),
+    [categoryImageMappings],
+  );
 
   useEffect(() => {
     if (categories.length === 0 || categoriesInitialized) {
@@ -527,6 +542,8 @@ export default function OperationsPage() {
                   key={operation.id}
                   operation={operation}
                   onOpen={(id) => navigate(`/operations/${id}`)}
+                  merchantImageLookup={merchantImageLookup}
+                  categoryImageLookup={categoryImageLookup}
                 />
               ))}
             </div>
