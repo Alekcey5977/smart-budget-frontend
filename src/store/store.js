@@ -1,21 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "store/auth/authSlice";
-import { authApi } from "services/auth/authApi"; // Импортируем API
+import { authApi } from "services/auth/authApi";
 import { bankApi } from "services/auth/bankApi";
 import { goalsApi } from "services/goals/goalsApi";
-import { avatarApi } from "services/auth/avatarApi";
+import { notificationApi } from "services/auth/notificationApi";
+import { historyApi } from "services/auth/historyApi";
+
 export const store = configureStore({
   reducer: {
-    auth: authReducer, // Наш старый слайс (хранит токен и isAuth)
+    auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
-    [bankApi.reducerPath]: bankApi.reducer, // Новый RTK Query редьюсер
+    [bankApi.reducerPath]: bankApi.reducer,
     [goalsApi.reducerPath]: goalsApi.reducer,
-    [avatarApi.reducerPath]: avatarApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
+    [historyApi.reducerPath]: historyApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)
       .concat(bankApi.middleware)
       .concat(goalsApi.middleware)
-      .concat(avatarApi.middleware),
+      .concat(notificationApi.middleware)
+      .concat(historyApi.middleware),
 });

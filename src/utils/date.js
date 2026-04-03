@@ -11,6 +11,14 @@ export function formatDateRu(value) {
   return date.format("D MMMM YYYY");
 }
 
+export function formatDateTimeRu(value) {
+  const date = dayjs(value);
+  if (!date.isValid()) {
+    return String(value || "");
+  }
+  return date.format("D MMMM YYYY, HH:mm");
+}
+
 export function toInputDate(value) {
   const date = dayjs(value);
   if (!date.isValid()) {

@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
-import { useGetMyAvatarQuery } from "services/auth/avatarApi";
+import { useNotifications } from "hooks/useNotifications";
+import { getAuthToken, getAuthUser } from "store/auth/authsSelectors";
 import {
   Avatar,
   IconButton,
@@ -11,6 +11,8 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Badge,
+  Box,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
@@ -21,10 +23,14 @@ import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
-export default function AuthLayout({ title = "" }) {
+export default function AuthLayout({ title = "", headerRightContent = null }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const token = useSelector(getAuthToken);
+  const user = useSelector(getAuthUser);
+
+  const { unreadCount } = useNotifications();
 
   const { data: myAvatar } = useGetMyAvatarQuery();
 
@@ -32,50 +38,22 @@ export default function AuthLayout({ title = "" }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
-
-  const openMenu = useCallback((event) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const closeMenu = useCallback(() => {
-    setAnchorEl(null);
-  }, []);
-
-  const goProfile = useCallback(() => {
-    closeMenu();
-    navigate("/profile");
-  }, [closeMenu, navigate]);
+  const openMenu = (e) => setAnchorEl(e.currentTarget);
+  const closeMenu = () => setAnchorEl(null);
 
   const handleLogout = useCallback(() => {
     closeMenu();
     dispatch(logout());
     navigate("/", { replace: true });
-  }, [closeMenu, dispatch, navigate]);
-
-  const handleBack = useCallback(() => {
-    navigate("/home");
-  }, [navigate]);
+  }, [dispatch, navigate]);
 
   const isDashboard =
     location.pathname === "/" || location.pathname === "/home";
   const showBack = !isDashboard;
 
-  const menuPaperSx = useMemo(
-    () => ({
-      borderRadius: 2,
-      boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-    }),
-    [],
-  );
-
-  const menuItemSx = useMemo(
-    () => ({
-      py: 1.2,
-      px: 2,
-      gap: 1.2,
-    }),
-    [],
-  );
+  const handleNotificationsClick = () => {
+    navigate("/notifications");
+  };
 
   return (
     <PhoneLayout>
@@ -86,90 +64,87 @@ export default function AuthLayout({ title = "" }) {
           <>
             <IconButton
               className={styles.backButton}
-              onClick={handleBack}
+              onClick={() => navigate("/home")}
               sx={{
-                width: 47,
-                height: 37,
-                borderRadius: "15px",
                 bgcolor: "primary.main",
                 color: "text.primary",
-                "&:hover": { bgcolor: "primary.main" },
+                borderRadius: "15px",
+                width: 40,
+                height: 40,
               }}
             >
               <ArrowBackIcon fontSize="small" />
             </IconButton>
-
-            <Typography
-              variant="h6"
-              component="h1"
-              className={styles.pageTitle}
-            >
+            <Typography variant="h6" className={styles.pageTitle}>
               {title}
             </Typography>
-
-            <div className={styles.pageRight} />
+            <div className={styles.pageRight}>{headerRightContent}</div>
           </>
         ) : (
           <>
-            <IconButton aria-label="Профиль" onClick={openMenu}>
+            <Box sx={{ position: "relative" }}>
               <Avatar
                 className={styles.avatar}
-                src={myAvatar?.id ? `/images/${myAvatar.id}` : null}
+                onClick={openMenu}
                 sx={{
-                  bgcolor: myAvatar?.id ? "transparent" : "primary.main",
+                  bgcolor: "primary.main",
                   width: 40,
                   height: 40,
+                  cursor: "pointer",
                 }}
               >
-                {!myAvatar?.id && <PersonIcon />}
+                <PersonIcon />
               </Avatar>
-            </IconButton>
+            </Box>
 
-            <IconButton aria-label="Уведомления">
-              <NotificationsNoneIcon />
+            <IconButton
+              onClick={handleNotificationsClick}
+              sx={{ width: 40, height: 40 }}
+            >
+              <Badge
+                color="error"
+                variant="dot"
+                invisible={!unreadCount || unreadCount === 0}
+                overlap="circular"
+              >
+                <NotificationsNoneIcon />
+              </Badge>
             </IconButton>
 
             <Menu
               anchorEl={anchorEl}
               open={menuOpen}
               onClose={closeMenu}
-              PaperProps={{ sx: menuPaperSx }}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
             >
               <MenuItem
                 onClick={() => {
                   closeMenu();
-                  setIsAvatarSelectorOpen(true);
+                  navigate("/profile");
                 }}
-                sx={menuItemSx}
               >
-                <ListItemIcon>
-                  <EditIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary="Сменить аватар" />
-              </MenuItem>
-              <MenuItem onClick={goProfile} sx={menuItemSx}>
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText primary="Профиль" />
               </MenuItem>
-
-              <MenuItem
-                onClick={handleLogout}
-                sx={{ ...menuItemSx, color: "error.main" }}
-              >
+              <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
                 <ListItemIcon sx={{ color: "error.main" }}>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary="Выйти из аккаунта" />
+                <ListItemText primary="Выйти" />
               </MenuItem>
             </Menu>
           </>
         )}
       </div>
-
       <div className={styles.content}>
         <Outlet />
       </div>

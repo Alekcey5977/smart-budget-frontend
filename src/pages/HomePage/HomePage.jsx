@@ -1,6 +1,6 @@
 import { Paper, Stack, Typography, Box, CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import BalanceWidget from "./BalanceWidget";
-import HomeGoalsCard from "./HomeGoalsCard";
 import styles from "./HomePage.module.scss";
 
 function DonutPlaceholder() {
@@ -23,6 +23,7 @@ function DonutPlaceholder() {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   return (
     <div className={styles.content}>
       <Stack direction="row" spacing={2}>
@@ -44,7 +45,20 @@ export default function HomePage() {
         <BalanceWidget />
       </Stack>
 
-      <HomeGoalsCard />
+      <Paper
+        variant="outlined"
+        className={`${styles.cardWide} ${styles.cardLink}`}
+        onClick={() => navigate("/goals")}
+      >
+        <Typography variant="subtitle1" fontWeight={700}>
+          Цели
+        </Typography>
+        <div className={styles.center}>
+          <Typography variant="body2" color="text.secondary">
+            Целей нет
+          </Typography>
+        </div>
+      </Paper>
 
       <Paper variant="outlined" className={styles.cardWideLarge}>
         <Typography variant="subtitle1" fontWeight={700}>

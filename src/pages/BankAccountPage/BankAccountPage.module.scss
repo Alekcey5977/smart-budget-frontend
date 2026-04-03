@@ -5,11 +5,43 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: transparent;
+}
+
+.header {
+  padding: 20px 16px;
+  background-color: transparent;
+}
+
+.headerTitle {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
 }
 
 .content {
   flex: 1;
-  padding-bottom: 80px;
+  padding: 0 16px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
 }
 
 .center {
@@ -17,6 +49,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 400px;
 }
 
 .empty {
@@ -24,25 +57,111 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 16px;
   height: 100%;
+  padding: 40px 16px;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding-bottom: 16px;
 }
 
 .card {
   background: #fff;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.cardInfo {
+  flex: 1;
+}
+
+.cardName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  svg {
+    font-size: 20px;
+    color: #000000;
+  }
+
+  h6 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #1a1a1a;
+  }
+}
+
+.cardBank {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    font-size: 14px;
+    color: #666;
+  }
+
+  span {
+    font-size: 13px;
+    color: #666;
+  }
+}
+
+.cardNumber {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.cardBalance {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+
+  .balanceAmount {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+  }
+}
+
+.menuButton {
+  padding: 4px;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
 }
 
 .footer {
-  position: sticky;
-  bottom: 0;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding: 16px;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
 }
