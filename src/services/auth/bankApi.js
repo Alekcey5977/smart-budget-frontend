@@ -1,5 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
+import { transactionsApi } from "services/transactions/transactionsApi";
 import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
+import { $api } from "src/shared/api/axiosInstance";
 import { historyApi } from "./historyApi";
 import { notificationApi } from "./notificationApi";
 
@@ -17,15 +19,36 @@ export const bankApi = createApi({
     }),
 
     addBankAccount: builder.mutation({
-      query: (data) => ({
-        url: "/bank_account",
-        method: "POST",
-        data: {
-          bank_account_number: data.number,
-          bank_account_name: data.name,
-          bank: data.bank,
-        },
-      }),
+      async queryFn(data, api, _extraOptions, fetchWithBQ) {
+        const result = await fetchWithBQ({
+          url: "/bank_account",
+          method: "POST",
+          data: {
+            bank_account_number: data.number,
+            bank_account_name: data.name,
+            bank: data.bank,
+          },
+        });
+
+        if (result.error) {
+          return { error: result.error };
+        }
+
+        const bankAccountId = result.data?.bank_account_id;
+
+        if (bankAccountId) {
+          try {
+            await $api.post(`/sync/${bankAccountId}`);
+          } catch {
+          } finally {
+            api.dispatch(
+              transactionsApi.util.invalidateTags(["Transactions"]),
+            );
+          }
+        }
+
+        return { data: result.data };
+      },
       invalidatesTags: ["BankAccount"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
@@ -35,7 +58,7 @@ export const bankApi = createApi({
             notificationApi.util.invalidateTags([
               "UnreadNotificationsCount",
               { type: "Notifications", id: "LIST" },
-            ])
+            ]),
           );
         } catch {}
       },
@@ -55,7 +78,7 @@ export const bankApi = createApi({
             notificationApi.util.invalidateTags([
               "UnreadNotificationsCount",
               { type: "Notifications", id: "LIST" },
-            ])
+            ]),
           );
         } catch {}
       },

@@ -1,0 +1,300 @@
+@use "styles/colors.scss" as color;
+
+.root {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filtersRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.filterButton {
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  border-radius: 26px;
+  background: color.$color-accent-main;
+  color: color.$color-text-main;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.filterButtonLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.summaryCard {
+  min-width: 0;
+  min-height: 102px;
+  border-radius: 26px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 229, 107, 0.4);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.summaryRing {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(
+    --ring-background,
+    conic-gradient(rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%)
+  );
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+}
+
+.summaryRing::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: color.$color-surface-main;
+}
+
+.summaryInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.summaryLabel {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.summaryValue {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listWrap {
+  flex: 1;
+  min-height: 0;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 229, 107, 0.15);
+  padding: 12px;
+  display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.listState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert {
+  width: 100%;
+}
+
+.groups {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.groupTitle {
+  margin-bottom: 8px;
+}
+
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.operationItem {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: color.$color-text-main;
+  cursor: pointer;
+  font: inherit;
+  padding: 2px 0;
+}
+
+.operationCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.operationMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.operationTitle {
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.operationDate {
+  margin-top: 2px;
+  font-size: 12px;
+  color: color.$color-muted-main;
+}
+
+.operationIncome,
+.operationExpense {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.operationIncome {
+  color: #20a84b;
+}
+
+.operationExpense {
+  color: color.$color-text-main;
+}
+
+.dialogPaper {
+  border-radius: 30px !important;
+  background: #fff9d8;
+  border: 2px solid color.$color-accent-main;
+  box-sizing: border-box;
+}
+
+.dialogActions {
+  padding: 0 18px 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dialogActionButton {
+  border: 0;
+  background: transparent;
+  color: #ce9f00;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.monthDialogContent {
+  padding-top: 0 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  overflow: hidden;
+}
+
+.rangePickerHeader {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.rangeFieldButton {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fffdf3;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.rangeFieldButtonActive {
+  border-color: color.$color-accent-main;
+  box-shadow: 0 0 0 2px rgba(255, 229, 107, 0.45);
+}
+
+.monthCalendar {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+.monthCalendar :global(.MuiPickersCalendarHeader-root) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.monthCalendar :global(.MuiDayCalendar-header) {
+  margin-top: 2px;
+}
+
+.monthCalendar :global(.MuiPickersDay-root) {
+  font-size: 15px;
+}
+
+.amountFields {
+  display: flex;
+  gap: 8px;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+}
+
+.categoryItem {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 6px;
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}

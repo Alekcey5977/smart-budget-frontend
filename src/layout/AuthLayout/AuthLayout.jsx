@@ -37,6 +37,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const [isAvatarSelectorOpen, setIsAvatarSelectorOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [pageHeaderAction, setPageHeaderAction] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const openMenu = (e) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
@@ -78,7 +79,8 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
             <Typography variant="h6" className={styles.pageTitle}>
               {title}
             </Typography>
-            <div className={styles.pageRight}>{headerRightContent}</div>
+
+            <div className={styles.pageRight}>{pageHeaderAction}</div>
           </>
         ) : (
           <>
@@ -146,7 +148,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
         )}
       </div>
       <div className={styles.content}>
-        <Outlet />
+        <Outlet context={{ setPageHeaderAction }} />
       </div>
 
       <AvatarSelector

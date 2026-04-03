@@ -14,6 +14,10 @@ import WelcomePage from "pages/WelcomePage";
 import LoginPage from "pages/LoginPage";
 import RegistrationPage from "pages/Registration";
 import HomePage from "pages/HomePage";
+import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
+import OperationsPage from "pages/OperationsPage";
+import OperationDetailsPage from "pages/OperationDetailsPage";
+import ProfilePage from "pages/ProfilePage";
 import GoalsPage from "pages/GoalsPage";
 import GoalCreatePage from "pages/GoalsPage/GoalCreatePage";
 import ProfilePage from "pages/ProfilePage/ProfilePage";
@@ -90,6 +94,14 @@ export default function AppRouter() {
 
         <Route element={<AuthLayout showBack title="Ваша цель" />}>
           <Route path="/goals/:goalId" element={<GoalDetailsPage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="История операций" />}>
+          <Route path="/operations" element={<OperationsPage />} />
+        </Route>
+
+        <Route element={<AuthLayout showBack title="Детали операции" />}>
+          <Route path="/operations/:operationId" element={<OperationDetailsPage />} />
         </Route>
       </Route>
 

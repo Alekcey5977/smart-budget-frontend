@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
-import { formatMoney } from "utils/FormatMoney";
+import { formatMoney } from "utils/formatMoney";
 import styles from "./HomePage.module.scss";
 
 export default function BalanceWidget() {

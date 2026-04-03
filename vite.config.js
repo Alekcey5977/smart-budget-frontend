@@ -47,6 +47,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/transactions": {
+          target: env.VITE_API_URL || "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
         "/images": {
           target: env.VITE_API_URL || "http://localhost:8000",
           changeOrigin: true,
