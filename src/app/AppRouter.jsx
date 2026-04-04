@@ -18,9 +18,6 @@ import GoalsPage, { GoalCreatePage, GoalDetailsPage } from "pages/GoalsPage";
 import OperationsPage from "pages/OperationsPage";
 import OperationDetailsPage from "pages/OperationDetailsPage";
 import ProfilePage from "pages/ProfilePage";
-import GoalsPage from "pages/GoalsPage";
-import GoalCreatePage from "pages/GoalsPage/GoalCreatePage";
-import ProfilePage from "pages/ProfilePage/ProfilePage";
 import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
 import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
 
