@@ -16,7 +16,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
 
 import {
   useGetCategoryImageMappingsQuery,
@@ -38,6 +38,7 @@ import {
   getLatestOperationsMonth,
   isIncomeOperation,
 } from "utils/operationHelpers";
+import ExpenseAnalyticsPanel from "./ExpenseAnalyticsPanel";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -62,7 +63,10 @@ function getPeriodLabel(from, to) {
 
 export default function OperationsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { setPageHeaderAction } = useOutletContext() || {};
+  const analyticsType = searchParams.get("analytics");
+  const expenseAnalyticsOpen = analyticsType === "expense";
 
   const now = dayjs();
   const [filters, setFilters] = useState({
@@ -226,11 +230,24 @@ export default function OperationsPage() {
     return filteredOperationsData;
   }, [filteredOperationsData, noSelectedCategories]);
 
+  const expenseOperations = useMemo(
+    () => operations.filter((operation) => !isIncomeOperation(operation)),
+    [operations],
+  );
+
+  const visibleOperations = useMemo(() => {
+    if (!expenseAnalyticsOpen) {
+      return operations;
+    }
+
+    return expenseOperations;
+  }, [operations, expenseAnalyticsOpen, expenseOperations]);
+
   const groupedOperations = useMemo(() => {
     const map = {};
     const groups = [];
 
-    operations.forEach((operation) => {
+    visibleOperations.forEach((operation) => {
       const key = dayjs(operation.created_at).format("YYYY-MM-DD");
 
       if (!map[key]) {
@@ -246,7 +263,7 @@ export default function OperationsPage() {
     });
 
     return groups;
-  }, [operations]);
+  }, [visibleOperations]);
 
   const incomeTotal = useMemo(() => {
     let total = 0;
@@ -263,18 +280,21 @@ export default function OperationsPage() {
   const expenseTotal = useMemo(() => {
     let total = 0;
 
-    operations.forEach((operation) => {
-      if (!isIncomeOperation(operation)) {
-        total += Math.abs(Number(operation.amount || 0));
-      }
+    expenseOperations.forEach((operation) => {
+      total += Math.abs(Number(operation.amount || 0));
     });
 
     return total;
-  }, [operations]);
+  }, [expenseOperations]);
 
   const expenseSegments = useMemo(
     () => getExpenseCategorySegments(operations, 3),
     [operations],
+  );
+
+  const expenseAnalyticsSegments = useMemo(
+    () => getExpenseCategorySegments(expenseOperations, 6),
+    [expenseOperations],
   );
 
   const expenseRingBackground = useMemo(
@@ -301,6 +321,28 @@ export default function OperationsPage() {
     periodInitialized &&
     (!filters.dateFrom.isSame(defaultPeriodFrom, "day") ||
       !filters.dateTo.isSame(defaultPeriodTo, "day"));
+  const periodLabel = getPeriodLabel(filters.dateFrom, filters.dateTo);
+
+  const setAnalyticsType = useCallback(
+    (value) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+
+        if (value) {
+          next.set("analytics", value);
+        } else {
+          next.delete("analytics");
+        }
+
+        return next;
+      }, { replace: true });
+    },
+    [setSearchParams],
+  );
+
+  const toggleExpenseAnalytics = useCallback(() => {
+    setAnalyticsType(expenseAnalyticsOpen ? null : "expense");
+  }, [expenseAnalyticsOpen, setAnalyticsType]);
 
   const resetPeriodFilter = useCallback(() => {
     setFilters((prev) => ({
@@ -522,14 +564,16 @@ export default function OperationsPage() {
       return (
         <div className={styles.listState}>
           <Typography variant="body2" color="text.secondary">
-            Операций нет
+            {expenseAnalyticsOpen ? "Расходов нет" : "Операций нет"}
           </Typography>
         </div>
       );
     }
 
     return (
-      <div className={styles.groups}>
+      <div
+        className={`${styles.groups} ${expenseAnalyticsOpen ? styles.groupsExpanded : ""}`}
+      >
         {groupedOperations.map((group) => (
           <div key={group.key}>
             <Typography variant="subtitle1" className={styles.groupTitle}>
@@ -554,16 +598,16 @@ export default function OperationsPage() {
   };
 
   return (
-    <div className={styles.root}>
+    <div
+      className={`${styles.root} ${expenseAnalyticsOpen ? styles.rootScrollable : ""}`}
+    >
       <div className={styles.filtersRow}>
         <button
           type="button"
           className={styles.filterButton}
           onClick={periodFilterActive ? resetPeriodFilter : openPeriodDialog}
         >
-          <span className={styles.filterButtonLabel}>
-            {getPeriodLabel(filters.dateFrom, filters.dateTo)}
-          </span>
+          <span className={styles.filterButtonLabel}>{periodLabel}</span>
           {periodFilterActive ? <CloseIcon /> : <ArrowDropDownIcon />}
         </button>
 
@@ -587,7 +631,12 @@ export default function OperationsPage() {
       </div>
 
       <div className={styles.summaryRow}>
-        <div className={styles.summaryCard}>
+        <button
+          type="button"
+          className={`${styles.summaryCard} ${styles.summaryCardButton} ${expenseAnalyticsOpen ? styles.summaryCardActive : ""}`}
+          onClick={toggleExpenseAnalytics}
+          aria-pressed={expenseAnalyticsOpen}
+        >
           <div
             className={styles.summaryRing}
             style={{
@@ -598,7 +647,7 @@ export default function OperationsPage() {
             <div className={styles.summaryLabel}>Расходы</div>
             <div className={styles.summaryValue}>{formatMoney(expenseTotal)} ₽</div>
           </div>
-        </div>
+        </button>
 
         <div className={styles.summaryCard}>
           <div
@@ -614,7 +663,22 @@ export default function OperationsPage() {
         </div>
       </div>
 
-      <div className={styles.listWrap}>{renderListContent()}</div>
+      {expenseAnalyticsOpen && (
+        <ExpenseAnalyticsPanel
+          totalAmount={expenseTotal}
+          periodLabel={periodLabel}
+          segments={expenseAnalyticsSegments}
+          isLoading={!periodInitialized || isLatestOperationsLoading || isFilteredLoading}
+          isError={isLatestOperationsError || isFilteredError}
+          onClose={() => setAnalyticsType(null)}
+        />
+      )}
+
+      <div
+        className={`${styles.listWrap} ${expenseAnalyticsOpen ? styles.listWrapExpanded : ""}`}
+      >
+        {renderListContent()}
+      </div>
 
       <Dialog
         open={periodDialogOpen}
