@@ -1,5 +1,7 @@
 import { CircularProgress, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 import { formatMoney } from "utils/formatMoney";
 import { buildDonutGradient } from "utils/operationHelpers";
@@ -13,12 +15,19 @@ function getSegmentPercent(amount, totalAmount) {
   return Math.round((amount / totalAmount) * 100);
 }
 
-export default function ExpenseAnalyticsPanel({
+export default function OperationsAnalyticsPanel({
+  title,
   totalAmount,
   periodLabel,
+  monthLabel,
   segments,
   isLoading,
   isError,
+  errorText,
+  emptyText,
+  canGoNext,
+  onPrevMonth,
+  onNextMonth,
   onClose,
 }) {
   const donutBackground = buildDonutGradient(segments);
@@ -36,7 +45,7 @@ export default function ExpenseAnalyticsPanel({
       return (
         <div className={styles.analyticsState}>
           <Typography variant="body2" color="text.secondary">
-            Не удалось загрузить расходы
+            {errorText}
           </Typography>
         </div>
       );
@@ -46,7 +55,7 @@ export default function ExpenseAnalyticsPanel({
       return (
         <div className={styles.analyticsState}>
           <Typography variant="body2" color="text.secondary">
-            Нет расходов за выбранный период
+            {emptyText}
           </Typography>
         </div>
       );
@@ -60,7 +69,7 @@ export default function ExpenseAnalyticsPanel({
             style={{ "--ring-background": donutBackground }}
           >
             <div className={styles.analyticsDonutCenter}>
-              <div className={styles.analyticsDonutLabel}>Расходы</div>
+              <div className={styles.analyticsDonutLabel}>{title}</div>
               <div className={styles.analyticsDonutValue}>
                 {formatMoney(totalAmount)} ₽
               </div>
@@ -101,11 +110,32 @@ export default function ExpenseAnalyticsPanel({
       <div className={styles.analyticsHeader}>
         <div>
           <Typography variant="h6" className={styles.analyticsTitle}>
-            Расходы
+            {title}
           </Typography>
-          <Typography variant="body2" className={styles.analyticsSubtitle}>
-            {periodLabel}
-          </Typography>
+          <div className={styles.analyticsMonthRow}>
+            <button
+              type="button"
+              className={styles.analyticsMonthButton}
+              onClick={onPrevMonth}
+              aria-label="Предыдущий месяц"
+            >
+              <KeyboardArrowLeftIcon fontSize="small" />
+            </button>
+
+            <Typography variant="body2" className={styles.analyticsSubtitle}>
+              {monthLabel || periodLabel}
+            </Typography>
+
+            <button
+              type="button"
+              className={styles.analyticsMonthButton}
+              onClick={onNextMonth}
+              disabled={!canGoNext}
+              aria-label="Следующий месяц"
+            >
+              <KeyboardArrowRightIcon fontSize="small" />
+            </button>
+          </div>
         </div>
 
         <button

@@ -13,7 +13,23 @@ const OPERATION_COLORS = [
   "#7a7d86",
 ];
 
-const DONUT_COLORS = ["#efd95f", "#e1b700", "#5d5f66", "#1bbdb2", "#1b9fd1"];
+const EXPENSE_DONUT_COLORS = [
+  "#efd95f",
+  "#e1b700",
+  "#5d5f66",
+  "#1bbdb2",
+  "#1b9fd1",
+  "#ff8b2a",
+];
+
+const INCOME_DONUT_COLORS = [
+  "#2abf56",
+  "#53cb72",
+  "#1bbdb2",
+  "#18a9c9",
+  "#74d49f",
+  "#7a7d86",
+];
 
 export function isIncomeOperation(operation) {
   return operation?.type === "income";
@@ -183,11 +199,21 @@ export function filterOperationsByMonth(operations, monthDate) {
   });
 }
 
-export function getExpenseCategorySegments(operations, maxSegments = 3) {
+function getCategorySegmentsByType(
+  operations,
+  transactionType,
+  maxSegments,
+  colors,
+) {
   const grouped = {};
 
   operations.forEach((operation) => {
-    if (isIncomeOperation(operation)) {
+    const isIncome = isIncomeOperation(operation);
+
+    if (
+      (transactionType === "income" && !isIncome) ||
+      (transactionType === "expense" && isIncome)
+    ) {
       return;
     }
 
@@ -216,13 +242,13 @@ export function getExpenseCategorySegments(operations, maxSegments = 3) {
   if (sorted.length <= maxSegments) {
     return sorted.map((item, index) => ({
       ...item,
-      color: DONUT_COLORS[index % DONUT_COLORS.length],
+      color: colors[index % colors.length],
     }));
   }
 
   const result = sorted.slice(0, maxSegments - 1).map((item, index) => ({
     ...item,
-    color: DONUT_COLORS[index % DONUT_COLORS.length],
+    color: colors[index % colors.length],
   }));
 
   const restAmount = sorted
@@ -232,10 +258,28 @@ export function getExpenseCategorySegments(operations, maxSegments = 3) {
   result.push({
     label: "Другое",
     amount: restAmount,
-    color: DONUT_COLORS[(maxSegments - 1) % DONUT_COLORS.length],
+    color: colors[(maxSegments - 1) % colors.length],
   });
 
   return result;
+}
+
+export function getExpenseCategorySegments(operations, maxSegments = 3) {
+  return getCategorySegmentsByType(
+    operations,
+    "expense",
+    maxSegments,
+    EXPENSE_DONUT_COLORS,
+  );
+}
+
+export function getIncomeCategorySegments(operations, maxSegments = 3) {
+  return getCategorySegmentsByType(
+    operations,
+    "income",
+    maxSegments,
+    INCOME_DONUT_COLORS,
+  );
 }
 
 export function buildDonutGradient(segments, fallbackColor = "rgba(0, 0, 0, 0.22)") {

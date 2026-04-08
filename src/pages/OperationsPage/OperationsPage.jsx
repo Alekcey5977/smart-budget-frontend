@@ -35,10 +35,12 @@ import {
   buildImageMappingLookup,
   formatOperationsGroupTitle,
   getExpenseCategorySegments,
+  getIncomeCategorySegments,
+  getMonthLabel,
   getLatestOperationsMonth,
   isIncomeOperation,
 } from "utils/operationHelpers";
-import ExpenseAnalyticsPanel from "./ExpenseAnalyticsPanel";
+import OperationsAnalyticsPanel from "./OperationsAnalyticsPanel";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -65,8 +67,14 @@ export default function OperationsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { setPageHeaderAction } = useOutletContext() || {};
-  const analyticsType = searchParams.get("analytics");
+  const searchAnalyticsType = searchParams.get("analytics");
+  const analyticsType =
+    searchAnalyticsType === "expense" || searchAnalyticsType === "income"
+      ? searchAnalyticsType
+      : null;
+  const analyticsOpen = analyticsType !== null;
   const expenseAnalyticsOpen = analyticsType === "expense";
+  const incomeAnalyticsOpen = analyticsType === "income";
 
   const now = dayjs();
   const [filters, setFilters] = useState({
@@ -234,14 +242,28 @@ export default function OperationsPage() {
     () => operations.filter((operation) => !isIncomeOperation(operation)),
     [operations],
   );
+  const incomeOperations = useMemo(
+    () => operations.filter((operation) => isIncomeOperation(operation)),
+    [operations],
+  );
 
   const visibleOperations = useMemo(() => {
-    if (!expenseAnalyticsOpen) {
-      return operations;
+    if (expenseAnalyticsOpen) {
+      return expenseOperations;
     }
 
-    return expenseOperations;
-  }, [operations, expenseAnalyticsOpen, expenseOperations]);
+    if (incomeAnalyticsOpen) {
+      return incomeOperations;
+    }
+
+    return operations;
+  }, [
+    operations,
+    expenseAnalyticsOpen,
+    incomeAnalyticsOpen,
+    expenseOperations,
+    incomeOperations,
+  ]);
 
   const groupedOperations = useMemo(() => {
     const map = {};
@@ -268,14 +290,12 @@ export default function OperationsPage() {
   const incomeTotal = useMemo(() => {
     let total = 0;
 
-    operations.forEach((operation) => {
-      if (isIncomeOperation(operation)) {
-        total += Math.abs(Number(operation.amount || 0));
-      }
+    incomeOperations.forEach((operation) => {
+      total += Math.abs(Number(operation.amount || 0));
     });
 
     return total;
-  }, [operations]);
+  }, [incomeOperations]);
 
   const expenseTotal = useMemo(() => {
     let total = 0;
@@ -296,24 +316,25 @@ export default function OperationsPage() {
     () => getExpenseCategorySegments(expenseOperations, 6),
     [expenseOperations],
   );
+  const incomeAnalyticsSegments = useMemo(
+    () => getIncomeCategorySegments(incomeOperations, 6),
+    [incomeOperations],
+  );
 
   const expenseRingBackground = useMemo(
     () => buildDonutGradient(expenseSegments),
     [expenseSegments],
   );
 
-  const incomeRingBackground = useMemo(() => {
-    if (incomeTotal <= 0) {
-      return buildDonutGradient([]);
-    }
+  const incomeSegments = useMemo(
+    () => getIncomeCategorySegments(operations, 3),
+    [operations],
+  );
 
-    return buildDonutGradient([
-      {
-        amount: incomeTotal,
-        color: "#2abf56",
-      },
-    ]);
-  }, [incomeTotal]);
+  const incomeRingBackground = useMemo(
+    () => buildDonutGradient(incomeSegments),
+    [incomeSegments],
+  );
 
   const amountFilterActive = filters.minAmount !== "" || filters.maxAmount !== "";
   const categoryFilterActive = hasCategoryFilter;
@@ -322,6 +343,34 @@ export default function OperationsPage() {
     (!filters.dateFrom.isSame(defaultPeriodFrom, "day") ||
       !filters.dateTo.isSame(defaultPeriodTo, "day"));
   const periodLabel = getPeriodLabel(filters.dateFrom, filters.dateTo);
+  const currentMonthDate = useMemo(
+    () => filters.dateFrom.startOf("month"),
+    [filters.dateFrom],
+  );
+  const analyticsMonthLabel = useMemo(
+    () => getMonthLabel(currentMonthDate),
+    [currentMonthDate],
+  );
+  const canGoToNextMonth = useMemo(
+    () => currentMonthDate.isBefore(latestMonthDate, "month"),
+    [currentMonthDate, latestMonthDate],
+  );
+
+  const applyMonthPeriod = useCallback((monthDate) => {
+    const from = monthDate.startOf("month");
+    const to = monthDate.endOf("month");
+
+    setFilters((prev) => ({
+      ...prev,
+      dateFrom: from,
+      dateTo: to,
+    }));
+    setFilterDrafts((prev) => ({
+      ...prev,
+      dateFrom: from,
+      dateTo: to,
+    }));
+  }, []);
 
   const setAnalyticsType = useCallback(
     (value) => {
@@ -343,6 +392,52 @@ export default function OperationsPage() {
   const toggleExpenseAnalytics = useCallback(() => {
     setAnalyticsType(expenseAnalyticsOpen ? null : "expense");
   }, [expenseAnalyticsOpen, setAnalyticsType]);
+  const toggleIncomeAnalytics = useCallback(() => {
+    setAnalyticsType(incomeAnalyticsOpen ? null : "income");
+  }, [incomeAnalyticsOpen, setAnalyticsType]);
+  const showPreviousMonth = useCallback(() => {
+    applyMonthPeriod(currentMonthDate.subtract(1, "month"));
+  }, [applyMonthPeriod, currentMonthDate]);
+  const showNextMonth = useCallback(() => {
+    if (!canGoToNextMonth) {
+      return;
+    }
+
+    applyMonthPeriod(currentMonthDate.add(1, "month"));
+  }, [applyMonthPeriod, currentMonthDate, canGoToNextMonth]);
+
+  const analyticsConfig = useMemo(() => {
+    if (expenseAnalyticsOpen) {
+      return {
+        title: "Расходы",
+        totalAmount: expenseTotal,
+        segments: expenseAnalyticsSegments,
+        errorText: "Не удалось загрузить расходы",
+        emptyText: "Нет расходов за выбранный период",
+        listEmptyText: "Расходов нет",
+      };
+    }
+
+    if (incomeAnalyticsOpen) {
+      return {
+        title: "Доходы",
+        totalAmount: incomeTotal,
+        segments: incomeAnalyticsSegments,
+        errorText: "Не удалось загрузить доходы",
+        emptyText: "Нет доходов за выбранный период",
+        listEmptyText: "Доходов нет",
+      };
+    }
+
+    return null;
+  }, [
+    expenseAnalyticsOpen,
+    incomeAnalyticsOpen,
+    expenseTotal,
+    incomeTotal,
+    expenseAnalyticsSegments,
+    incomeAnalyticsSegments,
+  ]);
 
   const resetPeriodFilter = useCallback(() => {
     setFilters((prev) => ({
@@ -564,7 +659,7 @@ export default function OperationsPage() {
       return (
         <div className={styles.listState}>
           <Typography variant="body2" color="text.secondary">
-            {expenseAnalyticsOpen ? "Расходов нет" : "Операций нет"}
+            {analyticsConfig?.listEmptyText || "Операций нет"}
           </Typography>
         </div>
       );
@@ -572,7 +667,7 @@ export default function OperationsPage() {
 
     return (
       <div
-        className={`${styles.groups} ${expenseAnalyticsOpen ? styles.groupsExpanded : ""}`}
+        className={`${styles.groups} ${analyticsOpen ? styles.groupsExpanded : ""}`}
       >
         {groupedOperations.map((group) => (
           <div key={group.key}>
@@ -599,7 +694,7 @@ export default function OperationsPage() {
 
   return (
     <div
-      className={`${styles.root} ${expenseAnalyticsOpen ? styles.rootScrollable : ""}`}
+      className={`${styles.root} ${analyticsOpen ? styles.rootScrollable : ""}`}
     >
       <div className={styles.filtersRow}>
         <button
@@ -649,7 +744,12 @@ export default function OperationsPage() {
           </div>
         </button>
 
-        <div className={styles.summaryCard}>
+        <button
+          type="button"
+          className={`${styles.summaryCard} ${styles.summaryCardButton} ${incomeAnalyticsOpen ? styles.summaryCardActive : ""}`}
+          onClick={toggleIncomeAnalytics}
+          aria-pressed={incomeAnalyticsOpen}
+        >
           <div
             className={styles.summaryRing}
             style={{
@@ -660,22 +760,29 @@ export default function OperationsPage() {
             <div className={styles.summaryLabel}>Доходы</div>
             <div className={styles.summaryValue}>{formatMoney(incomeTotal)} ₽</div>
           </div>
-        </div>
+        </button>
       </div>
 
-      {expenseAnalyticsOpen && (
-        <ExpenseAnalyticsPanel
-          totalAmount={expenseTotal}
+      {analyticsConfig && (
+        <OperationsAnalyticsPanel
+          title={analyticsConfig.title}
+          totalAmount={analyticsConfig.totalAmount}
           periodLabel={periodLabel}
-          segments={expenseAnalyticsSegments}
+          monthLabel={analyticsMonthLabel}
+          segments={analyticsConfig.segments}
           isLoading={!periodInitialized || isLatestOperationsLoading || isFilteredLoading}
           isError={isLatestOperationsError || isFilteredError}
+          errorText={analyticsConfig.errorText}
+          emptyText={analyticsConfig.emptyText}
+          canGoNext={canGoToNextMonth}
+          onPrevMonth={showPreviousMonth}
+          onNextMonth={showNextMonth}
           onClose={() => setAnalyticsType(null)}
         />
       )}
 
       <div
-        className={`${styles.listWrap} ${expenseAnalyticsOpen ? styles.listWrapExpanded : ""}`}
+        className={`${styles.listWrap} ${analyticsOpen ? styles.listWrapExpanded : ""}`}
       >
         {renderListContent()}
       </div>
