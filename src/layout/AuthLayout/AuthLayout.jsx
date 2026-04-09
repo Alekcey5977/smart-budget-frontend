@@ -25,7 +25,11 @@ import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
-export default function AuthLayout({ title = "", headerRightContent = null }) {
+export default function AuthLayout({
+  title = "",
+  headerRightContent = null,
+  backPath = "/home",
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -67,7 +71,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
           <>
             <IconButton
               className={styles.backButton}
-              onClick={() => navigate("/home")}
+              onClick={() => navigate(backPath)}
               sx={{
                 bgcolor: "primary.main",
                 color: "text.primary",

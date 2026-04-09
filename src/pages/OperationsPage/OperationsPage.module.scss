@@ -8,34 +8,34 @@
   gap: 10px;
 }
 
-.rootScrollable {
-  overflow-y: auto;
-  padding-right: 2px;
-}
-
 .filtersRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .filterButton {
   min-width: 0;
-  height: 52px;
+  height: 46px;
   border: 0;
-  border-radius: 26px;
+  border-radius: 23px;
   background: color.$color-accent-main;
   color: color.$color-text-main;
   font: inherit;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 0 8px;
+  gap: 2px;
+  padding: 0 6px;
   cursor: pointer;
   box-sizing: border-box;
+
+  svg {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
 }
 
 .filterButtonLabel {
@@ -70,11 +70,6 @@
   cursor: pointer;
   font: inherit;
   color: inherit;
-}
-
-.summaryCardActive {
-  border-color: rgba(0, 0, 0, 0.14);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .summaryRing {
@@ -119,200 +114,6 @@
   text-overflow: ellipsis;
 }
 
-.analyticsCard {
-  border-radius: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 229, 107, 0.3);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.analyticsHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.analyticsTitle {
-  line-height: 1.1;
-}
-
-.analyticsSubtitle {
-  margin-top: 4px;
-  color: color.$color-muted-main;
-}
-
-.analyticsMonthRow {
-  margin-top: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.analyticsMonthButton {
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
-  color: color.$color-text-main;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-}
-
-.analyticsCloseButton {
-  border: 0;
-  background: rgba(255, 255, 255, 0.55);
-  color: color.$color-text-main;
-  border-radius: 16px;
-  min-height: 36px;
-  padding: 0 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.analyticsState {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.analyticsContent {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: stretch;
-}
-
-.analyticsDonutWrap {
-  display: flex;
-  justify-content: center;
-}
-
-.analyticsDonut {
-  width: 132px;
-  height: 132px;
-  border-radius: 50%;
-  background: var(
-    --ring-background,
-    conic-gradient(rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%)
-  );
-  position: relative;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.14);
-}
-
-.analyticsDonut::after {
-  content: "";
-  position: absolute;
-  inset: 24px;
-  border-radius: 50%;
-  background: color.$color-surface-main;
-}
-
-.analyticsDonutCenter {
-  position: absolute;
-  inset: 30px;
-  z-index: 1;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.analyticsDonutLabel {
-  font-size: 12px;
-  color: color.$color-muted-main;
-}
-
-.analyticsDonutValue {
-  margin-top: 4px;
-  font-size: 16px;
-  line-height: 1.15;
-  font-weight: 700;
-}
-
-.analyticsLegend {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.analyticsLegendItem {
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.58);
-  padding: 9px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.analyticsLegendItemLabelWrap {
-  min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  flex: 1;
-}
-
-.analyticsLegendItemColor {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.analyticsLegendItemLabel {
-  min-width: 0;
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 700;
-  white-space: normal;
-  word-break: break-word;
-}
-
-.analyticsLegendItemMeta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.analyticsLegendItemValue {
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: 700;
-}
-
-.analyticsLegendItemPercent {
-  font-size: 12px;
-  line-height: 1.2;
-  color: color.$color-muted-main;
-}
-
 .listWrap {
   flex: 1;
   min-height: 0;
@@ -323,12 +124,6 @@
   display: flex;
   box-sizing: border-box;
   overflow: hidden;
-}
-
-.listWrapExpanded {
-  flex: none;
-  min-height: auto;
-  overflow: visible;
 }
 
 .listState {
@@ -349,10 +144,6 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.groupsExpanded {
-  overflow: visible;
 }
 
 .groupTitle {

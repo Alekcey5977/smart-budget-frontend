@@ -1,6 +1,6 @@
 import OperationIcon from "ui/OperationIcon";
 import {
-  formatOperationDateShort,
+  formatOperationTime,
   getOperationSignedAmount,
   getOperationTitle,
   isIncomeOperation,
@@ -29,7 +29,7 @@ export default function OperationListItem({
       <div className={styles.operationMain}>
         <div className={styles.operationTitle}>{getOperationTitle(operation)}</div>
         <div className={styles.operationDate}>
-          {formatOperationDateShort(operation.created_at)}
+          {formatOperationTime(operation.created_at)}
         </div>
       </div>
 

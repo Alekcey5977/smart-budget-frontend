@@ -16,7 +16,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 import {
   useGetCategoryImageMappingsQuery,
@@ -33,14 +33,16 @@ import OperationListItem from "./OperationListItem";
 import {
   buildDonutGradient,
   buildImageMappingLookup,
+  filterOperationsByType,
   formatOperationsGroupTitle,
-  getExpenseCategorySegments,
-  getIncomeCategorySegments,
-  getMonthLabel,
+  getCategorySegments,
   getLatestOperationsMonth,
-  isIncomeOperation,
+  getOperationsTotal,
 } from "utils/operationHelpers";
-import OperationsAnalyticsPanel from "./OperationsAnalyticsPanel";
+import {
+  OPERATIONS_ANALYTICS_TYPES,
+  getOperationsAnalyticsConfig,
+} from "./operationsAnalyticsConfig";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -65,16 +67,7 @@ function getPeriodLabel(from, to) {
 
 export default function OperationsPage() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { setPageHeaderAction } = useOutletContext() || {};
-  const searchAnalyticsType = searchParams.get("analytics");
-  const analyticsType =
-    searchAnalyticsType === "expense" || searchAnalyticsType === "income"
-      ? searchAnalyticsType
-      : null;
-  const analyticsOpen = analyticsType !== null;
-  const expenseAnalyticsOpen = analyticsType === "expense";
-  const incomeAnalyticsOpen = analyticsType === "income";
 
   const now = dayjs();
   const [filters, setFilters] = useState({
@@ -84,13 +77,15 @@ export default function OperationsPage() {
     maxAmount: "",
     categoryIds: [],
   });
-  const [filterDrafts, setFilterDrafts] = useState({
+  const [periodDraft, setPeriodDraft] = useState({
     dateFrom: now.startOf("month"),
     dateTo: now.endOf("month"),
+  });
+  const [amountDraft, setAmountDraft] = useState({
     minAmount: "",
     maxAmount: "",
-    categoryIds: [],
   });
+  const [categoryDraftIds, setCategoryDraftIds] = useState([]);
 
   const [periodDialogOpen, setPeriodDialogOpen] = useState(false);
   const [periodTarget, setPeriodTarget] = useState("from");
@@ -124,10 +119,7 @@ export default function OperationsPage() {
       ...prev,
       categoryIds,
     }));
-    setFilterDrafts((prev) => ({
-      ...prev,
-      categoryIds,
-    }));
+    setCategoryDraftIds(categoryIds);
     setCategoriesInitialized(true);
   }, [categories, categoriesInitialized]);
 
@@ -180,11 +172,10 @@ export default function OperationsPage() {
       dateFrom: from,
       dateTo: to,
     }));
-    setFilterDrafts((prev) => ({
-      ...prev,
+    setPeriodDraft({
       dateFrom: from,
       dateTo: to,
-    }));
+    });
     setPeriodInitialized(true);
   }, [latestOperationsData, latestMonthDate, periodInitialized, isLatestOperationsError]);
 
@@ -238,38 +229,29 @@ export default function OperationsPage() {
     return filteredOperationsData;
   }, [filteredOperationsData, noSelectedCategories]);
 
-  const expenseOperations = useMemo(
-    () => operations.filter((operation) => !isIncomeOperation(operation)),
+  const analyticsDataByType = useMemo(
+    () =>
+      OPERATIONS_ANALYTICS_TYPES.reduce((result, type) => {
+        const config = getOperationsAnalyticsConfig(type);
+        const typeOperations = filterOperationsByType(operations, type);
+        const summarySegments = getCategorySegments(typeOperations, type, 3);
+
+        result[type] = {
+          title: config.title,
+          totalAmount: getOperationsTotal(typeOperations),
+          summaryRingBackground: buildDonutGradient(summarySegments),
+        };
+
+        return result;
+      }, {}),
     [operations],
   );
-  const incomeOperations = useMemo(
-    () => operations.filter((operation) => isIncomeOperation(operation)),
-    [operations],
-  );
-
-  const visibleOperations = useMemo(() => {
-    if (expenseAnalyticsOpen) {
-      return expenseOperations;
-    }
-
-    if (incomeAnalyticsOpen) {
-      return incomeOperations;
-    }
-
-    return operations;
-  }, [
-    operations,
-    expenseAnalyticsOpen,
-    incomeAnalyticsOpen,
-    expenseOperations,
-    incomeOperations,
-  ]);
 
   const groupedOperations = useMemo(() => {
     const map = {};
     const groups = [];
 
-    visibleOperations.forEach((operation) => {
+    operations.forEach((operation) => {
       const key = dayjs(operation.created_at).format("YYYY-MM-DD");
 
       if (!map[key]) {
@@ -285,55 +267,17 @@ export default function OperationsPage() {
     });
 
     return groups;
-  }, [visibleOperations]);
+  }, [operations]);
 
-  const incomeTotal = useMemo(() => {
-    let total = 0;
-
-    incomeOperations.forEach((operation) => {
-      total += Math.abs(Number(operation.amount || 0));
-    });
-
-    return total;
-  }, [incomeOperations]);
-
-  const expenseTotal = useMemo(() => {
-    let total = 0;
-
-    expenseOperations.forEach((operation) => {
-      total += Math.abs(Number(operation.amount || 0));
-    });
-
-    return total;
-  }, [expenseOperations]);
-
-  const expenseSegments = useMemo(
-    () => getExpenseCategorySegments(operations, 3),
-    [operations],
-  );
-
-  const expenseAnalyticsSegments = useMemo(
-    () => getExpenseCategorySegments(expenseOperations, 6),
-    [expenseOperations],
-  );
-  const incomeAnalyticsSegments = useMemo(
-    () => getIncomeCategorySegments(incomeOperations, 6),
-    [incomeOperations],
-  );
-
-  const expenseRingBackground = useMemo(
-    () => buildDonutGradient(expenseSegments),
-    [expenseSegments],
-  );
-
-  const incomeSegments = useMemo(
-    () => getIncomeCategorySegments(operations, 3),
-    [operations],
-  );
-
-  const incomeRingBackground = useMemo(
-    () => buildDonutGradient(incomeSegments),
-    [incomeSegments],
+  const summaryCards = useMemo(
+    () =>
+      OPERATIONS_ANALYTICS_TYPES.map((type) => ({
+        type,
+        title: analyticsDataByType[type].title,
+        totalAmount: analyticsDataByType[type].totalAmount,
+        ringBackground: analyticsDataByType[type].summaryRingBackground,
+      })),
+    [analyticsDataByType],
   );
 
   const amountFilterActive = filters.minAmount !== "" || filters.maxAmount !== "";
@@ -343,101 +287,6 @@ export default function OperationsPage() {
     (!filters.dateFrom.isSame(defaultPeriodFrom, "day") ||
       !filters.dateTo.isSame(defaultPeriodTo, "day"));
   const periodLabel = getPeriodLabel(filters.dateFrom, filters.dateTo);
-  const currentMonthDate = useMemo(
-    () => filters.dateFrom.startOf("month"),
-    [filters.dateFrom],
-  );
-  const analyticsMonthLabel = useMemo(
-    () => getMonthLabel(currentMonthDate),
-    [currentMonthDate],
-  );
-  const canGoToNextMonth = useMemo(
-    () => currentMonthDate.isBefore(latestMonthDate, "month"),
-    [currentMonthDate, latestMonthDate],
-  );
-
-  const applyMonthPeriod = useCallback((monthDate) => {
-    const from = monthDate.startOf("month");
-    const to = monthDate.endOf("month");
-
-    setFilters((prev) => ({
-      ...prev,
-      dateFrom: from,
-      dateTo: to,
-    }));
-    setFilterDrafts((prev) => ({
-      ...prev,
-      dateFrom: from,
-      dateTo: to,
-    }));
-  }, []);
-
-  const setAnalyticsType = useCallback(
-    (value) => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-
-        if (value) {
-          next.set("analytics", value);
-        } else {
-          next.delete("analytics");
-        }
-
-        return next;
-      }, { replace: true });
-    },
-    [setSearchParams],
-  );
-
-  const toggleExpenseAnalytics = useCallback(() => {
-    setAnalyticsType(expenseAnalyticsOpen ? null : "expense");
-  }, [expenseAnalyticsOpen, setAnalyticsType]);
-  const toggleIncomeAnalytics = useCallback(() => {
-    setAnalyticsType(incomeAnalyticsOpen ? null : "income");
-  }, [incomeAnalyticsOpen, setAnalyticsType]);
-  const showPreviousMonth = useCallback(() => {
-    applyMonthPeriod(currentMonthDate.subtract(1, "month"));
-  }, [applyMonthPeriod, currentMonthDate]);
-  const showNextMonth = useCallback(() => {
-    if (!canGoToNextMonth) {
-      return;
-    }
-
-    applyMonthPeriod(currentMonthDate.add(1, "month"));
-  }, [applyMonthPeriod, currentMonthDate, canGoToNextMonth]);
-
-  const analyticsConfig = useMemo(() => {
-    if (expenseAnalyticsOpen) {
-      return {
-        title: "Расходы",
-        totalAmount: expenseTotal,
-        segments: expenseAnalyticsSegments,
-        errorText: "Не удалось загрузить расходы",
-        emptyText: "Нет расходов за выбранный период",
-        listEmptyText: "Расходов нет",
-      };
-    }
-
-    if (incomeAnalyticsOpen) {
-      return {
-        title: "Доходы",
-        totalAmount: incomeTotal,
-        segments: incomeAnalyticsSegments,
-        errorText: "Не удалось загрузить доходы",
-        emptyText: "Нет доходов за выбранный период",
-        listEmptyText: "Доходов нет",
-      };
-    }
-
-    return null;
-  }, [
-    expenseAnalyticsOpen,
-    incomeAnalyticsOpen,
-    expenseTotal,
-    incomeTotal,
-    expenseAnalyticsSegments,
-    incomeAnalyticsSegments,
-  ]);
 
   const resetPeriodFilter = useCallback(() => {
     setFilters((prev) => ({
@@ -445,11 +294,10 @@ export default function OperationsPage() {
       dateFrom: defaultPeriodFrom,
       dateTo: defaultPeriodTo,
     }));
-    setFilterDrafts((prev) => ({
-      ...prev,
+    setPeriodDraft({
       dateFrom: defaultPeriodFrom,
       dateTo: defaultPeriodTo,
-    }));
+    });
     setPeriodDialogOpen(false);
   }, [defaultPeriodFrom, defaultPeriodTo]);
 
@@ -459,11 +307,10 @@ export default function OperationsPage() {
       minAmount: "",
       maxAmount: "",
     }));
-    setFilterDrafts((prev) => ({
-      ...prev,
+    setAmountDraft({
       minAmount: "",
       maxAmount: "",
-    }));
+    });
     setAmountDialogOpen(false);
   }, []);
 
@@ -473,10 +320,7 @@ export default function OperationsPage() {
       ...prev,
       categoryIds,
     }));
-    setFilterDrafts((prev) => ({
-      ...prev,
-      categoryIds,
-    }));
+    setCategoryDraftIds(categoryIds);
   }, [categories]);
 
   const resetAllFilters = useCallback(() => {
@@ -526,18 +370,17 @@ export default function OperationsPage() {
   ]);
 
   const openPeriodDialog = () => {
-    setFilterDrafts((prev) => ({
-      ...prev,
+    setPeriodDraft({
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
-    }));
+    });
     setPeriodTarget("from");
     setPeriodDialogOpen(true);
   };
 
   const applyPeriodFilter = () => {
-    let from = filterDrafts.dateFrom.startOf("day");
-    let to = filterDrafts.dateTo.endOf("day");
+    let from = periodDraft.dateFrom.startOf("day");
+    let to = periodDraft.dateTo.endOf("day");
 
     if (from.isAfter(to)) {
       const tmp = from;
@@ -554,23 +397,22 @@ export default function OperationsPage() {
   };
 
   const openAmountDialog = () => {
-    setFilterDrafts((prev) => ({
-      ...prev,
+    setAmountDraft({
       minAmount: filters.minAmount,
       maxAmount: filters.maxAmount,
-    }));
+    });
     setAmountDialogOpen(true);
   };
 
   const applyAmountFilter = () => {
     const minValue =
-      filterDrafts.minAmount === ""
+      amountDraft.minAmount === ""
         ? ""
-        : String(Math.max(0, Number(filterDrafts.minAmount)));
+        : String(Math.max(0, Number(amountDraft.minAmount)));
     const maxValue =
-      filterDrafts.maxAmount === ""
+      amountDraft.maxAmount === ""
         ? ""
-        : String(Math.max(0, Number(filterDrafts.maxAmount)));
+        : String(Math.max(0, Number(amountDraft.maxAmount)));
 
     if (minValue !== "" && maxValue !== "" && Number(minValue) > Number(maxValue)) {
       setFilters((prev) => ({
@@ -592,42 +434,30 @@ export default function OperationsPage() {
   const toggleCategory = (categoryId) => {
     const normalizedId = Number(categoryId);
 
-    setFilterDrafts((prev) => {
-      if (prev.categoryIds.includes(normalizedId)) {
-        return {
-          ...prev,
-          categoryIds: prev.categoryIds.filter((item) => item !== normalizedId),
-        };
+    setCategoryDraftIds((prev) => {
+      if (prev.includes(normalizedId)) {
+        return prev.filter((item) => item !== normalizedId);
       }
 
-      return {
-        ...prev,
-        categoryIds: [...prev.categoryIds, normalizedId],
-      };
+      return [...prev, normalizedId];
     });
   };
 
   const openCategoriesDialog = () => {
-    setFilterDrafts((prev) => ({
-      ...prev,
-      categoryIds: [...filters.categoryIds],
-    }));
+    setCategoryDraftIds([...filters.categoryIds]);
     setCategoriesDialogOpen(true);
   };
 
   const applyCategoriesFilter = () => {
     setFilters((prev) => ({
       ...prev,
-      categoryIds: [...filterDrafts.categoryIds],
+      categoryIds: [...categoryDraftIds],
     }));
     setCategoriesDialogOpen(false);
   };
 
   const resetCategoryDrafts = () => {
-    setFilterDrafts((prev) => ({
-      ...prev,
-      categoryIds: categories.map((item) => Number(item.id)),
-    }));
+    setCategoryDraftIds(categories.map((item) => Number(item.id)));
   };
 
   const dialogPaperSx = {
@@ -659,16 +489,14 @@ export default function OperationsPage() {
       return (
         <div className={styles.listState}>
           <Typography variant="body2" color="text.secondary">
-            {analyticsConfig?.listEmptyText || "Операций нет"}
+            Операций нет
           </Typography>
         </div>
       );
     }
 
     return (
-      <div
-        className={`${styles.groups} ${analyticsOpen ? styles.groupsExpanded : ""}`}
-      >
+      <div className={styles.groups}>
         {groupedOperations.map((group) => (
           <div key={group.key}>
             <Typography variant="subtitle1" className={styles.groupTitle}>
@@ -693,9 +521,7 @@ export default function OperationsPage() {
   };
 
   return (
-    <div
-      className={`${styles.root} ${analyticsOpen ? styles.rootScrollable : ""}`}
-    >
+    <div className={styles.root}>
       <div className={styles.filtersRow}>
         <button
           type="button"
@@ -726,64 +552,35 @@ export default function OperationsPage() {
       </div>
 
       <div className={styles.summaryRow}>
-        <button
-          type="button"
-          className={`${styles.summaryCard} ${styles.summaryCardButton} ${expenseAnalyticsOpen ? styles.summaryCardActive : ""}`}
-          onClick={toggleExpenseAnalytics}
-          aria-pressed={expenseAnalyticsOpen}
-        >
-          <div
-            className={styles.summaryRing}
-            style={{
-              "--ring-background": expenseRingBackground,
-            }}
-          />
-          <div className={styles.summaryInfo}>
-            <div className={styles.summaryLabel}>Расходы</div>
-            <div className={styles.summaryValue}>{formatMoney(expenseTotal)} ₽</div>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className={`${styles.summaryCard} ${styles.summaryCardButton} ${incomeAnalyticsOpen ? styles.summaryCardActive : ""}`}
-          onClick={toggleIncomeAnalytics}
-          aria-pressed={incomeAnalyticsOpen}
-        >
-          <div
-            className={styles.summaryRing}
-            style={{
-              "--ring-background": incomeRingBackground,
-            }}
-          />
-          <div className={styles.summaryInfo}>
-            <div className={styles.summaryLabel}>Доходы</div>
-            <div className={styles.summaryValue}>{formatMoney(incomeTotal)} ₽</div>
-          </div>
-        </button>
+        {summaryCards.map((card) => {
+          return (
+            <button
+              key={card.type}
+              type="button"
+              className={`${styles.summaryCard} ${styles.summaryCardButton}`}
+              onClick={() =>
+                navigate(
+                  `/operations/analytics/${card.type}?month=${filters.dateFrom.format("YYYY-MM")}`,
+                )
+              }
+            >
+              <div
+                className={styles.summaryRing}
+                style={{
+                  "--ring-background": card.ringBackground,
+                }}
+              />
+              <div className={styles.summaryInfo}>
+                <div className={styles.summaryLabel}>{card.title}</div>
+                <div className={styles.summaryValue}>
+                  {formatMoney(card.totalAmount)} ₽
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
-
-      {analyticsConfig && (
-        <OperationsAnalyticsPanel
-          title={analyticsConfig.title}
-          totalAmount={analyticsConfig.totalAmount}
-          periodLabel={periodLabel}
-          monthLabel={analyticsMonthLabel}
-          segments={analyticsConfig.segments}
-          isLoading={!periodInitialized || isLatestOperationsLoading || isFilteredLoading}
-          isError={isLatestOperationsError || isFilteredError}
-          errorText={analyticsConfig.errorText}
-          emptyText={analyticsConfig.emptyText}
-          canGoNext={canGoToNextMonth}
-          onPrevMonth={showPreviousMonth}
-          onNextMonth={showNextMonth}
-          onClose={() => setAnalyticsType(null)}
-        />
-      )}
-
-      <div
-        className={`${styles.listWrap} ${analyticsOpen ? styles.listWrapExpanded : ""}`}
-      >
+      <div className={styles.listWrap}>
         {renderListContent()}
       </div>
 
@@ -800,20 +597,20 @@ export default function OperationsPage() {
               className={`${styles.rangeFieldButton} ${periodTarget === "from" ? styles.rangeFieldButtonActive : ""}`}
               onClick={() => setPeriodTarget("from")}
             >
-              От: {formatDateForFilterLabel(filterDrafts.dateFrom)}
+              От: {formatDateForFilterLabel(periodDraft.dateFrom)}
             </button>
             <button
               type="button"
               className={`${styles.rangeFieldButton} ${periodTarget === "to" ? styles.rangeFieldButtonActive : ""}`}
               onClick={() => setPeriodTarget("to")}
             >
-              До: {formatDateForFilterLabel(filterDrafts.dateTo)}
+              До: {formatDateForFilterLabel(periodDraft.dateTo)}
             </button>
           </div>
 
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
             <DateCalendar
-              value={periodTarget === "from" ? filterDrafts.dateFrom : filterDrafts.dateTo}
+              value={periodTarget === "from" ? periodDraft.dateFrom : periodDraft.dateTo}
               onChange={(newValue) => {
                 if (!newValue) {
                   return;
@@ -821,8 +618,7 @@ export default function OperationsPage() {
 
                 if (periodTarget === "from") {
                   const fromValue = newValue.startOf("day");
-                  setFilterDrafts((prev) => ({
-                    ...prev,
+                  setPeriodDraft((prev) => ({
                     dateFrom: fromValue,
                     dateTo: fromValue.isAfter(prev.dateTo)
                       ? fromValue.endOf("day")
@@ -831,8 +627,7 @@ export default function OperationsPage() {
                   setPeriodTarget("to");
                 } else {
                   const toValue = newValue.endOf("day");
-                  setFilterDrafts((prev) => ({
-                    ...prev,
+                  setPeriodDraft((prev) => ({
                     dateTo: toValue,
                     dateFrom: toValue.isBefore(prev.dateFrom)
                       ? toValue.startOf("day")
@@ -880,21 +675,21 @@ export default function OperationsPage() {
             <AppTextField
               placeholder="От"
               type="number"
-              value={filterDrafts.minAmount}
+              value={amountDraft.minAmount}
               onChange={(event) =>
-                setFilterDrafts((prev) => ({
-                  ...prev,
+                setAmountDraft((prev) => ({
                   minAmount: event.target.value,
+                  maxAmount: prev.maxAmount,
                 }))
               }
             />
             <AppTextField
               placeholder="До"
               type="number"
-              value={filterDrafts.maxAmount}
+              value={amountDraft.maxAmount}
               onChange={(event) =>
-                setFilterDrafts((prev) => ({
-                  ...prev,
+                setAmountDraft((prev) => ({
+                  minAmount: prev.minAmount,
                   maxAmount: event.target.value,
                 }))
               }
@@ -936,7 +731,7 @@ export default function OperationsPage() {
               >
                 {category.name}
                 <Checkbox
-                  checked={filterDrafts.categoryIds.includes(Number(category.id))}
+                  checked={categoryDraftIds.includes(Number(category.id))}
                 />
               </button>
             ))}

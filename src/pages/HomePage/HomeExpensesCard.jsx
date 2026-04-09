@@ -120,7 +120,11 @@ export default function HomeExpensesCard() {
     <Paper
       variant="outlined"
       className={`${styles.card} ${styles.cardLink}`}
-      onClick={() => navigate("/operations?analytics=expense")}
+      onClick={() =>
+        navigate(
+          `/operations/analytics/expense?month=${currentMonthDate.format("YYYY-MM")}`,
+        )
+      }
     >
       <Typography variant="subtitle1" fontWeight={700}>
         Расходы за {getMonthLabel(currentMonthDate)}
