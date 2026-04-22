@@ -19,6 +19,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
+import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
+import { useGetMyAvatarQuery } from "services/auth/avatarApi";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
