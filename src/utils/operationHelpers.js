@@ -13,7 +13,23 @@ const OPERATION_COLORS = [
   "#7a7d86",
 ];
 
-const DONUT_COLORS = ["#efd95f", "#e1b700", "#5d5f66", "#1bbdb2", "#1b9fd1"];
+const EXPENSE_DONUT_COLORS = [
+  "#efd95f",
+  "#e1b700",
+  "#5d5f66",
+  "#1bbdb2",
+  "#1b9fd1",
+  "#ff8b2a",
+];
+
+const INCOME_DONUT_COLORS = [
+  "#2abf56",
+  "#53cb72",
+  "#1bbdb2",
+  "#18a9c9",
+  "#74d49f",
+  "#7a7d86",
+];
 
 export function isIncomeOperation(operation) {
   return operation?.type === "income";
@@ -112,6 +128,14 @@ export function formatOperationDateShort(value) {
   return date.format("D MMM.");
 }
 
+export function formatOperationTime(value) {
+  const date = dayjs(value);
+  if (!date.isValid()) {
+    return "";
+  }
+  return date.format("HH:mm");
+}
+
 export function formatOperationDateTime(value) {
   const date = dayjs(value);
   if (!date.isValid()) {
@@ -168,6 +192,17 @@ export function getLatestOperationsMonth(operations) {
   return latestDate.startOf("month");
 }
 
+export function filterOperationsByType(operations, transactionType) {
+  if (!Array.isArray(operations)) {
+    return [];
+  }
+
+  return operations.filter((operation) => {
+    const isIncome = isIncomeOperation(operation);
+    return transactionType === "income" ? isIncome : !isIncome;
+  });
+}
+
 export function filterOperationsByMonth(operations, monthDate) {
   if (!Array.isArray(operations)) {
     return [];
@@ -202,18 +237,28 @@ function addOtherSegment(items, maxSegments) {
   ];
 }
 
-function withDonutColors(items) {
+function withDonutColors(items, colors) {
   return items.map((item, index) => ({
     ...item,
-    color: DONUT_COLORS[index % DONUT_COLORS.length],
+    color: colors[index % colors.length],
   }));
 }
 
-export function getExpenseCategorySegments(operations, maxSegments = 3) {
+function getCategorySegmentsByType(
+  operations,
+  transactionType,
+  maxSegments,
+  colors,
+) {
   const grouped = {};
 
   operations.forEach((operation) => {
-    if (isIncomeOperation(operation)) {
+    const isIncome = isIncomeOperation(operation);
+
+    if (
+      (transactionType === "income" && !isIncome) ||
+      (transactionType === "expense" && isIncome)
+    ) {
       return;
     }
 
@@ -238,7 +283,7 @@ export function getExpenseCategorySegments(operations, maxSegments = 3) {
   });
 
   const sorted = Object.values(grouped).sort((a, b) => b.amount - a.amount);
-  return withDonutColors(addOtherSegment(sorted, maxSegments));
+  return withDonutColors(addOtherSegment(sorted, maxSegments), colors);
 }
 
 export function getExpenseCategorySummarySegments(items, maxSegments = 3) {
@@ -253,7 +298,45 @@ export function getExpenseCategorySummarySegments(items, maxSegments = 3) {
     }))
     .filter((item) => Number.isFinite(item.amount) && item.amount > 0);
 
-  return withDonutColors(addOtherSegment(normalizedItems, maxSegments));
+  return withDonutColors(
+    addOtherSegment(normalizedItems, maxSegments),
+    EXPENSE_DONUT_COLORS,
+  );
+}
+
+export function getOperationsTotal(operations) {
+  if (!Array.isArray(operations)) {
+    return 0;
+  }
+
+  return operations.reduce(
+    (sum, operation) => sum + Math.abs(Number(operation?.amount || 0)),
+    0,
+  );
+}
+
+export function getCategorySegments(
+  operations,
+  transactionType,
+  maxSegments = 3,
+) {
+  const colors =
+    transactionType === "income" ? INCOME_DONUT_COLORS : EXPENSE_DONUT_COLORS;
+
+  return getCategorySegmentsByType(
+    operations,
+    transactionType,
+    maxSegments,
+    colors,
+  );
+}
+
+export function getExpenseCategorySegments(operations, maxSegments = 3) {
+  return getCategorySegments(operations, "expense", maxSegments);
+}
+
+export function getIncomeCategorySegments(operations, maxSegments = 3) {
+  return getCategorySegments(operations, "income", maxSegments);
 }
 
 export function buildDonutGradient(segments, fallbackColor = "rgba(0, 0, 0, 0.22)") {

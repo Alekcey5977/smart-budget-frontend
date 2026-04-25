@@ -11,26 +11,31 @@
 .filtersRow {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .filterButton {
   min-width: 0;
-  height: 52px;
+  height: 46px;
   border: 0;
-  border-radius: 26px;
+  border-radius: 23px;
   background: color.$color-accent-main;
   color: color.$color-text-main;
   font: inherit;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 0 8px;
+  gap: 2px;
+  padding: 0 6px;
   cursor: pointer;
   box-sizing: border-box;
+
+  svg {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
 }
 
 .filterButtonLabel {
@@ -57,6 +62,14 @@
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
+}
+
+.summaryCardButton {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
 }
 
 .summaryRing {
