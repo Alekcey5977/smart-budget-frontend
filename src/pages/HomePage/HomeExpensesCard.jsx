@@ -5,14 +5,13 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
-  useGetAllTransactionsQuery,
+  useGetTransactionCategoriesSummaryQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
 import {
   buildDonutGradient,
-  getExpenseCategorySegments,
+  getExpenseCategorySummarySegments,
   getLatestOperationsMonth,
-  isIncomeOperation,
 } from "utils/operationHelpers";
 import styles from "./HomePage.module.scss";
 
@@ -81,6 +80,7 @@ export default function HomeExpensesCard() {
 
   const monthFilters = useMemo(
     () => ({
+      transaction_type: "expense",
       start_date: currentMonthDate.startOf("month").toISOString(),
       end_date: currentMonthDate.endOf("month").toISOString(),
     }),
@@ -88,27 +88,17 @@ export default function HomeExpensesCard() {
   );
 
   const {
-    data: monthOperationsData,
-    isLoading: isMonthOperationsLoading,
-    isError: isMonthOperationsError,
-  } = useGetAllTransactionsQuery(monthFilters);
+    data: categorySummaryData,
+    isLoading: isCategorySummaryLoading,
+    isError: isCategorySummaryError,
+  } = useGetTransactionCategoriesSummaryQuery(monthFilters);
 
-  const operations = useMemo(
-    () => (Array.isArray(monthOperationsData) ? monthOperationsData : []),
-    [monthOperationsData],
-  );
-
-  const monthExpenses = useMemo(
-    () => operations.filter((operation) => !isIncomeOperation(operation)),
-    [operations],
-  );
-
-  const isLoading = isLatestOperationsLoading || isMonthOperationsLoading;
-  const isError = isLatestOperationsError || isMonthOperationsError;
+  const isLoading = isLatestOperationsLoading || isCategorySummaryLoading;
+  const isError = isLatestOperationsError || isCategorySummaryError;
 
   const segments = useMemo(
-    () => getExpenseCategorySegments(monthExpenses, 3),
-    [monthExpenses],
+    () => getExpenseCategorySummarySegments(categorySummaryData, 3),
+    [categorySummaryData],
   );
 
   const donutBackground = useMemo(
