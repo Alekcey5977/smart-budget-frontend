@@ -1,6 +1,6 @@
-import { Alert, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import {
   useGetAllTransactionsQuery,
@@ -17,7 +17,7 @@ import OperationsAnalyticsPanel from "./OperationsAnalyticsPanel";
 import { getOperationsAnalyticsConfig } from "./operationsAnalyticsConfig";
 import styles from "./OperationsAnalyticsPage.module.scss";
 
-function getInitialMonth(searchParams) {
+function getMonthFromSearchParams(searchParams) {
   const value = searchParams.get("month");
 
   if (!value || !/^\d{4}-\d{2}$/.test(value)) {
@@ -32,23 +32,23 @@ export default function OperationsAnalyticsPage() {
   const { type } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getOperationsAnalyticsConfig(type);
-  const initialMonth = useMemo(
-    () => getInitialMonth(searchParams),
+  const monthFromSearchParams = useMemo(
+    () => getMonthFromSearchParams(searchParams),
     [searchParams],
-  );
-  const [monthInitialized, setMonthInitialized] = useState(Boolean(initialMonth));
-  const [monthDate, setMonthDate] = useState(
-    () => initialMonth || dayjs().startOf("month"),
   );
 
   const {
     data: latestOperationsData,
     isLoading: isLatestOperationsLoading,
-    isError: isLatestOperationsError,
-  } = useGetTransactionsQuery({
-    limit: 1,
-    offset: 0,
-  });
+  } = useGetTransactionsQuery(
+    {
+      limit: 1,
+      offset: 0,
+    },
+    {
+      skip: !config,
+    },
+  );
 
   const latestMonthDate = useMemo(
     () =>
@@ -58,26 +58,12 @@ export default function OperationsAnalyticsPage() {
     [latestOperationsData],
   );
 
-  useEffect(() => {
-    if (monthInitialized) {
-      return;
-    }
+  const monthDate = useMemo(
+    () => monthFromSearchParams || latestMonthDate.startOf("month"),
+    [monthFromSearchParams, latestMonthDate],
+  );
 
-    if (!Array.isArray(latestOperationsData)) {
-      if (isLatestOperationsError) {
-        setMonthInitialized(true);
-      }
-      return;
-    }
-
-    setMonthDate(latestMonthDate.startOf("month"));
-    setMonthInitialized(true);
-  }, [
-    latestOperationsData,
-    latestMonthDate,
-    monthInitialized,
-    isLatestOperationsError,
-  ]);
+  const isWaitingLatestMonth = !monthFromSearchParams && isLatestOperationsLoading;
 
   const monthFilters = useMemo(
     () => ({
@@ -92,7 +78,7 @@ export default function OperationsAnalyticsPage() {
     isLoading: isMonthOperationsLoading,
     isError: isMonthOperationsError,
   } = useGetAllTransactionsQuery(monthFilters, {
-    skip: !monthInitialized,
+    skip: !config || isWaitingLatestMonth,
   });
 
   const operations = useMemo(
@@ -121,49 +107,45 @@ export default function OperationsAnalyticsPage() {
     [monthDate, latestMonthDate],
   );
 
-  useEffect(() => {
-    if (!monthInitialized) {
-      return;
-    }
-
-    const nextMonthValue = monthDate.format("YYYY-MM");
-
-    if (searchParams.get("month") === nextMonthValue) {
-      return;
-    }
-
+  const setMonthSearchParam = useCallback((nextMonthDate, options) => {
     const nextSearchParams = new URLSearchParams(searchParams);
-    nextSearchParams.set("month", nextMonthValue);
-    setSearchParams(nextSearchParams, { replace: true });
-  }, [monthDate, monthInitialized, searchParams, setSearchParams]);
+    nextSearchParams.set("month", nextMonthDate.format("YYYY-MM"));
+    setSearchParams(nextSearchParams, options);
+  }, [
+    searchParams,
+    setSearchParams,
+  ]);
+
+  useEffect(() => {
+    if (monthFromSearchParams || isLatestOperationsLoading) {
+      return;
+    }
+
+    setMonthSearchParam(monthDate, { replace: true });
+  }, [
+    monthDate,
+    monthFromSearchParams,
+    isLatestOperationsLoading,
+    setMonthSearchParam,
+  ]);
 
   const showPreviousMonth = useCallback(() => {
-    setMonthDate((prev) => prev.subtract(1, "month"));
-  }, []);
+    setMonthSearchParam(monthDate.subtract(1, "month"));
+  }, [monthDate, setMonthSearchParam]);
 
   const showNextMonth = useCallback(() => {
     if (!canGoNext) {
       return;
     }
 
-    setMonthDate((prev) => prev.add(1, "month"));
-  }, [canGoNext]);
+    setMonthSearchParam(monthDate.add(1, "month"));
+  }, [canGoNext, monthDate, setMonthSearchParam]);
 
   if (!config) {
     return <Navigate to="/operations" replace />;
   }
 
-  if (!monthInitialized && isLatestOperationsError) {
-    return (
-      <div className={styles.state}>
-        <Alert severity="error" className={styles.alert}>
-          {config.errorText}
-        </Alert>
-      </div>
-    );
-  }
-
-  if (!monthInitialized && isLatestOperationsLoading) {
+  if (isWaitingLatestMonth) {
     return (
       <div className={styles.state}>
         <CircularProgress size={24} />
@@ -178,7 +160,7 @@ export default function OperationsAnalyticsPage() {
         totalAmount={totalAmount}
         monthLabel={monthLabel}
         segments={segments}
-        isLoading={!monthInitialized || isMonthOperationsLoading}
+        isLoading={isWaitingLatestMonth || isMonthOperationsLoading}
         isError={isMonthOperationsError}
         errorText={config.errorText}
         emptyText={config.emptyText}
