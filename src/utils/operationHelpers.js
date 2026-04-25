@@ -183,6 +183,32 @@ export function filterOperationsByMonth(operations, monthDate) {
   });
 }
 
+function addOtherSegment(items, maxSegments) {
+  if (items.length <= maxSegments) {
+    return items;
+  }
+
+  const visibleItems = items.slice(0, maxSegments - 1);
+  const restAmount = items
+    .slice(maxSegments - 1)
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  return [
+    ...visibleItems,
+    {
+      label: "Другое",
+      amount: restAmount,
+    },
+  ];
+}
+
+function withDonutColors(items) {
+  return items.map((item, index) => ({
+    ...item,
+    color: DONUT_COLORS[index % DONUT_COLORS.length],
+  }));
+}
+
 export function getExpenseCategorySegments(operations, maxSegments = 3) {
   const grouped = {};
 
@@ -212,30 +238,22 @@ export function getExpenseCategorySegments(operations, maxSegments = 3) {
   });
 
   const sorted = Object.values(grouped).sort((a, b) => b.amount - a.amount);
+  return withDonutColors(addOtherSegment(sorted, maxSegments));
+}
 
-  if (sorted.length <= maxSegments) {
-    return sorted.map((item, index) => ({
-      ...item,
-      color: DONUT_COLORS[index % DONUT_COLORS.length],
-    }));
+export function getExpenseCategorySummarySegments(items, maxSegments = 3) {
+  if (!Array.isArray(items)) {
+    return [];
   }
 
-  const result = sorted.slice(0, maxSegments - 1).map((item, index) => ({
-    ...item,
-    color: DONUT_COLORS[index % DONUT_COLORS.length],
-  }));
+  const normalizedItems = items
+    .map((item) => ({
+      label: item?.category_name || "Другое",
+      amount: Number(item?.total_amount || 0),
+    }))
+    .filter((item) => Number.isFinite(item.amount) && item.amount > 0);
 
-  const restAmount = sorted
-    .slice(maxSegments - 1)
-    .reduce((sum, item) => sum + item.amount, 0);
-
-  result.push({
-    label: "Другое",
-    amount: restAmount,
-    color: DONUT_COLORS[(maxSegments - 1) % DONUT_COLORS.length],
-  });
-
-  return result;
+  return withDonutColors(addOtherSegment(normalizedItems, maxSegments));
 }
 
 export function buildDonutGradient(segments, fallbackColor = "rgba(0, 0, 0, 0.22)") {

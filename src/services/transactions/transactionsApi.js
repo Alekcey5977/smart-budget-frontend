@@ -42,10 +42,33 @@ function buildTransactionsPayload(filters = {}) {
   return payload;
 }
 
+function buildCategorySummaryPayload(filters = {}) {
+  const payload = {};
+
+  if (filters.transaction_type) {
+    payload.transaction_type = filters.transaction_type;
+  }
+
+  if (filters.start_date) {
+    payload.start_date = filters.start_date;
+  }
+
+  if (filters.end_date) {
+    payload.end_date = filters.end_date;
+  }
+
+  return payload;
+}
+
 export const transactionsApi = createApi({
   reducerPath: "transactionsApi",
   baseQuery: axiosBaseQuery({ baseUrl: "/transactions" }),
-  tagTypes: ["Transactions", "Transaction", "TransactionCategories"],
+  tagTypes: [
+    "Transactions",
+    "Transaction",
+    "TransactionCategories",
+    "TransactionCategorySummary",
+  ],
   endpoints: (builder) => ({
     getTransactions: builder.query({
       query: (filters) => ({
@@ -107,6 +130,14 @@ export const transactionsApi = createApi({
       }),
       providesTags: ["TransactionCategories"],
     }),
+    getTransactionCategoriesSummary: builder.query({
+      query: (filters = {}) => ({
+        url: "/categories/summary",
+        method: "POST",
+        data: buildCategorySummaryPayload(filters),
+      }),
+      providesTags: ["TransactionCategorySummary"],
+    }),
     updateTransactionCategory: builder.mutation({
       query: ({ transactionId, category_id }) => ({
         url: `/${transactionId}/category`,
@@ -115,6 +146,7 @@ export const transactionsApi = createApi({
       }),
       invalidatesTags: (result, error, { transactionId }) => [
         "Transactions",
+        "TransactionCategorySummary",
         { type: "Transaction", id: transactionId },
       ],
     }),
@@ -126,5 +158,6 @@ export const {
   useGetAllTransactionsQuery,
   useGetTransactionByIdQuery,
   useGetTransactionCategoriesQuery,
+  useGetTransactionCategoriesSummaryQuery,
   useUpdateTransactionCategoryMutation,
 } = transactionsApi;
