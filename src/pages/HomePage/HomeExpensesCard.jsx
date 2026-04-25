@@ -91,9 +91,7 @@ export default function HomeExpensesCard() {
     data: categorySummaryData,
     isLoading: isCategorySummaryLoading,
     isError: isCategorySummaryError,
-  } = useGetTransactionCategoriesSummaryQuery(monthFilters, {
-    skip: isLatestOperationsLoading,
-  });
+  } = useGetTransactionCategoriesSummaryQuery(monthFilters);
 
   const isLoading = isLatestOperationsLoading || isCategorySummaryLoading;
   const isError = isLatestOperationsError || isCategorySummaryError;
