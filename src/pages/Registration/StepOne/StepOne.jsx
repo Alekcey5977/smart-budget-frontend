@@ -45,8 +45,13 @@ const StepOne = ({ onContinue }) => {
           {...register("password", {
             required: "Введите пароль",
             minLength: {
-              value: 6,
-              message: "Минимум 6 символов",
+              value: 8,
+              message: "Пароль должен содержать минимум 8 символов",
+            },
+            pattern: {
+              value: /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).*$/,
+              message:
+                "Пароль должен содержать минимум одну заглавную букву, цифру и специальный символ",
             },
           })}
           error={!!errors.password}

@@ -185,10 +185,6 @@ export default function BankAccountsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.headerTitle}>Банковские счета</h1>
-      </div>
-
       <div className={styles.content}>
         {accounts.length === 0 ? (
           <div className={styles.emptyState}>

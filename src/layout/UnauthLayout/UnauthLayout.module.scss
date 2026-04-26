@@ -1,11 +1,12 @@
 .content {
-  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 
   justify-content: space-between;
 
-  padding-top: clamp(180px, 24vh, 240px);
+  padding-top: clamp(100px, 15vh, 180px);
 
   padding-bottom: 32px;
 }
