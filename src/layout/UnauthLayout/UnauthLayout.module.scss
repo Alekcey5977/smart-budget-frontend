@@ -1,18 +1,17 @@
 .content {
-  min-height: 100%;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
 
-  justify-content: space-between;
-
-  padding-top: clamp(100px, 15vh, 180px);
-
+  padding-top: 140px;
   padding-bottom: 32px;
 }
 
 .header {
   text-align: right;
+  flex-shrink: 0;
 }
 
 .subtitle {
@@ -20,6 +19,7 @@
 }
 
 .bottom {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 18px;

@@ -12,6 +12,7 @@ export default function HomePage() {
         <div style={{ flex: 1.6, minWidth: 0 }}>
           <HomeExpensesCard />
         </div>
+
         <div style={{ flex: 1, minWidth: 0 }}>
           <BalanceWidget />
         </div>

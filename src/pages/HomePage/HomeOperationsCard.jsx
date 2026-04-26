@@ -7,6 +7,7 @@ import {
   useGetMerchantImageMappingsQuery,
 } from "services/images/imagesApi";
 import { useGetTransactionsQuery } from "services/transactions/transactionsApi";
+import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import OperationIcon from "ui/OperationIcon";
 import {
   buildImageMappingLookup,
@@ -23,6 +24,7 @@ function HomeOperationsContent({
   operations,
   merchantImageLookup,
   categoryImageLookup,
+  hasAccounts,
 }) {
   if (isLoading) {
     return (
@@ -42,7 +44,7 @@ function HomeOperationsContent({
     );
   }
 
-  if (operations.length === 0) {
+  if (operations.length === 0 || !hasAccounts) {
     return (
       <div className={styles.center}>
         <Typography variant="body2" color="text.secondary">
@@ -92,10 +94,17 @@ function HomeOperationsContent({
 export default function HomeOperationsCard() {
   const navigate = useNavigate();
 
-  const { data, isLoading, isError } = useGetTransactionsQuery({
-    limit: 3,
-    offset: 0,
-  });
+  const { data: accountsData } = useGetBankAccountsQuery();
+  const accounts = Array.isArray(accountsData) ? accountsData : [];
+  const hasAccounts = accounts.length > 0;
+
+  const { data, isLoading, isError } = useGetTransactionsQuery(
+    {
+      limit: 3,
+      offset: 0,
+    },
+    { skip: !hasAccounts },
+  );
   const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
   const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
   const merchantImageLookup = useMemo(
@@ -108,6 +117,7 @@ export default function HomeOperationsCard() {
   );
 
   const operations = useMemo(() => {
+    if (!hasAccounts) return [];
     const source = Array.isArray(data) ? data : [];
 
     return source.map((operation) => {
@@ -125,7 +135,7 @@ export default function HomeOperationsCard() {
         },
       };
     });
-  }, [data, navigate]);
+  }, [data, navigate, hasAccounts]);
 
   return (
     <Paper
@@ -143,9 +153,10 @@ export default function HomeOperationsCard() {
         operations={operations}
         merchantImageLookup={merchantImageLookup}
         categoryImageLookup={categoryImageLookup}
+        hasAccounts={hasAccounts}
       />
 
-      {!isLoading && !isError && operations.length > 0 && (
+      {!isLoading && !isError && hasAccounts && operations.length > 0 && (
         <button
           type="button"
           className={styles.showMoreButton}

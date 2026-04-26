@@ -23,7 +23,7 @@ import {
 import BankAccountPage from "./BankAccountDeletePage.jsx";
 import styles from "./BankAccountPage.module.scss";
 
-// Карточка счета
+
 const AccountCard = ({ account, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -133,11 +133,6 @@ export default function BankAccountsPage() {
       await deleteBankAccount(
         selectedAccount.bank_account_id || selectedAccount.id,
       ).unwrap();
-      setSnackbar({
-        open: true,
-        message: `Счет "${selectedAccount.bank_account_name || selectedAccount.name}" успешно удален`,
-        severity: "success",
-      });
     } catch (error) {
       console.error("Error deleting account:", error);
       setSnackbar({
@@ -187,8 +182,8 @@ export default function BankAccountsPage() {
     <div className={styles.page}>
       <div className={styles.content}>
         {accounts.length === 0 ? (
-          <div className={styles.emptyState}>
-            <Typography variant="body1" color="text.secondary" align="center">
+          <div className={styles.empty}>
+            <Typography variant="subtitle1" color="text.secondary" align="center">
               Банковских счетов нет
             </Typography>
           </div>

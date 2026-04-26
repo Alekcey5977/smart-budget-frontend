@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { Paper, Typography, IconButton } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
+import { Paper, Typography, Box } from "@mui/material";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import { formatMoney } from "utils/formatMoney";
@@ -24,7 +23,7 @@ export default function BalanceWidget() {
       variant="outlined"
       className={styles.card}
       onClick={() => navigate("/bank-accounts")}
-      sx={{ cursor: "pointer" }}
+      sx={{ cursor: "pointer", minHeight: "140px" }}
     >
       <Typography variant="subtitle1" fontWeight={700}>
         Баланс
@@ -34,25 +33,19 @@ export default function BalanceWidget() {
         {isLoading ? "Загрузка..." : `${formatMoney(totalBalance)} ₽`}
       </Typography>
 
-      <div className={styles.cardRow}>
-        <CreditCardOutlinedIcon />
-        <IconButton
-          aria-label="Добавить"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate("/bank-accounts/add");
-          }}
-          sx={{
-            bgcolor: "primary.main",
-            width: 44,
-            height: 44,
-            borderRadius: 3,
-            "&:hover": { bgcolor: "primary.main" },
-          }}
-        >
-          <AddIcon />
-        </IconButton>
-      </div>
+      <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+        {accounts.slice(0, 3).map((acc) => (
+          <Box
+            key={acc.bank_account_id || acc.id}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          >
+            <AccountBalanceWalletIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {acc.bank_account_name || acc.name || "Без названия"}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
     </Paper>
   );
 }

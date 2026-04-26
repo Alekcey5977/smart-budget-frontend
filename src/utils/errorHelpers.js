@@ -1,7 +1,6 @@
 export const translateError = (error) => {
   if (!error) return null;
 
-  // Если ошибка уже строка
   if (typeof error === "string") {
     if (error === "Incorrect password" || error === "User not found") {
       return "Неверный логин или пароль";
@@ -9,10 +8,12 @@ export const translateError = (error) => {
     if (error === "Email already registered") {
       return "Этот email уже зарегистрирован";
     }
+    if (error.includes("already exists") || error.includes("Bank account with this number")) {
+      return "Счёт с таким номером уже существует";
+    }
     return error;
   }
 
-  // Если это массив ошибок валидации (как на скриншотах)
   if (Array.isArray(error)) {
     return error.map((err) => {
       const field = err.loc ? err.loc[err.loc.length - 1] : "";
@@ -43,7 +44,6 @@ export const translateError = (error) => {
     }).join(", ");
   }
 
-  // Если это объект с detail (FastAPI)
   if (error.detail) {
     return translateError(error.detail);
   }

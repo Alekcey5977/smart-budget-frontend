@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Typography } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 import PhoneLayout from "layout/PhoneLayout";
 import styles from "./UnauthLayout.module.scss";
@@ -29,7 +29,7 @@ export default function UnauthLayout({
         <IconButton
           className={styles.backButton}
           onClick={handleBack}
-          aria-label="На главную"
+          aria-label="Назад"
           sx={{
             width: 47,
             height: 37,
@@ -39,7 +39,7 @@ export default function UnauthLayout({
             "&:hover": { bgcolor: "primary.main" },
           }}
         >
-          <HomeIcon fontSize="small" />
+          <ArrowBackIosNewIcon fontSize="small" />
         </IconButton>
       )}
 

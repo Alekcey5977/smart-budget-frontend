@@ -29,7 +29,6 @@ export default function LoginPage() {
       }).unwrap();
       navigate("/home");
     } catch (err) {
-      // Ошибка обрабатывается через apiError
     }
   };
 
