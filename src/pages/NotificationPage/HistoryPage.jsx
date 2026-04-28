@@ -12,7 +12,6 @@ export default function HistoryPage() {
         navigate(`/notifications/${item.id}`, {
           state: {
             type: "history",
-            notification: item,
           },
         });
       }

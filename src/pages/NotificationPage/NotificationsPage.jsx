@@ -204,7 +204,6 @@ export default function NotificationsPage() {
         navigate(`/notifications/${item.id}`, {
           state: {
             type: item.category,
-            notification: item,
           },
         });
       }

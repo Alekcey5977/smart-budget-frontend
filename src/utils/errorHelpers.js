@@ -2,16 +2,21 @@ export const translateError = (error) => {
   if (!error) return null;
 
   if (typeof error === "string") {
-    if (error === "Incorrect password" || error === "User not found") {
-      return "Неверный логин или пароль";
+    switch (error) {
+      case "Incorrect password":
+      case "User not found":
+        return "Неверный логин или пароль";
+      case "Email already registered":
+        return "Этот email уже зарегистрирован";
+      default:
+        if (
+          error.includes("already exists") ||
+          error.includes("Bank account with this number")
+        ) {
+          return "Счёт с таким номером уже существует";
+        }
+        return error;
     }
-    if (error === "Email already registered") {
-      return "Этот email уже зарегистрирован";
-    }
-    if (error.includes("already exists") || error.includes("Bank account with this number")) {
-      return "Счёт с таким номером уже существует";
-    }
-    return error;
   }
 
   if (Array.isArray(error)) {
