@@ -1,16 +1,13 @@
 import React from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
   Button,
-  Alert,
   Typography,
   Box,
 } from "@mui/material";
-import WarningIcon from "@mui/icons-material/Warning";
 
 export default function DeleteAccountDialog({
   open,
@@ -20,8 +17,6 @@ export default function DeleteAccountDialog({
   isLoading,
 }) {
   if (!account) return null;
-
-  const hasBalance = account.balance > 0;
   const formattedBalance = new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: account.currency || "RUB",
@@ -33,7 +28,6 @@ export default function DeleteAccountDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      aria-labelledby="delete-dialog-title"
       PaperProps={{
         sx: {
           borderRadius: "20px",
@@ -43,19 +37,6 @@ export default function DeleteAccountDialog({
         },
       }}
     >
-      <DialogTitle
-        id="delete-dialog-title"
-        sx={{
-          pb: 1,
-          color: "error.main",
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-        }}
-      >
-        <WarningIcon />
-        Удалить счет?
-      </DialogTitle>
 
       <DialogContent>
         <DialogContentText component="div">
@@ -80,42 +61,31 @@ export default function DeleteAccountDialog({
             <Typography
               variant="h6"
               fontWeight="bold"
-              color="primary.main"
+              color="text.primary"
               sx={{ mt: 1 }}
             >
               {formattedBalance}
             </Typography>
           </Box>
 
-          {hasBalance && (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-              На счету остались средства. Убедитесь, что вы перевели их на
-              другой счет.
-            </Alert>
-          )}
 
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 2 }}
-          >
-            Это действие нельзя отменить. Счет будет удален из вашего профиля.
-          </Typography>
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, pt: 0, gap: 1 }}>
-        <Button onClick={onClose} color="inherit" disabled={isLoading}>
-          Отмена
-        </Button>
+      <DialogActions sx={{ p: 2, pt: 0, justifyContent: "center" }}>
         <Button
           onClick={onConfirm}
           color="error"
-          variant="contained"
+          variant="outlined"
           disabled={isLoading}
+          fullWidth
           sx={{
             borderRadius: "12px",
             textTransform: "none",
+            borderWidth: 2,
+            "&:hover": {
+              borderWidth: 2
+            }
           }}
         >
           {isLoading ? "Удаление..." : "Удалить счет"}

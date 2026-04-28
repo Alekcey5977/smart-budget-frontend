@@ -1,4 +1,4 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HomeIcon from "@mui/icons-material/Home";
 import { IconButton, Typography } from "@mui/material";
 import { Navigate, Outlet, useNavigate, useParams } from "react-router-dom";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
@@ -19,7 +19,7 @@ export default function OperationsAnalyticsLayout() {
       <div className={`${authLayoutStyles.header} ${authLayoutStyles.headerPage}`}>
         <IconButton
           className={authLayoutStyles.backButton}
-          onClick={() => navigate("/operations")}
+          onClick={() => navigate("/home")}
           sx={{
             bgcolor: "primary.main",
             color: "text.primary",
@@ -28,7 +28,7 @@ export default function OperationsAnalyticsLayout() {
             height: 40,
           }}
         >
-          <ArrowBackIcon fontSize="small" />
+          <HomeIcon fontSize="small" />
         </IconButton>
         <Typography variant="h6" className={authLayoutStyles.pageTitle}>
           {config.title}

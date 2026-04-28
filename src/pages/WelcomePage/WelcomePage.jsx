@@ -10,7 +10,16 @@ export default function WelcomePage() {
     <UnauthLayout title="Умный бюджет" subtitle="Учёт расходов стал проще">
       <div className={styles.actions}>
         <AppButton onClick={() => navigate("/login")}>Авторизация</AppButton>
-        <AppButton variant="outlined" onClick={() => navigate("/register")}>
+        <AppButton
+          variant="outlined"
+          onClick={() => navigate("/register")}
+          sx={{
+            borderWidth: "5px",
+            "&:hover": {
+              borderWidth: "5px",
+            },
+          }}
+        >
           Регистрация
         </AppButton>
       </div>

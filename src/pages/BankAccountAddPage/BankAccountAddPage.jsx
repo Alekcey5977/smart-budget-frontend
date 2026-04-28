@@ -1,11 +1,12 @@
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Alert } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
 import { useAddBankAccountMutation } from "services/auth/bankApi";
 import styles from "./BankAccountAddPage.module.scss";
+import { translateError } from "utils/errorHelpers";
 
 export default function BankAccountAddPage() {
   const navigate = useNavigate();
@@ -34,19 +35,12 @@ export default function BankAccountAddPage() {
     [addAccount, navigate],
   );
 
-  const errorMessage = error?.data?.detail || "Ошибка добавления счёта";
+  const errorMessage = error?.data ? translateError(error.data) : "Ошибка добавления счёта";
 
   return (
     <div className={styles.page}>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.fields}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {typeof errorMessage === "string"
-                ? errorMessage
-                : JSON.stringify(errorMessage)}
-            </Alert>
-          )}
           <AppTextField
             label="Номер счёта"
             placeholder="40817810..."
@@ -82,6 +76,15 @@ export default function BankAccountAddPage() {
               required: "Введите название банка",
             })}
           />
+          <Box sx={{ minHeight: "60px", mt: 1 }}>
+            {error && (
+              <Alert severity="error">
+                {typeof errorMessage === "string"
+                  ? errorMessage
+                  : JSON.stringify(errorMessage)}
+              </Alert>
+            )}
+          </Box>
         </div>
 
         <div className={styles.footer}>

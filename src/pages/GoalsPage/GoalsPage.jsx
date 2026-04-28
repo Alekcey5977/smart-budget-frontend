@@ -32,7 +32,7 @@ export default function GoalsPage() {
     if (goals.length === 0) {
       return (
         <div className={styles.state}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="subtitle1" color="text.secondary">
             Целей нет
           </Typography>
         </div>

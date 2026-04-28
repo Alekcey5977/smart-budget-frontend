@@ -8,6 +8,7 @@ import {
   useGetTransactionCategoriesSummaryQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
+import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   buildDonutGradient,
   getExpenseCategorySummarySegments,
@@ -22,7 +23,7 @@ function getMonthLabel(value) {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function HomeExpensesLegend({ isLoading, isError, segments }) {
+function HomeExpensesLegend({ isLoading, isError, segments, hasAccounts }) {
   if (isLoading) {
     return (
       <div className={styles.expensesLoading}>
@@ -39,7 +40,7 @@ function HomeExpensesLegend({ isLoading, isError, segments }) {
     );
   }
 
-  if (segments.length === 0) {
+  if (segments.length === 0 || !hasAccounts) {
     return (
       <Typography variant="body2" color="text.secondary">
         Расходов нет
@@ -61,14 +62,21 @@ function HomeExpensesLegend({ isLoading, isError, segments }) {
 export default function HomeExpensesCard() {
   const navigate = useNavigate();
 
+  const { data: accountsData } = useGetBankAccountsQuery();
+  const accounts = Array.isArray(accountsData) ? accountsData : [];
+  const hasAccounts = accounts.length > 0;
+
   const {
     data: latestOperationsData,
     isLoading: isLatestOperationsLoading,
     isError: isLatestOperationsError,
-  } = useGetTransactionsQuery({
-    limit: 1,
-    offset: 0,
-  });
+  } = useGetTransactionsQuery(
+    {
+      limit: 1,
+      offset: 0,
+    },
+    { skip: !hasAccounts },
+  );
 
   const currentMonthDate = useMemo(
     () =>
@@ -91,15 +99,17 @@ export default function HomeExpensesCard() {
     data: categorySummaryData,
     isLoading: isCategorySummaryLoading,
     isError: isCategorySummaryError,
-  } = useGetTransactionCategoriesSummaryQuery(monthFilters);
+  } = useGetTransactionCategoriesSummaryQuery(monthFilters, {
+    skip: !hasAccounts,
+  });
 
   const isLoading = isLatestOperationsLoading || isCategorySummaryLoading;
   const isError = isLatestOperationsError || isCategorySummaryError;
 
-  const segments = useMemo(
-    () => getExpenseCategorySummarySegments(categorySummaryData, 3),
-    [categorySummaryData],
-  );
+  const segments = useMemo(() => {
+    if (!hasAccounts) return [];
+    return getExpenseCategorySummarySegments(categorySummaryData, 3);
+  }, [categorySummaryData, hasAccounts]);
 
   const donutBackground = useMemo(
     () => buildDonutGradient(segments),
@@ -126,6 +136,7 @@ export default function HomeExpensesCard() {
             isLoading={isLoading}
             isError={isError}
             segments={segments}
+            hasAccounts={hasAccounts}
           />
         </div>
 

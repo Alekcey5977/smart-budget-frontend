@@ -14,6 +14,7 @@ import ProfilePage from "pages/ProfilePage";
 import BankAccountPage from "pages/BankAccountPage/BankAccountPage";
 import BankAccountAddPage from "pages/BankAccountAddPage/BankAccountAddPage";
 import NotificationsPage from "pages/NotificationPage/NotificationsPage";
+import HistoryPage from "pages/NotificationPage/HistoryPage";
 import NotificationDetailsPage from "pages/NotificationPage/NotificationDetailsPage";
 import NotificationsLayout from "pages/NotificationPage/NotificationsLayout";
 import NotificationDetailsLayout from "pages/NotificationPage/NotificationDetailsLayout";
@@ -25,10 +26,7 @@ export default function AppRouter() {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={isAuth ? <Navigate to="/home" replace /> : <WelcomePage />}
-      />
+      <Route path="/" element={<WelcomePage />} />
       <Route
         path="/login"
         element={isAuth ? <Navigate to="/home" replace /> : <LoginPage />}
@@ -41,11 +39,24 @@ export default function AppRouter() {
       />
 
       <Route element={<PrivateRoute />}>
-        <Route element={<AuthLayout />}>
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/bank-accounts" element={<BankAccountPage />} />
-          <Route path="/bank-accounts/add" element={<BankAccountAddPage />} />
+        <Route path="/home" element={<AuthLayout title="Главная" />}>
+          <Route index element={<HomePage />} />
+        </Route>
+
+        <Route path="/bank-accounts" element={<AuthLayout title="Банковские счета" />}>
+          <Route index element={<BankAccountPage />} />
+        </Route>
+
+        <Route path="/bank-accounts/add" element={<AuthLayout title="Добавить счёт" />}>
+          <Route index element={<BankAccountAddPage />} />
+        </Route>
+
+        <Route path="/profile" element={<AuthLayout title="Профиль" />}>
+          <Route index element={<ProfilePage />} />
+        </Route>
+
+        <Route path="/history" element={<AuthLayout title="История" />}>
+          <Route index element={<HistoryPage />} />
         </Route>
 
         <Route path="/notifications" element={<NotificationsLayout />}>

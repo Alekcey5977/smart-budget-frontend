@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 import PhoneLayout from "layout/PhoneLayout";
 import styles from "./UnauthLayout.module.scss";
@@ -20,7 +20,7 @@ export default function UnauthLayout({
       onBack();
       return;
     }
-    navigate(-1);
+    navigate("/");
   }, [onBack, navigate]);
 
   return (
@@ -39,7 +39,7 @@ export default function UnauthLayout({
             "&:hover": { bgcolor: "primary.main" },
           }}
         >
-          <ArrowBackIcon fontSize="small" />
+          <ArrowBackIosNewIcon fontSize="small" />
         </IconButton>
       )}
 

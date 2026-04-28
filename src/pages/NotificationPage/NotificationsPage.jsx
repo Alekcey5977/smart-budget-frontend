@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Typography,
   Tabs,
@@ -10,7 +10,8 @@ import {
   Alert,
   Snackbar,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 import {
   useGetNotificationsQuery,
@@ -117,13 +118,13 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
   );
 };
 
-const HistoryList = ({ onNotificationClick }) => {
+export const HistoryList = ({ onNotificationClick }) => {
   const { data: history = [], isLoading } = useGetHistoryQuery();
 
   const items = useMemo(() => {
     return history.map((item) => ({
       id: item.id,
-      title: item.title || "Системное уведомление",
+      title: item.title || "Уведомление",
       message: item.body || item.message || "Действие в системе",
       created_at: item.created_at,
       category: "history",
@@ -136,7 +137,7 @@ const HistoryList = ({ onNotificationClick }) => {
     <NotificationsListLayout
       items={items}
       onNotificationClick={onNotificationClick}
-      emptyMessage="Системных уведомлений пока нет"
+      emptyMessage="Уведомлений пока нет"
     />
   );
 };
@@ -148,7 +149,7 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
   const items = useMemo(() => {
     return notifications.map((item) => ({
       id: item.id,
-      title: item.title || "Оповещение",
+      title: item.title || "Уведомление",
       message: item.message || item.body || item.text || "Новое уведомление",
       created_at: item.created_at,
       is_read: item.is_read || false,
@@ -179,7 +180,7 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
       items={items}
       onNotificationClick={onNotificationClick}
       onDelete={handleDelete}
-      emptyMessage="Оповещательных уведомлений пока нет"
+      emptyMessage="Уведомлений пока нет"
     />
   );
 };
@@ -192,8 +193,10 @@ const LoadingIndicator = () => (
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
-  const [tabIndex, setTabIndex] = useState(0);
+  const { setPageHeaderAction } = useOutletContext();
   const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+
+  const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
 
   const handleNotificationClick = useCallback(
     (item) => {
@@ -201,7 +204,6 @@ export default function NotificationsPage() {
         navigate(`/notifications/${item.id}`, {
           state: {
             type: item.category,
-            notification: item,
           },
         });
       }
@@ -213,34 +215,31 @@ export default function NotificationsPage() {
     setSnackbar({ open: true, message });
   }, []);
 
+  const handleMarkAllRead = useCallback(async () => {
+    try {
+      await markAllAsRead().unwrap();
+    } catch (err) {
+      console.error("Error marking all as read:", err);
+    }
+  }, [markAllAsRead]);
+
+  useEffect(() => {
+    if (setPageHeaderAction) {
+      setPageHeaderAction(
+        <IconButton onClick={handleMarkAllRead} sx={{ color: "text.primary" }}>
+          <DoneAllIcon />
+        </IconButton>,
+      );
+    }
+    return () => setPageHeaderAction?.(null);
+  }, [setPageHeaderAction, handleMarkAllRead]);
+
   return (
     <div className={styles.page}>
-      <Tabs
-        value={tabIndex}
-        onChange={(e, idx) => setTabIndex(idx)}
-        centered
-        sx={{
-          mb: 2,
-          "& .MuiTab-root": {
-            fontSize: "12px",
-            minWidth: "auto",
-            padding: "8px 12px",
-            textTransform: "none",
-          },
-        }}
-      >
-        <Tab label="Системные" />
-        <Tab label="Оповещательные" />
-      </Tabs>
-
-      {tabIndex === 0 ? (
-        <HistoryList onNotificationClick={handleNotificationClick} />
-      ) : (
-        <AlertsList
-          onNotificationClick={handleNotificationClick}
-          showSnackbar={showSnackbar}
-        />
-      )}
+      <AlertsList
+        onNotificationClick={handleNotificationClick}
+        showSnackbar={showSnackbar}
+      />
 
       <Snackbar
         open={snackbar.open}

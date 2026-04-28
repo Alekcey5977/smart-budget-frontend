@@ -17,7 +17,7 @@ import {
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HomeIcon from "@mui/icons-material/Home";
 import EditIcon from "@mui/icons-material/Edit";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
@@ -76,7 +76,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                 height: 40,
               }}
             >
-              <ArrowBackIcon fontSize="small" />
+              <HomeIcon fontSize="small" />
             </IconButton>
             <Typography variant="h6" className={styles.pageTitle}>
               {title}
@@ -88,18 +88,30 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
           <>
             <Box sx={{ position: "relative" }}>
               <Avatar
+                key={myAvatar?.image_id || myAvatar?.id || "no-avatar"}
                 className={styles.avatar}
                 onClick={openMenu}
+                src={
+                  myAvatar?.image_id
+                    ? `/images/${myAvatar.image_id}`
+                    : myAvatar?.id
+                      ? `/images/${myAvatar.id}`
+                      : undefined
+                }
                 sx={{
-                  bgcolor: "primary.main",
+                  bgcolor: "#cbcbcb",
                   width: 40,
                   height: 40,
                   cursor: "pointer",
                 }}
               >
-                <PersonIcon />
+                {!(myAvatar?.image_id || myAvatar?.id) && <PersonIcon />}
               </Avatar>
             </Box>
+
+            <Typography variant="h6" className={styles.pageTitle} sx={{ flexGrow: 1, textAlign: "center" }}>
+              {title}
+            </Typography>
 
             <IconButton
               onClick={handleNotificationsClick}
@@ -128,6 +140,17 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                 horizontal: "center",
               }}
             >
+              <MenuItem
+                onClick={() => {
+                  closeMenu();
+                  setIsAvatarSelectorOpen(true);
+                }}
+              >
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Изменить аватар" />
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   closeMenu();

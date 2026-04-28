@@ -6,6 +6,7 @@ import { useRegisterMutation } from "src/services/auth/authApi";
 import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
 import StepOne from "./StepOne/StepOne";
 import StepTwo from "./StepTwo/StepTwo";
+import { translateError } from "src/utils/errorHelpers";
 import styles from "./RegistrationPage.module.scss";
 
 const RegistrationPage = () => {
@@ -37,13 +38,13 @@ const RegistrationPage = () => {
           },
         });
       } catch (err) {
-        console.error("Registration failed", err);
+        // Ошибка обрабатывается через regError
       }
     },
     [registerRequest, navigate],
   );
 
-  const errorMessage = regError?.data?.detail || "Ошибка регистрации";
+  const errorMessage = translateError(regError?.data);
 
   return (
     <UnauthLayout showBack title="Регистрация" onBack={goBack}>
@@ -54,9 +55,7 @@ const RegistrationPage = () => {
         >
           {regError && (
             <Alert severity="error" sx={{ mb: 2 }}>
-              {typeof errorMessage === "string"
-                ? errorMessage
-                : JSON.stringify(errorMessage)}
+              {errorMessage}
             </Alert>
           )}
           {step === 1 ? <StepOne onContinue={goNext} /> : <StepTwo />}

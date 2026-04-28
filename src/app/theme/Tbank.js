@@ -39,7 +39,7 @@ export const theme = createTheme({
 
     button: {
       fontSize: "22px",
-      letterSpacing: "0.26em",
+      letterSpacing: "0.5px",
       textTransform: "none",
       fontWeight: 400,
     },
