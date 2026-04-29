@@ -181,7 +181,7 @@ export default function OperationDetailsPage() {
           <div className={styles.detailLabel}>Баланс</div>
           <Typography variant="h6" fontWeight={700}>
             {account
-              ? `${formatMoney(account.balance)} ${account.currency || "RUB"}`
+              ? `${formatMoney(account.balance)}\u00A0${account.currency || "RUB"}`
               : "—"}
           </Typography>
         </div>

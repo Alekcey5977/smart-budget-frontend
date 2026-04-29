@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useCreateGoalMutation } from "services/goals/goalsApi";
 import { getMonthsLeft } from "src/utils/date";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import styles from "./GoalCreatePage.module.scss";
@@ -42,7 +42,7 @@ export default function GoalCreatePage() {
     }
 
     const monthlyAmount = total / monthsLeft;
-    return `В среднем нужно откладывать ${formatMoney(monthlyAmount)} ₽ в месяц`;
+    return `В среднем нужно откладывать ${formatCurrency(monthlyAmount)} в месяц`;
   }, [deadline, totalAmount]);
 
   const onSubmit = async (data) => {

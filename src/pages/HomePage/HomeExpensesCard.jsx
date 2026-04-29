@@ -127,7 +127,11 @@ export default function HomeExpensesCard() {
       }
     >
       <Typography variant="subtitle1" fontWeight={700}>
-        Расходы за {getMonthLabel(currentMonthDate)}
+        Расходы
+      </Typography>
+
+      <Typography className={styles.expensesMonth}>
+        {getMonthLabel(currentMonthDate)}
       </Typography>
 
       <div className={styles.expensesCardContent}>

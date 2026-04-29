@@ -1,7 +1,12 @@
 import { CircularProgress } from "@mui/material";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo } from "react";
-import { Navigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import {
   useGetAllTransactionsQuery,
   useGetTransactionsQuery,
@@ -30,6 +35,7 @@ function getMonthFromSearchParams(searchParams) {
 
 export default function OperationsAnalyticsPage() {
   const { type } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getOperationsAnalyticsConfig(type);
   const monthFromSearchParams = useMemo(
@@ -141,6 +147,18 @@ export default function OperationsAnalyticsPage() {
     setMonthSearchParam(monthDate.add(1, "month"));
   }, [canGoNext, monthDate, setMonthSearchParam]);
 
+  const openSegmentOperations = useCallback((segment) => {
+    if (!segment?.categoryIds?.length) {
+      return;
+    }
+
+    const nextSearchParams = new URLSearchParams();
+    nextSearchParams.set("month", monthDate.format("YYYY-MM"));
+    nextSearchParams.set("categoryIds", segment.categoryIds.join(","));
+
+    navigate(`/operations?${nextSearchParams.toString()}`);
+  }, [monthDate, navigate]);
+
   if (!config) {
     return <Navigate to="/operations" replace />;
   }
@@ -156,7 +174,6 @@ export default function OperationsAnalyticsPage() {
   return (
     <div className={styles.root}>
       <OperationsAnalyticsPanel
-        title={config.title}
         totalAmount={totalAmount}
         monthLabel={monthLabel}
         segments={segments}
@@ -167,6 +184,7 @@ export default function OperationsAnalyticsPage() {
         canGoNext={canGoNext}
         onPrevMonth={showPreviousMonth}
         onNextMonth={showNextMonth}
+        onSegmentClick={openSegmentOperations}
       />
     </div>
   );

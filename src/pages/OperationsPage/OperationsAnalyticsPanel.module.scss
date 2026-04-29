@@ -13,7 +13,7 @@
 .analyticsHeader {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
 }
 
@@ -92,8 +92,8 @@
 }
 
 .analyticsDonut {
-  width: 132px;
-  height: 132px;
+  width: 154px;
+  height: 154px;
   border-radius: 50%;
   background: var(
     --ring-background,
@@ -106,14 +106,14 @@
 .analyticsDonut::after {
   content: "";
   position: absolute;
-  inset: 24px;
+  inset: 27px;
   border-radius: 50%;
   background: color.$color-surface-main;
 }
 
 .analyticsDonutCenter {
   position: absolute;
-  inset: 30px;
+  inset: 27px;
   z-index: 1;
   border-radius: 50%;
   display: flex;
@@ -123,16 +123,11 @@
   text-align: center;
 }
 
-.analyticsDonutLabel {
-  font-size: 12px;
-  color: color.$color-muted-main;
-}
-
 .analyticsDonutValue {
-  margin-top: 4px;
-  font-size: 16px;
-  line-height: 1.15;
+  font-size: clamp(13px, 4vw, 17px);
+  line-height: 1.1;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .analyticsLegend {
@@ -143,6 +138,8 @@
 }
 
 .analyticsLegendItem {
+  width: 100%;
+  border: 0;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.58);
   padding: 9px 12px;
@@ -150,6 +147,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  color: color.$color-text-main;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 1;
+    cursor: default;
+  }
+
+  &:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.74);
+  }
 }
 
 .analyticsLegendItemLabelWrap {
@@ -189,6 +199,7 @@
   font-size: 14px;
   line-height: 1.2;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .analyticsLegendItemPercent {

@@ -3,7 +3,7 @@ import { Paper, Typography, Box } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
-import { formatMoney } from "utils/formatMoney";
+import { formatCurrency } from "utils/formatMoney";
 import styles from "./HomePage.module.scss";
 
 export default function BalanceWidget() {
@@ -30,7 +30,7 @@ export default function BalanceWidget() {
       </Typography>
 
       <Typography variant="body2" fontWeight={700} mb={1}>
-        {isLoading ? "Загрузка..." : `${formatMoney(totalBalance)} ₽`}
+        {isLoading ? "Загрузка..." : formatCurrency(totalBalance)}
       </Typography>
 
       <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>

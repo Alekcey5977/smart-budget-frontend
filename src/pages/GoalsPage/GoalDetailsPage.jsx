@@ -8,7 +8,7 @@ import {
   useGetGoalsQuery,
   useUpdateGoalMutation,
 } from "services/goals/goalsApi";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import { toInputDate } from "src/utils/date";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
@@ -190,7 +190,7 @@ export default function GoalDetailsPage() {
       </div>
 
       <Typography variant="body1" className={styles.leftAmount}>
-        До цели осталось: {formatMoney(leftAmount > 0 ? leftAmount : 0)} ₽
+        До цели осталось: {formatCurrency(leftAmount > 0 ? leftAmount : 0)}
       </Typography>
 
       <div className={styles.actions}>

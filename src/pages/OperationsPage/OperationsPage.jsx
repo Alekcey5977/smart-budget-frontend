@@ -16,7 +16,11 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   useGetCategoryImageMappingsQuery,
@@ -27,7 +31,7 @@ import {
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import AppTextField from "ui/AppTextField";
 import OperationListItem from "./OperationListItem";
 import {
@@ -65,31 +69,71 @@ function getPeriodLabel(from, to) {
   return `${formatDateForFilterLabel(from)} - ${formatDateForFilterLabel(to)}`;
 }
 
+function getMonthFromSearchParams(searchParams) {
+  const value = searchParams.get("month");
+
+  if (!value || !/^\d{4}-\d{2}$/.test(value)) {
+    return null;
+  }
+
+  const monthDate = dayjs(`${value}-01`);
+  return monthDate.isValid() ? monthDate.startOf("month") : null;
+}
+
+function getCategoryIdsFromSearchParams(searchParams) {
+  const value = searchParams.get("categoryIds");
+
+  if (!value) {
+    return [];
+  }
+
+  const categoryIds = value
+    .split(",")
+    .map((item) => Number(item))
+    .filter((item) => Number.isFinite(item));
+
+  return [...new Set(categoryIds)];
+}
+
 export default function OperationsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setPageHeaderAction } = useOutletContext() || {};
 
   const now = dayjs();
-  const [filters, setFilters] = useState({
-    dateFrom: now.startOf("month"),
-    dateTo: now.endOf("month"),
+  const monthFromSearchParams = useMemo(
+    () => getMonthFromSearchParams(searchParams),
+    [searchParams],
+  );
+  const categoryIdsFromSearchParams = useMemo(
+    () => getCategoryIdsFromSearchParams(searchParams),
+    [searchParams],
+  );
+  const initialPeriod = monthFromSearchParams || now.startOf("month");
+  const [filters, setFilters] = useState(() => ({
+    dateFrom: initialPeriod.startOf("month"),
+    dateTo: initialPeriod.endOf("month"),
     minAmount: "",
     maxAmount: "",
-    categoryIds: [],
-  });
-  const [periodDraft, setPeriodDraft] = useState({
-    dateFrom: now.startOf("month"),
-    dateTo: now.endOf("month"),
-  });
+    categoryIds: categoryIdsFromSearchParams,
+  }));
+  const [periodDraft, setPeriodDraft] = useState(() => ({
+    dateFrom: initialPeriod.startOf("month"),
+    dateTo: initialPeriod.endOf("month"),
+  }));
   const [amountDraft, setAmountDraft] = useState({
     minAmount: "",
     maxAmount: "",
   });
-  const [categoryDraftIds, setCategoryDraftIds] = useState([]);
+  const [categoryDraftIds, setCategoryDraftIds] = useState(
+    categoryIdsFromSearchParams,
+  );
 
   const [periodDialogOpen, setPeriodDialogOpen] = useState(false);
   const [periodTarget, setPeriodTarget] = useState("from");
-  const [periodInitialized, setPeriodInitialized] = useState(false);
+  const [periodInitialized, setPeriodInitialized] = useState(
+    Boolean(monthFromSearchParams),
+  );
 
   const [amountDialogOpen, setAmountDialogOpen] = useState(false);
 
@@ -98,6 +142,10 @@ export default function OperationsPage() {
 
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  const allCategoryIds = useMemo(
+    () => categories.map((item) => Number(item.id)),
+    [categories],
+  );
   const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
   const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
   const merchantImageLookup = useMemo(
@@ -114,14 +162,23 @@ export default function OperationsPage() {
       return;
     }
 
-    const categoryIds = categories.map((item) => Number(item.id));
+    const categoryIds =
+      categoryIdsFromSearchParams.length > 0
+        ? categoryIdsFromSearchParams
+        : allCategoryIds;
+
     setFilters((prev) => ({
       ...prev,
       categoryIds,
     }));
     setCategoryDraftIds(categoryIds);
     setCategoriesInitialized(true);
-  }, [categories, categoriesInitialized]);
+  }, [
+    allCategoryIds,
+    categories,
+    categoriesInitialized,
+    categoryIdsFromSearchParams,
+  ]);
 
   const noSelectedCategories =
     categories.length > 0 && filters.categoryIds.length === 0;
@@ -177,10 +234,20 @@ export default function OperationsPage() {
       dateTo: to,
     });
     setPeriodInitialized(true);
-  }, [latestOperationsData, latestMonthDate, periodInitialized, isLatestOperationsError]);
+  }, [
+    latestOperationsData,
+    latestMonthDate,
+    periodInitialized,
+    isLatestOperationsError,
+  ]);
 
   const hasCategoryFilter =
-    categories.length > 0 && filters.categoryIds.length !== categories.length;
+    categories.length === 0
+      ? filters.categoryIds.length > 0
+      : filters.categoryIds.length !== allCategoryIds.length ||
+        allCategoryIds.some((categoryId) => !filters.categoryIds.includes(categoryId));
+  const shouldApplyCategoryFilter =
+    filters.categoryIds.length > 0 && hasCategoryFilter;
 
   const transactionsFilters = useMemo(() => {
     const payload = {};
@@ -198,7 +265,7 @@ export default function OperationsPage() {
       payload.max_amount = Number(filters.maxAmount);
     }
 
-    if (hasCategoryFilter && filters.categoryIds.length > 0) {
+    if (shouldApplyCategoryFilter) {
       payload.category_ids = filters.categoryIds;
     }
 
@@ -206,7 +273,7 @@ export default function OperationsPage() {
   }, [
     periodInitialized,
     filters,
-    hasCategoryFilter,
+    shouldApplyCategoryFilter,
   ]);
 
   const {
@@ -315,13 +382,12 @@ export default function OperationsPage() {
   }, []);
 
   const resetCategories = useCallback(() => {
-    const categoryIds = categories.map((item) => Number(item.id));
     setFilters((prev) => ({
       ...prev,
-      categoryIds,
+      categoryIds: allCategoryIds,
     }));
-    setCategoryDraftIds(categoryIds);
-  }, [categories]);
+    setCategoryDraftIds(allCategoryIds);
+  }, [allCategoryIds]);
 
   const resetAllFilters = useCallback(() => {
     resetPeriodFilter();
@@ -457,7 +523,7 @@ export default function OperationsPage() {
   };
 
   const resetCategoryDrafts = () => {
-    setCategoryDraftIds(categories.map((item) => Number(item.id)));
+    setCategoryDraftIds(allCategoryIds);
   };
 
   const dialogPaperSx = {
@@ -573,7 +639,7 @@ export default function OperationsPage() {
               <div className={styles.summaryInfo}>
                 <div className={styles.summaryLabel}>{card.title}</div>
                 <div className={styles.summaryValue}>
-                  {formatMoney(card.totalAmount)} ₽
+                  {formatCurrency(card.totalAmount)}
                 </div>
               </div>
             </button>

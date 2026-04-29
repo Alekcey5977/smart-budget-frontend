@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
-import { formatMoney } from "utils/formatMoney";
+import { formatCurrency } from "utils/formatMoney";
 import { buildDonutGradient } from "utils/operationHelpers";
 import styles from "./OperationsAnalyticsPanel.module.scss";
 
@@ -16,7 +16,6 @@ function getSegmentPercent(amount, totalAmount) {
 }
 
 export default function OperationsAnalyticsPanel({
-  title,
   totalAmount,
   monthLabel,
   segments,
@@ -28,6 +27,7 @@ export default function OperationsAnalyticsPanel({
   onPrevMonth,
   onNextMonth,
   onClose,
+  onSegmentClick,
 }) {
   const donutBackground = buildDonutGradient(segments);
 
@@ -68,37 +68,52 @@ export default function OperationsAnalyticsPanel({
             style={{ "--ring-background": donutBackground }}
           >
             <div className={styles.analyticsDonutCenter}>
-              <div className={styles.analyticsDonutLabel}>{title}</div>
               <div className={styles.analyticsDonutValue}>
-                {formatMoney(totalAmount)} ₽
+                {formatCurrency(totalAmount)}
               </div>
             </div>
           </div>
         </div>
 
         <div className={styles.analyticsLegend}>
-          {segments.map((segment) => (
-            <div key={segment.label} className={styles.analyticsLegendItem}>
-              <div className={styles.analyticsLegendItemLabelWrap}>
-                <span
-                  className={styles.analyticsLegendItemColor}
-                  style={{ backgroundColor: segment.color }}
-                />
-                <span className={styles.analyticsLegendItemLabel}>
-                  {segment.label}
-                </span>
-              </div>
+          {segments.map((segment) => {
+            const canOpenSegment = Boolean(
+              onSegmentClick && segment.categoryIds?.length,
+            );
 
-              <div className={styles.analyticsLegendItemMeta}>
-                <span className={styles.analyticsLegendItemValue}>
-                  {formatMoney(segment.amount)} ₽
-                </span>
-                <span className={styles.analyticsLegendItemPercent}>
-                  {getSegmentPercent(segment.amount, totalAmount)}%
-                </span>
-              </div>
-            </div>
-          ))}
+            return (
+              <button
+                key={segment.label}
+                type="button"
+                className={styles.analyticsLegendItem}
+                onClick={() => {
+                  if (canOpenSegment) {
+                    onSegmentClick(segment);
+                  }
+                }}
+                disabled={!canOpenSegment}
+              >
+                <div className={styles.analyticsLegendItemLabelWrap}>
+                  <span
+                    className={styles.analyticsLegendItemColor}
+                    style={{ backgroundColor: segment.color }}
+                  />
+                  <span className={styles.analyticsLegendItemLabel}>
+                    {segment.label}
+                  </span>
+                </div>
+
+                <div className={styles.analyticsLegendItemMeta}>
+                  <span className={styles.analyticsLegendItemValue}>
+                    {formatCurrency(segment.amount)}
+                  </span>
+                  <span className={styles.analyticsLegendItemPercent}>
+                    {getSegmentPercent(segment.amount, totalAmount)}%
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -106,14 +121,8 @@ export default function OperationsAnalyticsPanel({
 
   return (
     <div className={styles.analyticsCard}>
-      <div className={styles.analyticsHeader}>
-        <div>
-          <Typography variant="h6" className={styles.analyticsTitle}>
-            {title}
-          </Typography>
-        </div>
-
-        {onClose && (
+      {onClose && (
+        <div className={styles.analyticsHeader}>
           <button
             type="button"
             className={styles.analyticsCloseButton}
@@ -122,8 +131,8 @@ export default function OperationsAnalyticsPanel({
             <CloseIcon fontSize="small" />
             <span>Скрыть</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className={styles.analyticsMonthRow}>
         <button
