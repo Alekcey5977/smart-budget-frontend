@@ -10,8 +10,10 @@ import {
   Alert,
   Snackbar,
 } from "@mui/material";
+import ConfirmDialog from "ui/ConfirmDialog";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 import {
   useGetNotificationsQuery,
@@ -86,9 +88,12 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
             {Boolean(onDelete) && (
               <IconButton
                 size="small"
+                aria-label="Удалить"
                 onClick={(e) => onDelete(item.id, e)}
                 sx={{ p: 0.5, mt: -0.5, mr: -0.5 }}
-              ></IconButton>
+              >
+                <DeleteOutlineIcon fontSize="small" />
+              </IconButton>
             )}
           </Box>
 
@@ -144,7 +149,9 @@ export const HistoryList = ({ onNotificationClick }) => {
 
 const AlertsList = ({ onNotificationClick, showSnackbar }) => {
   const { data: notifications = [], isLoading } = useGetNotificationsQuery();
-  const [deleteNotification] = useDeleteNotificationMutation();
+  const [deleteNotification, { isLoading: isDeleting }] =
+    useDeleteNotificationMutation();
+  const [deleteId, setDeleteId] = useState(null);
 
   const items = useMemo(() => {
     return notifications.map((item) => ({
@@ -158,30 +165,50 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
   }, [notifications]);
 
   const handleDelete = useCallback(
-    async (id, event) => {
+    (id, event) => {
       event.stopPropagation();
-      if (window.confirm("Удалить это уведомление?")) {
-        try {
-          await deleteNotification(id).unwrap();
-          showSnackbar("Уведомление удалено");
-        } catch (error) {
-          console.error("Error deleting:", error);
-          showSnackbar("Ошибка при удалении");
-        }
+      setDeleteId(id);
+    },
+    [],
+  );
+
+  const handleDeleteConfirm = useCallback(
+    async () => {
+      if (!deleteId) return;
+
+      try {
+        await deleteNotification(deleteId).unwrap();
+        showSnackbar("Уведомление удалено");
+      } catch (error) {
+        console.error("Error deleting:", error);
+        showSnackbar("Ошибка при удалении");
+      } finally {
+        setDeleteId(null);
       }
     },
-    [deleteNotification, showSnackbar],
+    [deleteId, deleteNotification, showSnackbar],
   );
 
   if (isLoading) return <LoadingIndicator />;
 
   return (
-    <NotificationsListLayout
-      items={items}
-      onNotificationClick={onNotificationClick}
-      onDelete={handleDelete}
-      emptyMessage="Уведомлений пока нет"
-    />
+    <>
+      <NotificationsListLayout
+        items={items}
+        onNotificationClick={onNotificationClick}
+        onDelete={handleDelete}
+        emptyMessage="Уведомлений пока нет"
+      />
+      <ConfirmDialog
+        open={Boolean(deleteId)}
+        title="Удалить уведомление?"
+        text="Уведомление будет удалено из списка."
+        confirmText="Удалить"
+        isLoading={isDeleting}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+      />
+    </>
   );
 };
 
@@ -258,4 +285,3 @@ export default function NotificationsPage() {
     </div>
   );
 }
-

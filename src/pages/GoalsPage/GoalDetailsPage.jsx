@@ -12,6 +12,7 @@ import { formatMoney } from "src/utils/formatMoney";
 import { toInputDate } from "src/utils/date";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
+import ConfirmDialog from "ui/ConfirmDialog";
 import styles from "./GoalDetailsPage.module.scss";
 
 export default function GoalDetailsPage() {
@@ -22,6 +23,7 @@ export default function GoalDetailsPage() {
   const [deleteGoal, { isLoading: isDeleting }] = useDeleteGoalMutation();
 
   const [errorText, setErrorText] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const {
     register,
     reset,
@@ -79,12 +81,7 @@ export default function GoalDetailsPage() {
     }
   };
 
-  const handleDelete = async () => {
-    const ok = window.confirm("Удалить цель?");
-    if (!ok) {
-      return;
-    }
-
+  const handleDeleteConfirm = async () => {
     setErrorText("");
 
     try {
@@ -97,6 +94,8 @@ export default function GoalDetailsPage() {
       } else {
         setErrorText("Не удалось удалить цель");
       }
+    } finally {
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -202,12 +201,22 @@ export default function GoalDetailsPage() {
         <AppButton
           type="button"
           variant="outlined"
-          onClick={handleDelete}
+          onClick={() => setDeleteDialogOpen(true)}
           disabled={isUpdating || isDeleting}
         >
           {isDeleting ? "Удаление..." : "Удалить цель"}
         </AppButton>
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Удалить цель?"
+        text={`Цель "${goal.title}" будет удалена без возможности восстановления.`}
+        confirmText="Удалить"
+        isLoading={isDeleting}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </form>
   );
 }
