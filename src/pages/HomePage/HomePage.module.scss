@@ -127,6 +127,43 @@
   justify-content: center;
 }
 
+.goalsEmpty {
+  margin-top: 14px;
+  min-height: 72px;
+  border-radius: 18px;
+  background: rgba(255, 229, 107, 0.28);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+}
+
+.goalsEmptyTitle {
+  color: color.$color-text-main;
+  font-weight: 700;
+}
+
+.goalsEmptyText {
+  display: block;
+  margin-top: 2px;
+  color: color.$color-muted-main;
+  font-weight: 600;
+}
+
+.goalsEmptyIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: color.$color-accent-main;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: color.$color-text-main;
+  flex-shrink: 0;
+}
+
 .goalsMiniList {
   margin-top: 12px;
   display: flex;

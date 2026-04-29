@@ -28,6 +28,7 @@ export default function GoalDetailsPage() {
     register,
     reset,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "onSubmit",
@@ -40,6 +41,8 @@ export default function GoalDetailsPage() {
   });
 
   const goal = goals.find((item) => item.id === goalId);
+  const amountValue = watch("amount");
+  const totalAmountValue = watch("totalAmount");
 
   useEffect(() => {
     if (!goal) {
@@ -56,6 +59,13 @@ export default function GoalDetailsPage() {
 
   const leftAmount =
     Number(goal?.total_amount || 0) - Number(goal?.amount || 0);
+  const actionButtonSx = {
+    height: 52,
+    borderRadius: "18px",
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: 0,
+  };
 
   const handleSave = async (data) => {
     setErrorText("");
@@ -164,6 +174,9 @@ export default function GoalDetailsPage() {
               value: 0,
               message: "Сумма не может быть меньше 0",
             },
+            validate: (value) =>
+              Number(value || 0) <= Number(totalAmountValue || 0) ||
+              "Накоплено не может быть больше итоговой суммы",
           })}
           type="number"
           error={Boolean(errors.amount)}
@@ -181,6 +194,9 @@ export default function GoalDetailsPage() {
               value: 1,
               message: "Сумма должна быть больше 0",
             },
+            validate: (value) =>
+              Number(value || 0) >= Number(amountValue || 0) ||
+              "Итоговая сумма не может быть меньше накопленной",
           })}
           type="number"
           error={Boolean(errors.totalAmount)}
@@ -194,7 +210,11 @@ export default function GoalDetailsPage() {
       </Typography>
 
       <div className={styles.actions}>
-        <AppButton type="submit" disabled={isUpdating || isDeleting}>
+        <AppButton
+          type="submit"
+          disabled={isUpdating || isDeleting}
+          sx={actionButtonSx}
+        >
           {isUpdating ? "Сохранение..." : "Сохранить"}
         </AppButton>
 
@@ -203,6 +223,7 @@ export default function GoalDetailsPage() {
           variant="outlined"
           onClick={() => setDeleteDialogOpen(true)}
           disabled={isUpdating || isDeleting}
+          sx={actionButtonSx}
         >
           {isDeleting ? "Удаление..." : "Удалить цель"}
         </AppButton>

@@ -9,6 +9,13 @@ import styles from "./GoalsPage.module.scss";
 export default function GoalsPage() {
   const navigate = useNavigate();
   const { data: goals = [], isLoading, isError } = useGetGoalsQuery();
+  const actionButtonSx = {
+    height: 52,
+    borderRadius: "18px",
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: 0,
+  };
 
   const renderGoalsContent = () => {
     if (isLoading) {
@@ -59,7 +66,10 @@ export default function GoalsPage() {
       </div>
 
       <div className={styles.actions}>
-        <AppButton onClick={() => navigate("/goals/create")}>
+        <AppButton
+          onClick={() => navigate("/goals/create")}
+          sx={actionButtonSx}
+        >
           Создать цель
         </AppButton>
       </div>

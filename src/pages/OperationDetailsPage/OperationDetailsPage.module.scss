@@ -5,7 +5,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .center {
@@ -22,64 +22,117 @@
 .amountCard {
   border-radius: 28px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 229, 107, 0.24);
-  padding: 14px;
+  background: rgba(255, 229, 107, 0.26);
+  padding: 18px 14px 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .operationCircle {
-  width: 88px;
-  height: 88px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
 }
 
-.amountCardRight {
-  min-width: 0;
-  flex: 1;
-  text-align: right;
+.operationTitle {
+  max-width: 100%;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .amountValue {
-  font-size: 30px;
-  line-height: 1.1;
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.amountIncome {
+  color: #20a84b;
+}
+
+.amountExpense {
+  color: color.$color-text-main;
 }
 
 .detailsCard {
   border-radius: 28px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 229, 107, 0.2);
-  padding: 14px;
+  background: rgba(255, 229, 107, 0.18);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .detailsTitle {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.15;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.detailBlock {
+.detailsList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+}
+
+.detailRow {
+  min-height: 58px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.36);
 }
 
 .detailLabel {
   color: color.$color-muted-main;
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.detailValue {
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 800;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .categoryRow {
+  align-items: center;
+}
+
+.categoryValue {
+  min-width: 0;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.categoryEditButton {
+  width: 34px;
+  height: 34px;
+  color: color.$color-muted-main !important;
+  flex-shrink: 0;
 }
 
 .popoverPaper {

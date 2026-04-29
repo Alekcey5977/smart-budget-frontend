@@ -65,6 +65,14 @@ export default function GoalCreatePage() {
     }
   };
 
+  const actionButtonSx = {
+    height: 52,
+    borderRadius: "18px",
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: 0,
+  };
+
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       {errorText && <Alert severity="error">{errorText}</Alert>}
@@ -117,7 +125,7 @@ export default function GoalCreatePage() {
       </div>
 
       <div className={styles.actions}>
-        <AppButton type="submit" disabled={isLoading}>
+        <AppButton type="submit" disabled={isLoading} sx={actionButtonSx}>
           {isLoading ? "Создание..." : "Создать цель"}
         </AppButton>
       </div>

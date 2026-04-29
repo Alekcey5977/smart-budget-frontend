@@ -26,6 +26,7 @@ import {
   formatOperationDateTime,
   getOperationSignedAmount,
   getOperationTitle,
+  isIncomeOperation,
 } from "utils/operationHelpers";
 import styles from "./OperationDetailsPage.module.scss";
 
@@ -164,12 +165,19 @@ export default function OperationDetailsPage() {
           className={styles.operationCircle}
         />
 
-        <div className={styles.amountCardRight}>
+        <Typography variant="h6" className={styles.operationTitle}>
+          {getOperationTitle(operation)}
+        </Typography>
+
+        <div
+          className={
+            isIncomeOperation(operation)
+              ? styles.amountIncome
+              : styles.amountExpense
+          }
+        >
           <Typography variant="h5" className={styles.amountValue}>
             {getOperationSignedAmount(operation)}
-          </Typography>
-          <Typography variant="h6" fontWeight={700}>
-            {getOperationTitle(operation)}
           </Typography>
         </div>
       </div>
@@ -177,44 +185,47 @@ export default function OperationDetailsPage() {
       <div className={styles.detailsCard}>
         <div className={styles.detailsTitle}>Подробности</div>
 
-        <div className={styles.detailBlock}>
-          <div className={styles.detailLabel}>Баланс</div>
-          <Typography variant="h6" fontWeight={700}>
-            {account
-              ? `${formatMoney(account.balance)}\u00A0${account.currency || "RUB"}`
-              : "—"}
-          </Typography>
-        </div>
-
-        <div className={styles.detailBlock}>
-          <div className={styles.detailLabel}>Карта списание</div>
-          <Typography variant="h6" fontWeight={700}>
-            {account?.bank_account_name || "—"}
-          </Typography>
-        </div>
-
-        <div className={styles.detailBlock}>
-          <div className={styles.detailLabel}>Дата и время</div>
-          <Typography variant="h6" fontWeight={700}>
-            {formatOperationDateTime(operation.created_at)}
-          </Typography>
-        </div>
-
-        <div className={styles.categoryRow}>
-          <div className={styles.detailBlock}>
-            <div className={styles.detailLabel}>Категория</div>
-            <Typography variant="h6" fontWeight={700}>
-              {selectedCategory?.name || operation.category_name || "—"}
-            </Typography>
+        <div className={styles.detailsList}>
+          <div className={styles.detailRow}>
+            <div className={styles.detailLabel}>Баланс</div>
+            <div className={styles.detailValue}>
+              {account
+                ? `${formatMoney(account.balance)}\u00A0${account.currency || "RUB"}`
+                : "—"}
+            </div>
           </div>
 
-          <IconButton
-            aria-label="Изменить категорию"
-            disabled={isUpdatingCategory}
-            onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
-          >
-            <EditOutlinedIcon />
-          </IconButton>
+          <div className={styles.detailRow}>
+            <div className={styles.detailLabel}>Карта списания</div>
+            <div className={styles.detailValue}>
+              {account?.bank_account_name || "—"}
+            </div>
+          </div>
+
+          <div className={styles.detailRow}>
+            <div className={styles.detailLabel}>Дата и время</div>
+            <div className={styles.detailValue}>
+              {formatOperationDateTime(operation.created_at)}
+            </div>
+          </div>
+
+          <div className={`${styles.detailRow} ${styles.categoryRow}`}>
+            <div className={styles.detailLabel}>Категория</div>
+            <div className={styles.categoryValue}>
+              <span className={styles.detailValue}>
+                {selectedCategory?.name || operation.category_name || "—"}
+              </span>
+
+              <IconButton
+                aria-label="Изменить категорию"
+                disabled={isUpdatingCategory}
+                onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
+                className={styles.categoryEditButton}
+              >
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
+            </div>
+          </div>
         </div>
       </div>
 

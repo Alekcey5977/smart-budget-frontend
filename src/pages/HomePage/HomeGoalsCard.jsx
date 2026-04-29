@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import { useGetGoalsQuery } from "services/goals/goalsApi";
@@ -25,22 +26,45 @@ export default function HomeGoalsCard() {
   const navigate = useNavigate();
   const { data: goals = [], isLoading } = useGetGoalsQuery();
   const dashboardGoals = goals.slice(0, 2);
+  const hasGoals = goals.length > 0;
+
+  const handleOpenGoals = () => {
+    if (isLoading) {
+      return;
+    }
+
+    navigate(hasGoals ? "/goals" : "/goals/create");
+  };
 
   return (
     <Paper
       variant="outlined"
       className={`${styles.cardWide} ${styles.cardLink}`}
-      onClick={() => navigate("/goals")}
+      onClick={handleOpenGoals}
     >
       <Typography variant="subtitle1" fontWeight={700}>
         Цели
       </Typography>
 
-      {isLoading || dashboardGoals.length === 0 ? (
+      {isLoading ? (
         <div className={styles.center}>
           <Typography variant="body2" color="text.secondary">
-            {isLoading ? "Загрузка..." : "Целей нет"}
+            Загрузка...
           </Typography>
+        </div>
+      ) : dashboardGoals.length === 0 ? (
+        <div className={styles.goalsEmpty}>
+          <div>
+            <Typography variant="body2" className={styles.goalsEmptyTitle}>
+              Целей нет
+            </Typography>
+            <Typography variant="caption" className={styles.goalsEmptyText}>
+              Добавить первую цель
+            </Typography>
+          </div>
+          <span className={styles.goalsEmptyIcon}>
+            <AddIcon fontSize="small" />
+          </span>
         </div>
       ) : (
         <div className={styles.goalsMiniList}>
