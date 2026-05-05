@@ -68,6 +68,16 @@ export const theme = createTheme({
       },
     },
 
+    MuiInputLabel: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          "&.Mui-focused": {
+            color: theme.palette.text.secondary,
+          },
+        }),
+      },
+    },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme }) => ({

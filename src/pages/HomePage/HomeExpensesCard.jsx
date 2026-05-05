@@ -42,7 +42,7 @@ function HomeExpensesLegend({ isLoading, isError, segments, hasAccounts }) {
 
   if (segments.length === 0 || !hasAccounts) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
         Расходов нет
       </Typography>
     );
@@ -120,6 +120,11 @@ export default function HomeExpensesCard() {
     <Paper
       variant="outlined"
       className={`${styles.card} ${styles.cardLink}`}
+      sx={{ 
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
+      }}
       onClick={() =>
         navigate(
           `/operations/analytics/expense?month=${currentMonthDate.format("YYYY-MM")}`,

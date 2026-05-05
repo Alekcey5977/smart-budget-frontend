@@ -38,7 +38,7 @@ export default function HomeGoalsCard() {
 
       {isLoading || dashboardGoals.length === 0 ? (
         <div className={styles.center}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
             {isLoading ? "Загрузка..." : "Целей нет"}
           </Typography>
         </div>

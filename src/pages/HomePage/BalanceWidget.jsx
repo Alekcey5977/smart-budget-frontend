@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { Paper, Typography, Box } from "@mui/material";
+import { Paper, Typography, Box, IconButton } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import { formatMoney } from "utils/formatMoney";
@@ -18,34 +19,119 @@ export default function BalanceWidget() {
     }, 0);
   }, [accounts]);
 
+  const hasAccounts = accounts.length > 0;
+
   return (
     <Paper
       variant="outlined"
       className={styles.card}
       onClick={() => navigate("/bank-accounts")}
-      sx={{ cursor: "pointer", minHeight: "140px" }}
+      sx={{ 
+        cursor: "pointer", 
+        height: "100%", 
+        p: 2,
+        display: "flex",
+        flexDirection: "column"
+      }}
     >
-      <Typography variant="subtitle1" fontWeight={700}>
+      <Typography 
+        variant="h6" 
+        fontWeight={800} 
+        sx={{ fontSize: "18px", mb: hasAccounts ? 0.5 : 0 }}
+      >
         Баланс
       </Typography>
 
-      <Typography variant="body2" fontWeight={700} mb={1}>
-        {isLoading ? "Загрузка..." : `${formatMoney(totalBalance)} ₽`}
-      </Typography>
-
-      <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
-        {accounts.slice(0, 3).map((acc) => (
-          <Box
-            key={acc.bank_account_id || acc.id}
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      {isLoading ? (
+        <Typography variant="caption" color="text.secondary">
+          Загрузка...
+        </Typography>
+      ) : !hasAccounts ? (
+        <Box
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate("/bank-accounts/add");
+          }}
+          sx={{
+            bgcolor: "#fdf5d3",
+            borderRadius: "12px",
+            p: "16px 12px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5,
+            mt: 1,
+            transition: "opacity 0.2s",
+            "&:hover": { opacity: 0.9 },
+          }}
+        >
+          <Typography 
+            variant="subtitle2" 
+            fontWeight={700} 
+            sx={{ 
+              fontSize: "14px", 
+              color: "text.primary", 
+              textAlign: "center",
+              lineHeight: 1.2
+            }}
           >
-            <AccountBalanceWalletIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {acc.bank_account_name || acc.name || "Без названия"}
-            </Typography>
+            Добавить счет
+          </Typography>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              bgcolor: "primary.main",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              flexShrink: 0
+            }}
+          >
+            <AddIcon sx={{ fontSize: 20, color: "text.primary" }} />
           </Box>
-        ))}
-      </Box>
+        </Box>
+      ) : (
+        <>
+          <Typography 
+            variant="body1" 
+            fontWeight={700} 
+            sx={{ 
+              fontSize: "15px", 
+              mb: 1, 
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {formatMoney(totalBalance)} ₽
+          </Typography>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3 }}>
+            {accounts.slice(0, 3).map((acc) => (
+              <Box
+                key={acc.bank_account_id || acc.id}
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+              >
+                <AccountBalanceWalletIcon
+                  sx={{ fontSize: 12, color: "text.secondary", flexShrink: 0 }}
+                />
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  noWrap 
+                  sx={{ fontSize: "11px" }}
+                >
+                  {acc.bank_account_name || acc.name || "Счет"}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </>
+      )}
     </Paper>
   );
 }

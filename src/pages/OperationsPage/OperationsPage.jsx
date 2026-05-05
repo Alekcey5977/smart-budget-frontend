@@ -22,6 +22,7 @@ import {
   useGetCategoryImageMappingsQuery,
   useGetMerchantImageMappingsQuery,
 } from "services/images/imagesApi";
+import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   useGetAllTransactionsQuery,
   useGetTransactionCategoriesQuery,
@@ -98,6 +99,8 @@ export default function OperationsPage() {
 
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  const { data: accountsData = [] } = useGetBankAccountsQuery();
+  const hasAccounts = Array.isArray(accountsData) && accountsData.length > 0;
   const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
   const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
   const merchantImageLookup = useMemo(
@@ -218,7 +221,7 @@ export default function OperationsPage() {
   });
 
   const operations = useMemo(() => {
-    if (noSelectedCategories) {
+    if (!hasAccounts || noSelectedCategories) {
       return [];
     }
 
@@ -227,7 +230,7 @@ export default function OperationsPage() {
     }
 
     return filteredOperationsData;
-  }, [filteredOperationsData, noSelectedCategories]);
+  }, [filteredOperationsData, noSelectedCategories, hasAccounts]);
 
   const analyticsDataByType = useMemo(
     () =>
@@ -485,10 +488,10 @@ export default function OperationsPage() {
       );
     }
 
-    if (groupedOperations.length === 0) {
+    if (!hasAccounts || groupedOperations.length === 0) {
       return (
         <div className={styles.listState}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="subtitle1" color="text.secondary">
             Операций нет
           </Typography>
         </div>

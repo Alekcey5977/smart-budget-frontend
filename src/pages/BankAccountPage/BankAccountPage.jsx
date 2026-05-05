@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -10,15 +10,20 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import AppButton from "ui/AppButton/AppButton";
 import {
   useGetBankAccountsQuery,
   useDeleteBankAccountMutation,
+  useRenameBankAccountMutation,
 } from "services/auth/bankApi";
 import BankAccountPage from "./BankAccountDeletePage.jsx";
 import styles from "./BankAccountPage.module.scss";
@@ -26,7 +31,14 @@ import styles from "./BankAccountPage.module.scss";
 
 const AccountCard = ({ account, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(
+    account.bank_account_name || account.name || "",
+  );
+  const inputRef = useRef(null);
   const open = Boolean(anchorEl);
+  const [renameBankAccount, { isLoading: isRenaming }] =
+    useRenameBankAccountMutation();
 
   const handleMenuClick = (event) => {
     event.stopPropagation();
@@ -40,6 +52,31 @@ const AccountCard = ({ account, onDelete }) => {
   const handleDelete = () => {
     handleMenuClose();
     onDelete(account);
+  };
+
+  const handleRenameStart = () => {
+    handleMenuClose();
+    setEditName(account.bank_account_name || account.name || "");
+    setIsEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleRenameConfirm = async () => {
+    const trimmed = editName.trim();
+    if (!trimmed) return;
+    const id = account.bank_account_id || account.id;
+    await renameBankAccount({ id, name: trimmed });
+    setIsEditing(false);
+  };
+
+  const handleRenameCancel = () => {
+    setIsEditing(false);
+    setEditName(account.bank_account_name || account.name || "");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleRenameConfirm();
+    if (e.key === "Escape") handleRenameCancel();
   };
 
   const formattedBalance = new Intl.NumberFormat("ru-RU", {
@@ -57,7 +94,21 @@ const AccountCard = ({ account, onDelete }) => {
         <div className={styles.cardInfo}>
           <div className={styles.cardName}>
             <CreditCardIcon />
-            <h6>{account.bank_account_name || account.name || "Новый счет"}</h6>
+            {isEditing ? (
+              <TextField
+                inputRef={inputRef}
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                size="small"
+                variant="standard"
+                disabled={isRenaming}
+                sx={{ flex: 1 }}
+                inputProps={{ style: { fontSize: "inherit", fontWeight: 600 } }}
+              />
+            ) : (
+              <h6>{account.bank_account_name || account.name || "Новый счет"}</h6>
+            )}
           </div>
           <div className={styles.cardBank}>
             <AccountBalanceIcon />
@@ -68,13 +119,29 @@ const AccountCard = ({ account, onDelete }) => {
           )}
         </div>
 
-        <IconButton
-          onClick={handleMenuClick}
-          size="small"
-          className={styles.menuButton}
-        >
-          <MoreVertIcon />
-        </IconButton>
+        {isEditing ? (
+          <div style={{ display: "flex", gap: 2 }}>
+            <IconButton
+              size="small"
+              onClick={handleRenameConfirm}
+              disabled={isRenaming}
+              color="primary"
+            >
+              <CheckIcon fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={handleRenameCancel}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </div>
+        ) : (
+          <IconButton
+            onClick={handleMenuClick}
+            size="small"
+            className={styles.menuButton}
+          >
+            <MoreVertIcon />
+          </IconButton>
+        )}
       </div>
 
       <div className={styles.cardBalance}>
@@ -94,6 +161,12 @@ const AccountCard = ({ account, onDelete }) => {
           horizontal: "right",
         }}
       >
+        <MenuItem onClick={handleRenameStart}>
+          <ListItemIcon sx={{ minWidth: "32px" }}>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Переименовать" />
+        </MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           <ListItemIcon sx={{ color: "error.main", minWidth: "32px" }}>
             <DeleteIcon fontSize="small" />
