@@ -232,7 +232,7 @@ export default function GoalDetailsPage() {
       <ConfirmDialog
         open={deleteDialogOpen}
         title="Удалить цель?"
-        text={`Цель "${goal.title}" будет удалена без возможности восстановления.`}
+        text="Действие нельзя будет отменить."
         confirmText="Удалить"
         isLoading={isDeleting}
         onClose={() => setDeleteDialogOpen(false)}

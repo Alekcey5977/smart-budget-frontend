@@ -2,7 +2,9 @@ import {
   Button,
   Dialog,
   DialogActions,
+  DialogContent,
   DialogTitle,
+  Typography,
 } from "@mui/material";
 
 export default function ConfirmDialog({
@@ -23,7 +25,7 @@ export default function ConfirmDialog({
         sx: {
           width: "calc(100% - 64px)",
           maxWidth: 276,
-          borderRadius: "22px",
+          borderRadius: "20px",
           bgcolor: "#fffdf4",
           boxShadow: "0 18px 44px rgba(0, 0, 0, 0.22)",
         },
@@ -32,17 +34,32 @@ export default function ConfirmDialog({
       <DialogTitle
         sx={{
           px: 2.5,
-          pt: 2.25,
-          pb: 1.5,
+          pt: 2,
+          pb: 0.75,
           fontWeight: 800,
-          fontSize: 21,
+          fontSize: 20,
           lineHeight: 1.15,
           textAlign: "center",
         }}
       >
         {title}
       </DialogTitle>
-      <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+      {text && (
+        <DialogContent sx={{ px: 2.5, py: 0 }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.35,
+              fontWeight: 600,
+              color: "text.secondary",
+              textAlign: "center",
+            }}
+          >
+            {text}
+          </Typography>
+        </DialogContent>
+      )}
+      <DialogActions sx={{ px: 2, pt: text ? 1.5 : 0.75, pb: 2, gap: 1 }}>
         <Button
           type="button"
           variant="outlined"
@@ -50,10 +67,13 @@ export default function ConfirmDialog({
           disabled={isLoading}
           fullWidth
           sx={{
-            minHeight: 40,
-            borderRadius: "14px",
+            height: 32,
+            minHeight: 32,
+            px: 1.5,
+            py: 0,
+            borderRadius: "12px",
             textTransform: "none",
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 800,
             borderColor: "rgba(0, 0, 0, 0.12)",
             color: "text.primary",
@@ -76,10 +96,13 @@ export default function ConfirmDialog({
           disabled={isLoading}
           fullWidth
           sx={{
-            minHeight: 40,
-            borderRadius: "14px",
+            height: 32,
+            minHeight: 32,
+            px: 1.5,
+            py: 0,
+            borderRadius: "12px",
             textTransform: "none",
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 800,
             bgcolor: "rgba(211, 47, 47, 0.1)",
             color: "#b91c1c",
