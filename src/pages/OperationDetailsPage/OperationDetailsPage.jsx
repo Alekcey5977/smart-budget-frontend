@@ -20,7 +20,7 @@ import {
   useUpdateTransactionCategoryMutation,
 } from "services/transactions/transactionsApi";
 import OperationIcon from "ui/OperationIcon";
-import { formatMoney } from "utils/formatMoney";
+import { formatCurrency } from "utils/formatMoney";
 import {
   buildImageMappingLookup,
   formatOperationDateTime,
@@ -189,9 +189,7 @@ export default function OperationDetailsPage() {
           <div className={styles.detailRow}>
             <div className={styles.detailLabel}>Баланс</div>
             <div className={styles.detailValue}>
-              {account
-                ? `${formatMoney(account.balance)}\u00A0${account.currency || "RUB"}`
-                : "—"}
+              {account ? formatCurrency(account.balance) : "—"}
             </div>
           </div>
 
