@@ -1,10 +1,6 @@
 @use "styles/colors.scss" as color;
 
 .analyticsCard {
-  border-radius: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 229, 107, 0.3);
-  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -25,7 +21,16 @@
   margin: 0;
   color: color.$color-muted-main;
   text-align: center;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.analyticsMonthCard {
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px 12px;
 }
 
 .analyticsMonthRow {
@@ -41,7 +46,7 @@
   height: 32px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 229, 107, 0.45);
   color: color.$color-text-main;
   display: inline-flex;
   align-items: center;
@@ -73,10 +78,13 @@
 }
 
 .analyticsState {
-  min-height: 120px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.46);
 }
 
 .analyticsContent {
@@ -86,9 +94,13 @@
   align-items: stretch;
 }
 
-.analyticsDonutWrap {
+.analyticsDonutCard {
   display: flex;
   justify-content: center;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 229, 107, 0.28);
+  padding: 22px 12px 24px;
 }
 
 .analyticsDonut {
@@ -130,18 +142,22 @@
   white-space: nowrap;
 }
 
-.analyticsLegend {
+.analyticsLegendCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.46);
+  padding: 12px;
 }
 
 .analyticsLegendItem {
   width: 100%;
   border: 0;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.58);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
   padding: 9px 12px;
   display: flex;
   align-items: center;

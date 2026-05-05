@@ -62,7 +62,7 @@ export default function OperationsAnalyticsPanel({
 
     return (
       <div className={styles.analyticsContent}>
-        <div className={styles.analyticsDonutWrap}>
+        <div className={styles.analyticsDonutCard}>
           <div
             className={styles.analyticsDonut}
             style={{ "--ring-background": donutBackground }}
@@ -75,7 +75,7 @@ export default function OperationsAnalyticsPanel({
           </div>
         </div>
 
-        <div className={styles.analyticsLegend}>
+        <div className={styles.analyticsLegendCard}>
           {segments.map((segment) => {
             const canOpenSegment = Boolean(
               onSegmentClick && segment.categoryIds?.length,
@@ -134,29 +134,31 @@ export default function OperationsAnalyticsPanel({
         </div>
       )}
 
-      <div className={styles.analyticsMonthRow}>
-        <button
-          type="button"
-          className={styles.analyticsMonthButton}
-          onClick={onPrevMonth}
-          aria-label="Предыдущий месяц"
-        >
-          <KeyboardArrowLeftIcon fontSize="small" />
-        </button>
+      <div className={styles.analyticsMonthCard}>
+        <div className={styles.analyticsMonthRow}>
+          <button
+            type="button"
+            className={styles.analyticsMonthButton}
+            onClick={onPrevMonth}
+            aria-label="Предыдущий месяц"
+          >
+            <KeyboardArrowLeftIcon fontSize="small" />
+          </button>
 
-        <Typography variant="body2" className={styles.analyticsSubtitle}>
-          {monthLabel}
-        </Typography>
+          <Typography variant="body2" className={styles.analyticsSubtitle}>
+            {monthLabel}
+          </Typography>
 
-        <button
-          type="button"
-          className={styles.analyticsMonthButton}
-          onClick={onNextMonth}
-          disabled={!canGoNext}
-          aria-label="Следующий месяц"
-        >
-          <KeyboardArrowRightIcon fontSize="small" />
-        </button>
+          <button
+            type="button"
+            className={styles.analyticsMonthButton}
+            onClick={onNextMonth}
+            disabled={!canGoNext}
+            aria-label="Следующий месяц"
+          >
+            <KeyboardArrowRightIcon fontSize="small" />
+          </button>
+        </div>
       </div>
 
       {renderContent()}
