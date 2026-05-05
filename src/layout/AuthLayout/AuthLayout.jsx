@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useNotifications } from "hooks/useNotifications";
+import { useNotificationSocket } from "hooks/useNotificationSocket";
 import { getAuthToken, getAuthUser } from "store/auth/authsSelectors";
 import {
   Avatar,
@@ -33,6 +34,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const user = useSelector(getAuthUser);
 
   const { unreadCount } = useNotifications();
+  useNotificationSocket();
 
   const { data: myAvatar } = useGetMyAvatarQuery();
 
@@ -40,6 +42,12 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [pageHeaderAction, setPageHeaderAction] = useState(null);
+  const [pageTitle, setPageTitle] = useState(null);
+
+  useEffect(() => {
+    setPageTitle(null);
+  }, [title]);
+
   const menuOpen = Boolean(anchorEl);
   const openMenu = (e) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
@@ -78,8 +86,8 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
             >
               <HomeIcon fontSize="small" />
             </IconButton>
-            <Typography variant="h6" className={styles.pageTitle}>
-              {title}
+            <Typography variant="h6" className={styles.pageTitle} noWrap>
+              {pageTitle || title}
             </Typography>
 
             <div className={styles.pageRight}>{pageHeaderAction}</div>
@@ -109,8 +117,8 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
               </Avatar>
             </Box>
 
-            <Typography variant="h6" className={styles.pageTitle} sx={{ flexGrow: 1, textAlign: "center" }}>
-              {title}
+            <Typography variant="h6" className={styles.pageTitle} noWrap sx={{ flexGrow: 1, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {pageTitle || title}
             </Typography>
 
             <IconButton
@@ -173,7 +181,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
         )}
       </div>
       <div className={styles.content}>
-        <Outlet context={{ setPageHeaderAction }} />
+        <Outlet context={{ setPageHeaderAction, setPageTitle }} />
       </div>
 
       <AvatarSelector

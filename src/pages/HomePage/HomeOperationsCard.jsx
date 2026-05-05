@@ -47,7 +47,7 @@ function HomeOperationsContent({
   if (operations.length === 0 || !hasAccounts) {
     return (
       <div className={styles.center}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
           Операций нет
         </Typography>
       </div>

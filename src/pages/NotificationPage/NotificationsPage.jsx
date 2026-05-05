@@ -20,14 +20,17 @@ import {
 } from "services/auth/notificationApi";
 import { useGetHistoryQuery } from "services/auth/historyApi";
 
+import { useNotifications } from "src/hooks/useNotifications";
 import styles from "./NotificationsPage.module.scss";
 
-const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMessage }) => {
+const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMessage, clickable = true }) => {
   if (items.length === 0) {
     return (
-      <Typography textAlign="center" color="text.secondary" mt={4}>
-        {emptyMessage}
-      </Typography>
+      <div className={styles.state}>
+        <Typography variant="subtitle1" color="text.secondary">
+          {emptyMessage}
+        </Typography>
+      </div>
     );
   }
 
@@ -37,22 +40,22 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
         <Paper
           key={item.id}
           variant="outlined"
+          elevation={0}
           className={styles.notificationCard}
-          onClick={() => onNotificationClick(item)}
+          onClick={clickable ? () => onNotificationClick(item) : undefined}
           sx={{
             mb: 2,
             p: 2,
             borderRadius: "16px",
             position: "relative",
-            cursor: "pointer",
+            cursor: clickable ? "pointer" : "default",
             bgcolor: "background.paper",
             border: "1px solid",
             borderColor: "divider",
-            transition: "all 0.2s",
-            "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            },
+            transition: clickable ? "all 0.2s" : "none",
+            "&:hover": clickable ? {
+              bgcolor: "background.paper",
+            } : {},
           }}
         >
           {item.is_read === false && (
@@ -76,10 +79,10 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
             }}
           >
             <Typography
-              variant="subtitle1"
+              variant="body1"
               fontWeight={700}
               color="text.primary"
-              sx={{ flexGrow: 1, pr: 1 }}
+              sx={{ flexGrow: 1, pr: 1, fontSize: "16px" }}
             >
               {item.title}
             </Typography>
@@ -104,12 +107,12 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
           >
             {item.created_at
               ? new Date(item.created_at).toLocaleString("ru-RU", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
               : ""}
           </Typography>
         </Paper>
@@ -118,17 +121,21 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
   );
 };
 
-export const HistoryList = ({ onNotificationClick }) => {
-  const { data: history = [], isLoading } = useGetHistoryQuery();
+export const HistoryList = () => {
+  const { data: history = [], isLoading } = useGetHistoryQuery(undefined, {
+    pollingInterval: 2000,
+  });
 
   const items = useMemo(() => {
-    return history.map((item) => ({
+    const mapped = history.map((item) => ({
       id: item.id,
       title: item.title || "Уведомление",
       message: item.body || item.message || "Действие в системе",
       created_at: item.created_at,
       category: "history",
     }));
+
+    return mapped.filter((item) => item.title !== "Синхронизация завершена");
   }, [history]);
 
   if (isLoading) return <LoadingIndicator />;
@@ -136,25 +143,29 @@ export const HistoryList = ({ onNotificationClick }) => {
   return (
     <NotificationsListLayout
       items={items}
-      onNotificationClick={onNotificationClick}
-      emptyMessage="Уведомлений пока нет"
+      emptyMessage="История пуста"
+      clickable={false}
     />
   );
 };
 
 const AlertsList = ({ onNotificationClick, showSnackbar }) => {
-  const { data: notifications = [], isLoading } = useGetNotificationsQuery();
+  const { data: notifications = [], isLoading } = useGetNotificationsQuery(undefined, {
+    pollingInterval: 2000,
+  });
   const [deleteNotification] = useDeleteNotificationMutation();
 
   const items = useMemo(() => {
-    return notifications.map((item) => ({
-      id: item.id,
-      title: item.title || "Уведомление",
-      message: item.message || item.body || item.text || "Новое уведомление",
-      created_at: item.created_at,
-      is_read: item.is_read || false,
-      category: "notification",
-    }));
+    return notifications
+      .map((item) => ({
+        id: item.id,
+        title: item.title || "Уведомление",
+        message: item.message || item.body || item.text || "Новое уведомление",
+        created_at: item.created_at,
+        is_read: item.is_read || false,
+        category: "notification",
+      }))
+      .filter((item) => item.title !== "Синхронизация завершена");
   }, [notifications]);
 
   const handleDelete = useCallback(
@@ -194,7 +205,8 @@ const LoadingIndicator = () => (
 export default function NotificationsPage() {
   const navigate = useNavigate();
   const { setPageHeaderAction } = useOutletContext();
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
 
@@ -216,12 +228,16 @@ export default function NotificationsPage() {
   }, []);
 
   const handleMarkAllRead = useCallback(async () => {
+    if (unreadCount === 0) return;
+
     try {
       await markAllAsRead().unwrap();
+      setShowSuccessAlert(true);
+      setTimeout(() => setShowSuccessAlert(false), 3000);
     } catch (err) {
       console.error("Error marking all as read:", err);
     }
-  }, [markAllAsRead]);
+  }, [markAllAsRead, unreadCount]);
 
   useEffect(() => {
     if (setPageHeaderAction) {
@@ -236,25 +252,20 @@ export default function NotificationsPage() {
 
   return (
     <div className={styles.page}>
+      {showSuccessAlert && (
+        <Alert
+          severity="success"
+          onClose={() => setShowSuccessAlert(false)}
+          sx={{ mb: 2, borderRadius: "12px" }}
+        >
+          Все уведомления прочитаны
+        </Alert>
+      )}
+
       <AlertsList
         onNotificationClick={handleNotificationClick}
         showSnackbar={showSnackbar}
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }
