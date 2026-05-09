@@ -87,7 +87,10 @@ export default function HomeGoalsCard() {
 
             return (
               <div key={goal.id} className={styles.goalMiniCard}>
-                <Box sx={{ position: "relative", width: 80, height: 80 }}>
+                <Box
+                  className={styles.goalProgressRing}
+                  sx={{ position: "relative", width: 80, height: 80 }}
+                >
                   <CircularProgress
                     variant="determinate"
                     value={100}

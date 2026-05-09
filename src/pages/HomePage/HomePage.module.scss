@@ -43,7 +43,10 @@
     conic-gradient(rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%)
   );
   position: relative;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 12px 22px rgba(42, 35, 10, 0.18),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
 }
 
 .expenseDonut::after {
@@ -214,6 +217,11 @@
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
+}
+
+.goalProgressRing {
+  border-radius: 50%;
+  filter: drop-shadow(0 9px 12px rgba(42, 35, 10, 0.16));
 }
 
 .goalMiniTitle {
