@@ -42,9 +42,23 @@ export default function HomeGoalsCard() {
       className={`${styles.cardWide} ${styles.cardLink}`}
       onClick={handleOpenGoals}
     >
-      <Typography variant="subtitle1" fontWeight={700}>
-        Цели
-      </Typography>
+      <div className={styles.goalsHeader}>
+        <Typography variant="subtitle1" fontWeight={700}>
+          Цели
+        </Typography>
+        {hasGoals && (
+          <button
+            type="button"
+            className={styles.goalAddButton}
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate("/goals/create");
+            }}
+          >
+            <AddIcon fontSize="small" />
+          </button>
+        )}
+      </div>
 
       {isLoading ? (
         <div className={styles.center}>

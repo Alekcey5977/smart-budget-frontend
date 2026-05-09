@@ -83,6 +83,29 @@ export const bankApi = createApi({
         } catch {}
       },
     }),
+
+    syncBankAccounts: builder.mutation({
+      async queryFn(arg, api) {
+        try {
+          const result = await $api.post("/sync");
+          api.dispatch(
+            transactionsApi.util.invalidateTags([
+              "Transactions",
+              "TransactionCategorySummary",
+            ]),
+          );
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: error.response?.status,
+              data: error.response?.data || error.message,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["BankAccount"],
+    }),
   }),
 });
 
@@ -90,4 +113,5 @@ export const {
   useGetBankAccountsQuery,
   useAddBankAccountMutation,
   useDeleteBankAccountMutation,
+  useSyncBankAccountsMutation,
 } = bankApi;
