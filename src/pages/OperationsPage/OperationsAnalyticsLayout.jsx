@@ -1,13 +1,14 @@
-import HomeIcon from "@mui/icons-material/Home";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { IconButton, Typography } from "@mui/material";
-import { Navigate, Outlet, useNavigate, useParams } from "react-router-dom";
+import { Navigate, Outlet, useParams } from "react-router-dom";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import authLayoutStyles from "layout/AuthLayout/AuthLayout.module.scss";
+import { useAppBackNavigation } from "hooks/useAppBackNavigation";
 import { getOperationsAnalyticsConfig } from "./operationsAnalyticsConfig";
 
 export default function OperationsAnalyticsLayout() {
   const { type } = useParams();
-  const navigate = useNavigate();
+  const handleBack = useAppBackNavigation("/operations");
   const config = getOperationsAnalyticsConfig(type);
 
   if (!config) {
@@ -19,7 +20,8 @@ export default function OperationsAnalyticsLayout() {
       <div className={`${authLayoutStyles.header} ${authLayoutStyles.headerPage}`}>
         <IconButton
           className={authLayoutStyles.backButton}
-          onClick={() => navigate("/home")}
+          onClick={handleBack}
+          aria-label="Назад"
           sx={{
             bgcolor: "primary.main",
             color: "text.primary",
@@ -28,7 +30,7 @@ export default function OperationsAnalyticsLayout() {
             height: 40,
           }}
         >
-          <HomeIcon fontSize="small" />
+          <ArrowBackIosNewIcon fontSize="small" />
         </IconButton>
         <Typography variant="h6" className={authLayoutStyles.pageTitle}>
           {config.title}

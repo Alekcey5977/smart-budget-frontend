@@ -17,16 +17,18 @@ import {
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
-import HomeIcon from "@mui/icons-material/Home";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import EditIcon from "@mui/icons-material/Edit";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
+import { useAppBackNavigation } from "hooks/useAppBackNavigation";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
 
 export default function AuthLayout({ title = "", headerRightContent = null }) {
   const navigate = useNavigate();
+  const handleBack = useAppBackNavigation("/home");
   const location = useLocation();
   const dispatch = useDispatch();
   const token = useSelector(getAuthToken);
@@ -67,7 +69,8 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
           <>
             <IconButton
               className={styles.backButton}
-              onClick={() => navigate("/home")}
+              onClick={handleBack}
+              aria-label="Назад"
               sx={{
                 bgcolor: "primary.main",
                 color: "text.primary",
@@ -76,7 +79,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                 height: 40,
               }}
             >
-              <HomeIcon fontSize="small" />
+              <ArrowBackIosNewIcon fontSize="small" />
             </IconButton>
             <Typography variant="h6" className={styles.pageTitle}>
               {title}
