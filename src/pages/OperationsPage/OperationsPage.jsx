@@ -27,6 +27,7 @@ import {
   useGetCategoryImageMappingsQuery,
   useGetMerchantImageMappingsQuery,
 } from "services/images/imagesApi";
+import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   useGetBankAccountsQuery,
   useSyncBankAccountsMutation,
@@ -52,6 +53,7 @@ import {
   OPERATIONS_ANALYTICS_TYPES,
   getOperationsAnalyticsConfig,
 } from "./operationsAnalyticsConfig";
+import classNames from "classnames";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -317,7 +319,7 @@ export default function OperationsPage() {
   });
 
   const operations = useMemo(() => {
-    if (noSelectedCategories) {
+    if (!hasAccounts || noSelectedCategories) {
       return [];
     }
 
@@ -326,7 +328,7 @@ export default function OperationsPage() {
     }
 
     return filteredOperationsData;
-  }, [filteredOperationsData, noSelectedCategories]);
+  }, [filteredOperationsData, noSelectedCategories, hasAccounts]);
 
   const analyticsDataByType = useMemo(
     () =>
@@ -627,10 +629,10 @@ export default function OperationsPage() {
       );
     }
 
-    if (groupedOperations.length === 0) {
+    if (!hasAccounts || groupedOperations.length === 0) {
       return (
         <div className={styles.listState}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="subtitle1" color="text.secondary">
             Операций нет
           </Typography>
         </div>
@@ -708,7 +710,7 @@ export default function OperationsPage() {
             <button
               key={card.type}
               type="button"
-              className={`${styles.summaryCard} ${styles.summaryCardButton}`}
+              className={classNames(styles.summaryCard, styles.summaryCardButton)}
               onClick={() =>
                 navigate(
                   `/operations/analytics/${card.type}?month=${filters.dateFrom.format("YYYY-MM")}`,
@@ -756,14 +758,18 @@ export default function OperationsPage() {
           <div className={styles.rangePickerHeader}>
             <button
               type="button"
-              className={`${styles.rangeFieldButton} ${periodTarget === "from" ? styles.rangeFieldButtonActive : ""}`}
+              className={classNames(styles.rangeFieldButton, {
+                [styles.rangeFieldButtonActive]: periodTarget === "from"
+              })}
               onClick={() => setPeriodTarget("from")}
             >
               От: {formatDateForFilterLabel(periodDraft.dateFrom)}
             </button>
             <button
               type="button"
-              className={`${styles.rangeFieldButton} ${periodTarget === "to" ? styles.rangeFieldButtonActive : ""}`}
+              className={classNames(styles.rangeFieldButton, {
+                [styles.rangeFieldButtonActive]: periodTarget === "to"
+              })}
               onClick={() => setPeriodTarget("to")}
             >
               До: {formatDateForFilterLabel(periodDraft.dateTo)}

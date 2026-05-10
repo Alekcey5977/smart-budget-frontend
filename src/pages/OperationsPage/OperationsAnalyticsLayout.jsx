@@ -2,6 +2,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { IconButton, Typography } from "@mui/material";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
+import classNames from "classnames";
 import authLayoutStyles from "layout/AuthLayout/AuthLayout.module.scss";
 import { useAppBackNavigation } from "hooks/useAppBackNavigation";
 import { getOperationsAnalyticsConfig } from "./operationsAnalyticsConfig";
@@ -17,7 +18,7 @@ export default function OperationsAnalyticsLayout() {
 
   return (
     <PhoneLayout>
-      <div className={`${authLayoutStyles.header} ${authLayoutStyles.headerPage}`}>
+      <div className={classNames(authLayoutStyles.header, authLayoutStyles.headerPage)}>
         <IconButton
           className={authLayoutStyles.backButton}
           onClick={handleBack}

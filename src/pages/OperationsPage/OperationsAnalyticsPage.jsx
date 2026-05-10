@@ -11,6 +11,7 @@ import {
   useGetAllTransactionsQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
+import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   filterOperationsByType,
   getCategorySegments,
@@ -42,6 +43,8 @@ export default function OperationsAnalyticsPage() {
     () => getMonthFromSearchParams(searchParams),
     [searchParams],
   );
+  const { data: accountsData = [] } = useGetBankAccountsQuery();
+  const hasAccounts = Array.isArray(accountsData) && accountsData.length > 0;
 
   const {
     data: latestOperationsData,
@@ -88,8 +91,8 @@ export default function OperationsAnalyticsPage() {
   });
 
   const operations = useMemo(
-    () => (Array.isArray(monthOperationsData) ? monthOperationsData : []),
-    [monthOperationsData],
+    () => (hasAccounts && Array.isArray(monthOperationsData) ? monthOperationsData : []),
+    [monthOperationsData, hasAccounts],
   );
 
   const analyticsOperations = useMemo(
@@ -98,13 +101,13 @@ export default function OperationsAnalyticsPage() {
   );
 
   const segments = useMemo(
-    () => getCategorySegments(analyticsOperations, type, 6),
-    [analyticsOperations, type],
+    () => (hasAccounts ? getCategorySegments(analyticsOperations, type, 6) : []),
+    [analyticsOperations, type, hasAccounts],
   );
 
   const totalAmount = useMemo(
-    () => getOperationsTotal(analyticsOperations),
-    [analyticsOperations],
+    () => (hasAccounts ? getOperationsTotal(analyticsOperations) : 0),
+    [analyticsOperations, hasAccounts],
   );
 
   const monthLabel = useMemo(() => getMonthLabel(monthDate), [monthDate]);

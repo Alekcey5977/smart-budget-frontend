@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import { useGetGoalsQuery } from "services/goals/goalsApi";
+import classNames from "classnames";
 import styles from "./HomePage.module.scss";
 
 function getProgress(amount, totalAmount) {

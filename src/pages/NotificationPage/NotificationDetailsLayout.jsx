@@ -47,10 +47,6 @@ function NotificationDeleteButton() {
 }
 
 export default function NotificationDetailsLayout() {
-  return (
-    <AuthLayout
-      title="Уведомление"
-      headerRightContent={<NotificationDeleteButton />}
-    />
-  );
+  return <AuthLayout title="Прогресс цели" />;
 }
+
