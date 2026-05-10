@@ -76,17 +76,10 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
             <IconButton
               className={styles.backButton}
               onClick={() => navigate("/home")}
-              sx={{
-                bgcolor: "primary.main",
-                color: "text.primary",
-                borderRadius: "15px",
-                width: 40,
-                height: 40,
-              }}
             >
               <HomeIcon fontSize="small" />
             </IconButton>
-            <Typography variant="h6" className={styles.pageTitle} noWrap>
+            <Typography variant="h6" className={styles.pageTitle}>
               {pageTitle || title}
             </Typography>
 
@@ -106,24 +99,18 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                       ? `/images/${myAvatar.id}`
                       : undefined
                 }
-                sx={{
-                  bgcolor: "#cbcbcb",
-                  width: 40,
-                  height: 40,
-                  cursor: "pointer",
-                }}
               >
                 {!(myAvatar?.image_id || myAvatar?.id) && <PersonIcon />}
               </Avatar>
             </Box>
 
-            <Typography variant="h6" className={styles.pageTitle} noWrap sx={{ flexGrow: 1, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography variant="h6" className={styles.pageTitle}>
               {pageTitle || title}
             </Typography>
 
             <IconButton
               onClick={handleNotificationsClick}
-              sx={{ width: 40, height: 40 }}
+              className={styles.notificationBtn}
             >
               <Badge
                 color="error"

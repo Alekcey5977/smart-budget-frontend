@@ -18,17 +18,11 @@ import {
   useDeleteNotificationMutation,
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
+import styles from "./NotificationsPage.module.scss";
 
 const DetailsLayout = ({ children }) => (
-  <Box sx={{
-    width: "100%",
-    padding: "0 16px",
-    boxSizing: "border-box",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  }}>
-    <Box sx={{ width: "100%", maxWidth: 500 }}>
+  <Box className={styles.detailsLayout}>
+    <Box className={styles.detailsLayoutInner}>
       {children}
     </Box>
   </Box>
@@ -37,25 +31,13 @@ const DetailsLayout = ({ children }) => (
 const DetailContent = ({ data }) => (
   <Paper
     elevation={0}
-    sx={{
-      p: 2,
-      borderRadius: "16px",
-      width: "100%",
-      boxSizing: "border-box",
-      bgcolor: "background.paper",
-      border: "none",
-    }}
+    className={styles.detailContentPaper}
+    sx={{ bgcolor: "background.paper" }}
   >
     <Typography
       variant="body1"
       color="text.secondary"
-      sx={{
-        whiteSpace: "pre-wrap",
-        lineHeight: 1.6,
-        textAlign: "left",
-        width: "100%",
-        fontSize: "20px"
-      }}
+      className={styles.detailContentText}
     >
       {data.text || data.message || data.body || data.full_text || "Нет текста уведомления"}
     </Typography>
@@ -102,7 +84,7 @@ const AlertDetails = ({ id }) => {
 
   useEffect(() => {
     if (data && setPageHeaderAction) {
-      setPageTitle?.(data.title?.split(":")?.[0]?.trim() || "Прогресс цели");
+      setPageTitle?.(data.title || "Уведомление");
       setPageHeaderAction(
         <IconButton onClick={handleDelete} sx={{ color: "text.primary" }}>
           <DeleteOutlineIcon />
@@ -130,7 +112,7 @@ const HistoryDetails = ({ id }) => {
   const { setPageTitle } = useOutletContext();
 
   useEffect(() => {
-    if (data) setPageTitle?.(data.title?.split(":")?.[0]?.trim() || "Прогресс цели");
+    if (data) setPageTitle?.(data.title || "Уведомление");
     return () => setPageTitle?.(null);
   }, [data, setPageTitle]);
 
@@ -145,7 +127,7 @@ const HistoryDetails = ({ id }) => {
 };
 
 const LoadingIndicator = () => (
-  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+  <Box className={styles.loadingView}>
     <CircularProgress />
   </Box>
 );
@@ -153,7 +135,7 @@ const LoadingIndicator = () => (
 const ErrorView = ({ error }) => {
   const navigate = useNavigate();
   return (
-    <Box sx={{ p: 3, textAlign: "center", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <Box className={styles.errorView}>
       <Alert severity="error" sx={{ mb: 2 }}>
         {error?.data?.message || "Уведомление не найдено или было удалено"}
       </Alert>

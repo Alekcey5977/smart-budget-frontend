@@ -44,15 +44,8 @@ const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMe
           className={styles.notificationCard}
           onClick={clickable ? () => onNotificationClick(item) : undefined}
           sx={{
-            mb: 2,
-            p: 2,
-            borderRadius: "16px",
-            position: "relative",
             cursor: clickable ? "pointer" : "default",
             bgcolor: "background.paper",
-            border: "1px solid",
-            borderColor: "divider",
-            transition: clickable ? "all 0.2s" : "none",
             "&:hover": clickable ? {
               bgcolor: "background.paper",
             } : {},
@@ -134,8 +127,7 @@ export const HistoryList = () => {
       created_at: item.created_at,
       category: "history",
     }));
-
-    return mapped.filter((item) => item.title !== "Синхронизация завершена");
+    return mapped;
   }, [history]);
 
   if (isLoading) return <LoadingIndicator />;
@@ -164,8 +156,7 @@ const AlertsList = ({ onNotificationClick, showSnackbar }) => {
         created_at: item.created_at,
         is_read: item.is_read || false,
         category: "notification",
-      }))
-      .filter((item) => item.title !== "Синхронизация завершена");
+      }));
   }, [notifications]);
 
   const handleDelete = useCallback(

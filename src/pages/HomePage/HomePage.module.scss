@@ -238,3 +238,48 @@
   cursor: pointer;
   text-align: center;
 }
+
+.balanceWidgetCard {
+  cursor: pointer;
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.addAccountBox {
+  background-color: #fdf5d3;
+  border-radius: 12px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+.addAccountBox:hover {
+  opacity: 0.9;
+}
+
+.addIconWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fcc036;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.totalBalance {
+  font-size: 15px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

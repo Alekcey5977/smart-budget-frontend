@@ -24,15 +24,8 @@ export default function BalanceWidget() {
   return (
     <Paper
       variant="outlined"
-      className={styles.card}
+      className={`${styles.card} ${styles.balanceWidgetCard}`}
       onClick={() => navigate("/bank-accounts")}
-      sx={{ 
-        cursor: "pointer", 
-        height: "100%", 
-        p: 2,
-        display: "flex",
-        flexDirection: "column"
-      }}
     >
       <Typography 
         variant="h6" 
@@ -48,22 +41,10 @@ export default function BalanceWidget() {
         </Typography>
       ) : !hasAccounts ? (
         <Box
+          className={styles.addAccountBox}
           onClick={(e) => {
             e.stopPropagation();
             navigate("/bank-accounts/add");
-          }}
-          sx={{
-            bgcolor: "#fdf5d3",
-            borderRadius: "12px",
-            p: "16px 12px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1.5,
-            mt: 1,
-            transition: "opacity 0.2s",
-            "&:hover": { opacity: 0.9 },
           }}
         >
           <Typography 
@@ -78,19 +59,7 @@ export default function BalanceWidget() {
           >
             Добавить счет
           </Typography>
-          <Box
-            sx={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              bgcolor: "primary.main",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-              flexShrink: 0
-            }}
-          >
+          <Box className={styles.addIconWrap}>
             <AddIcon sx={{ fontSize: 20, color: "text.primary" }} />
           </Box>
         </Box>
@@ -99,13 +68,7 @@ export default function BalanceWidget() {
           <Typography 
             variant="body1" 
             fontWeight={700} 
-            sx={{ 
-              fontSize: "15px", 
-              mb: 1, 
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis"
-            }}
+            className={styles.totalBalance}
           >
             {formatMoney(totalBalance)} ₽
           </Typography>
