@@ -44,6 +44,7 @@ import {
   OPERATIONS_ANALYTICS_TYPES,
   getOperationsAnalyticsConfig,
 } from "./operationsAnalyticsConfig";
+import classNames from "classnames";
 import styles from "./OperationsPage.module.scss";
 
 function formatDateForFilterLabel(value) {
@@ -560,7 +561,7 @@ export default function OperationsPage() {
             <button
               key={card.type}
               type="button"
-              className={`${styles.summaryCard} ${styles.summaryCardButton}`}
+              className={classNames(styles.summaryCard, styles.summaryCardButton)}
               onClick={() =>
                 navigate(
                   `/operations/analytics/${card.type}?month=${filters.dateFrom.format("YYYY-MM")}`,
@@ -597,14 +598,18 @@ export default function OperationsPage() {
           <div className={styles.rangePickerHeader}>
             <button
               type="button"
-              className={`${styles.rangeFieldButton} ${periodTarget === "from" ? styles.rangeFieldButtonActive : ""}`}
+              className={classNames(styles.rangeFieldButton, {
+                [styles.rangeFieldButtonActive]: periodTarget === "from"
+              })}
               onClick={() => setPeriodTarget("from")}
             >
               От: {formatDateForFilterLabel(periodDraft.dateFrom)}
             </button>
             <button
               type="button"
-              className={`${styles.rangeFieldButton} ${periodTarget === "to" ? styles.rangeFieldButtonActive : ""}`}
+              className={classNames(styles.rangeFieldButton, {
+                [styles.rangeFieldButtonActive]: periodTarget === "to"
+              })}
               onClick={() => setPeriodTarget("to")}
             >
               До: {formatDateForFilterLabel(periodDraft.dateTo)}

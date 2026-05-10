@@ -14,6 +14,7 @@ import {
   getExpenseCategorySummarySegments,
   getLatestOperationsMonth,
 } from "utils/operationHelpers";
+import classNames from "classnames";
 import styles from "./HomePage.module.scss";
 
 dayjs.locale("ru");
@@ -119,7 +120,7 @@ export default function HomeExpensesCard() {
   return (
     <Paper
       variant="outlined"
-      className={`${styles.card} ${styles.cardLink}`}
+      className={classNames(styles.card, styles.cardLink)}
       sx={{ 
         height: "100%",
         display: "flex",

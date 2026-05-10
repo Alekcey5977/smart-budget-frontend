@@ -5,6 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import { formatMoney } from "utils/formatMoney";
+import classNames from "classnames";
 import styles from "./HomePage.module.scss";
 
 export default function BalanceWidget() {
@@ -24,7 +25,7 @@ export default function BalanceWidget() {
   return (
     <Paper
       variant="outlined"
-      className={`${styles.card} ${styles.balanceWidgetCard}`}
+      className={classNames(styles.card, styles.balanceWidgetCard)}
       onClick={() => navigate("/bank-accounts")}
     >
       <Typography 

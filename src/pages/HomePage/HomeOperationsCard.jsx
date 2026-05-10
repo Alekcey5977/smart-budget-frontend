@@ -16,6 +16,7 @@ import {
   getOperationTitle,
   isIncomeOperation,
 } from "utils/operationHelpers";
+import classNames from "classnames";
 import styles from "./HomePage.module.scss";
 
 function HomeOperationsContent({
@@ -140,7 +141,7 @@ export default function HomeOperationsCard() {
   return (
     <Paper
       variant="outlined"
-      className={`${styles.cardWideLarge} ${styles.cardLink}`}
+      className={classNames(styles.cardWideLarge, styles.cardLink)}
       onClick={() => navigate("/operations")}
     >
       <Typography variant="subtitle1" fontWeight={700}>

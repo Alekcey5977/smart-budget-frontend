@@ -22,6 +22,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import EditIcon from "@mui/icons-material/Edit";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
+import classNames from "classnames";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -69,7 +70,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   return (
     <PhoneLayout>
       <div
-        className={`${styles.header} ${showBack ? styles.headerPage : styles.headerMain}`}
+        className={classNames(styles.header, showBack ? styles.headerPage : styles.headerMain)}
       >
         {showBack ? (
           <>
