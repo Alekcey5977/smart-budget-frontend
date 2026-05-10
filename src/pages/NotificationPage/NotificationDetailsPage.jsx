@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -18,7 +18,7 @@ import {
   useDeleteNotificationMutation,
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
-import styles from "./NotificationsPage.module.scss";
+import ConfirmDialog from "ui/ConfirmDialog";
 
 const DetailsLayout = ({ children }) => (
   <Box className={styles.detailsLayout}>
@@ -68,17 +68,19 @@ const DetailContent = ({ data }) => (
 const AlertDetails = ({ id }) => {
   const navigate = useNavigate();
   const { data, isLoading, isError, error } = useGetNotificationByIdQuery(id);
-  const [deleteNotification] = useDeleteNotificationMutation();
-  const { setPageHeaderAction, setPageTitle } = useOutletContext();
+  const [deleteNotification, { isLoading: isDeleting }] =
+    useDeleteNotificationMutation();
+  const { setPageHeaderAction } = useOutletContext();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const handleDelete = useCallback(async () => {
-    if (window.confirm("Удалить это уведомление?")) {
-      try {
-        await deleteNotification(id).unwrap();
-        navigate("/notifications", { replace: true });
-      } catch (err) {
-        console.error("Error deleting:", err);
-      }
+  const handleDeleteConfirm = useCallback(async () => {
+    try {
+      await deleteNotification(id).unwrap();
+      navigate("/notifications", { replace: true });
+    } catch (err) {
+      console.error("Error deleting:", err);
+    } finally {
+      setDeleteDialogOpen(false);
     }
   }, [id, deleteNotification, navigate]);
 
@@ -86,24 +88,35 @@ const AlertDetails = ({ id }) => {
     if (data && setPageHeaderAction) {
       setPageTitle?.(data.title || "Уведомление");
       setPageHeaderAction(
-        <IconButton onClick={handleDelete} sx={{ color: "text.primary" }}>
+        <IconButton
+          onClick={() => setDeleteDialogOpen(true)}
+          sx={{ color: "text.primary" }}
+        >
           <DeleteOutlineIcon />
         </IconButton>
       );
     }
-    return () => {
-      setPageHeaderAction?.(null);
-      setPageTitle?.(null);
-    };
-  }, [data, setPageHeaderAction, setPageTitle, handleDelete]);
+    return () => setPageHeaderAction?.(null);
+  }, [data, setPageHeaderAction]);
 
   if (isLoading) return <LoadingIndicator />;
   if (isError || !data) return <ErrorView error={error} />;
 
   return (
-    <DetailsLayout>
-      <DetailContent data={data} />
-    </DetailsLayout>
+    <>
+      <DetailsLayout>
+        <DetailContent data={data} />
+      </DetailsLayout>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Удалить уведомление?"
+        text="Уведомление будет удалено из списка."
+        confirmText="Удалить"
+        isLoading={isDeleting}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
+    </>
   );
 };
 
@@ -157,4 +170,3 @@ export default function NotificationDetailsPage() {
 
   return <AlertDetails id={id} />;
 }
-

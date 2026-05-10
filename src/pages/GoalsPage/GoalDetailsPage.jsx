@@ -8,10 +8,11 @@ import {
   useGetGoalsQuery,
   useUpdateGoalMutation,
 } from "services/goals/goalsApi";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import { toInputDate } from "src/utils/date";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
+import ConfirmDialog from "ui/ConfirmDialog";
 import styles from "./GoalDetailsPage.module.scss";
 
 export default function GoalDetailsPage() {
@@ -22,10 +23,12 @@ export default function GoalDetailsPage() {
   const [deleteGoal, { isLoading: isDeleting }] = useDeleteGoalMutation();
 
   const [errorText, setErrorText] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const {
     register,
     reset,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm({
     mode: "onSubmit",
@@ -38,6 +41,8 @@ export default function GoalDetailsPage() {
   });
 
   const goal = goals.find((item) => item.id === goalId);
+  const amountValue = watch("amount");
+  const totalAmountValue = watch("totalAmount");
 
   useEffect(() => {
     if (!goal) {
@@ -54,6 +59,13 @@ export default function GoalDetailsPage() {
 
   const leftAmount =
     Number(goal?.total_amount || 0) - Number(goal?.amount || 0);
+  const actionButtonSx = {
+    height: 52,
+    borderRadius: "18px",
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: 0,
+  };
 
   const handleSave = async (data) => {
     setErrorText("");
@@ -79,12 +91,7 @@ export default function GoalDetailsPage() {
     }
   };
 
-  const handleDelete = async () => {
-    const ok = window.confirm("Удалить цель?");
-    if (!ok) {
-      return;
-    }
-
+  const handleDeleteConfirm = async () => {
     setErrorText("");
 
     try {
@@ -97,6 +104,8 @@ export default function GoalDetailsPage() {
       } else {
         setErrorText("Не удалось удалить цель");
       }
+    } finally {
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -165,6 +174,9 @@ export default function GoalDetailsPage() {
               value: 0,
               message: "Сумма не может быть меньше 0",
             },
+            validate: (value) =>
+              Number(value || 0) <= Number(totalAmountValue || 0) ||
+              "Накоплено не может быть больше итоговой суммы",
           })}
           type="number"
           error={Boolean(errors.amount)}
@@ -182,6 +194,9 @@ export default function GoalDetailsPage() {
               value: 1,
               message: "Сумма должна быть больше 0",
             },
+            validate: (value) =>
+              Number(value || 0) >= Number(amountValue || 0) ||
+              "Итоговая сумма не может быть меньше накопленной",
           })}
           type="number"
           error={Boolean(errors.totalAmount)}
@@ -191,23 +206,38 @@ export default function GoalDetailsPage() {
       </div>
 
       <Typography variant="body1" className={styles.leftAmount}>
-        До цели осталось: {formatMoney(leftAmount > 0 ? leftAmount : 0)} ₽
+        До цели осталось: {formatCurrency(leftAmount > 0 ? leftAmount : 0)}
       </Typography>
 
       <div className={styles.actions}>
-        <AppButton type="submit" disabled={isUpdating || isDeleting}>
+        <AppButton
+          type="submit"
+          disabled={isUpdating || isDeleting}
+          sx={actionButtonSx}
+        >
           {isUpdating ? "Сохранение..." : "Сохранить"}
         </AppButton>
 
         <AppButton
           type="button"
           variant="outlined"
-          onClick={handleDelete}
+          onClick={() => setDeleteDialogOpen(true)}
           disabled={isUpdating || isDeleting}
+          sx={actionButtonSx}
         >
           {isDeleting ? "Удаление..." : "Удалить цель"}
         </AppButton>
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Удалить цель?"
+        text="Действие нельзя будет отменить."
+        confirmText="Удалить"
+        isLoading={isDeleting}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </form>
   );
 }

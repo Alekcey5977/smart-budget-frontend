@@ -1,8 +1,6 @@
-import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
   Typography,
@@ -27,68 +25,142 @@ export default function DeleteAccountDialog({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={isLoading ? undefined : onClose}
       PaperProps={{
         sx: {
+          width: "calc(100% - 64px)",
+          maxWidth: 306,
           borderRadius: "20px",
-          maxWidth: "90%",
-          width: "320px",
-          margin: "16px",
+          bgcolor: "#fffdf4",
+          boxShadow: "0 18px 44px rgba(0, 0, 0, 0.22)",
         },
       }}
     >
+      <DialogContent sx={{ px: 2.25, pt: 2, pb: 1.5 }}>
+        <Typography
+          sx={{
+            fontSize: 20,
+            lineHeight: 1.15,
+            fontWeight: 800,
+            color: "text.primary",
+            textAlign: "center",
+          }}
+        >
+          Удалить счёт?
+        </Typography>
+        <Typography
+          sx={{
+            mt: 0.75,
+            fontSize: 13,
+            lineHeight: 1.35,
+            fontWeight: 600,
+            color: "text.secondary",
+            textAlign: "center",
+          }}
+        >
+          Счёт будет удалён из приложения.
+        </Typography>
 
-      <DialogContent>
-        <DialogContentText component="div">
-          <Typography variant="body1" gutterBottom>
-            Вы уверены, что хотите удалить счет:
-          </Typography>
-
-          <Box
+        <Box
+          sx={{
+            mt: 1.5,
+            p: 1.5,
+            borderRadius: "16px",
+            bgcolor: "rgba(255, 255, 255, 0.62)",
+            border: "1px solid rgba(0, 0, 0, 0.06)",
+          }}
+        >
+          <Typography
             sx={{
-              bgcolor: "grey.50",
-              p: 2,
-              borderRadius: "12px",
-              my: 2,
+              fontSize: 18,
+              lineHeight: 1.2,
+              fontWeight: 800,
+              color: "text.primary",
             }}
           >
-            <Typography variant="subtitle1" fontWeight="bold">
-              {account.bank_account_name || account.name || "Без названия"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {account.bank || account.bank_name}
-            </Typography>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              color="text.primary"
-              sx={{ mt: 1 }}
-            >
-              {formattedBalance}
-            </Typography>
-          </Box>
-
-
-        </DialogContentText>
+            {account.bank_account_name || account.name || "Без названия"}
+          </Typography>
+          <Typography
+            sx={{
+              mt: 0.25,
+              fontSize: 13,
+              lineHeight: 1.2,
+              fontWeight: 700,
+              color: "text.secondary",
+            }}
+          >
+            {account.bank || account.bank_name || "Банк не указан"}
+          </Typography>
+          <Typography
+            sx={{
+              mt: 1,
+              fontSize: 20,
+              lineHeight: 1.1,
+              fontWeight: 800,
+              color: "text.primary",
+            }}
+          >
+            {formattedBalance}
+          </Typography>
+        </Box>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, pt: 0, justifyContent: "center" }}>
+      <DialogActions sx={{ px: 2, pt: 0, pb: 2, gap: 1 }}>
         <Button
-          onClick={onConfirm}
-          color="error"
+          type="button"
           variant="outlined"
+          onClick={onClose}
           disabled={isLoading}
           fullWidth
           sx={{
+            height: 32,
+            minHeight: 32,
+            px: 1.5,
+            py: 0,
             borderRadius: "12px",
             textTransform: "none",
-            borderWidth: 2,
+            fontSize: 14,
+            fontWeight: 800,
+            borderColor: "rgba(0, 0, 0, 0.12)",
+            color: "text.primary",
+            bgcolor: "rgba(255, 255, 255, 0.52)",
+            boxShadow: "none",
             "&:hover": {
-              borderWidth: 2
-            }
+              borderColor: "rgba(0, 0, 0, 0.18)",
+              bgcolor: "rgba(255, 255, 255, 0.78)",
+              boxShadow: "none",
+            },
           }}
         >
-          {isLoading ? "Удаление..." : "Удалить счет"}
+          Отмена
+        </Button>
+        <Button
+          type="button"
+          onClick={onConfirm}
+          color="error"
+          variant="contained"
+          disabled={isLoading}
+          fullWidth
+          sx={{
+            height: 32,
+            minHeight: 32,
+            px: 1.5,
+            py: 0,
+            borderRadius: "12px",
+            textTransform: "none",
+            fontSize: 14,
+            fontWeight: 800,
+            bgcolor: "rgba(211, 47, 47, 0.1)",
+            color: "#b91c1c",
+            border: "1px solid rgba(211, 47, 47, 0.18)",
+            boxShadow: "none",
+            "&:hover": {
+              bgcolor: "rgba(211, 47, 47, 0.16)",
+              boxShadow: "none",
+            },
+          }}
+        >
+          {isLoading ? "Удаление..." : "Удалить"}
         </Button>
       </DialogActions>
     </Dialog>

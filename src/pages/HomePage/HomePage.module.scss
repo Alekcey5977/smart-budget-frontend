@@ -43,7 +43,10 @@
     conic-gradient(rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%)
   );
   position: relative;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 12px 22px rgba(42, 35, 10, 0.18),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
 }
 
 .expenseDonut::after {
@@ -55,11 +58,19 @@
 }
 
 .expensesCardContent {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.expensesMonth {
+  margin-top: 2px;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: color.$color-text-main;
 }
 
 .expensesLegend {
@@ -119,6 +130,64 @@
   justify-content: center;
 }
 
+.goalsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goalAddButton {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: color.$color-accent-main;
+  color: color.$color-text-main;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.goalsEmpty {
+  margin-top: 14px;
+  min-height: 72px;
+  border-radius: 18px;
+  background: rgba(255, 229, 107, 0.28);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+}
+
+.goalsEmptyTitle {
+  color: color.$color-text-main;
+  font-weight: 700;
+}
+
+.goalsEmptyText {
+  display: block;
+  margin-top: 2px;
+  color: color.$color-muted-main;
+  font-weight: 600;
+}
+
+.goalsEmptyIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: color.$color-accent-main;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: color.$color-text-main;
+  flex-shrink: 0;
+}
+
 .goalsMiniList {
   margin-top: 12px;
   display: flex;
@@ -148,6 +217,11 @@
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
+}
+
+.goalProgressRing {
+  border-radius: 50%;
+  filter: drop-shadow(0 9px 12px rgba(42, 35, 10, 0.16));
 }
 
 .goalMiniTitle {

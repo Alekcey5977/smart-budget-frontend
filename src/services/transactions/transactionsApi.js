@@ -15,6 +15,13 @@ function buildTransactionsPayload(filters = {}) {
     payload.category_ids = filters.category_ids;
   }
 
+  if (
+    Array.isArray(filters.bank_account_ids) &&
+    filters.bank_account_ids.length > 0
+  ) {
+    payload.bank_account_ids = filters.bank_account_ids;
+  }
+
   if (filters.start_date) {
     payload.start_date = filters.start_date;
   }

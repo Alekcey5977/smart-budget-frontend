@@ -4,8 +4,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
-import { formatMoney } from "utils/formatMoney";
-import classNames from "classnames";
+import { formatCurrency } from "utils/formatMoney";
 import styles from "./HomePage.module.scss";
 
 export default function BalanceWidget() {
@@ -36,27 +35,15 @@ export default function BalanceWidget() {
         Баланс
       </Typography>
 
-      {isLoading ? (
-        <Typography variant="caption" color="text.secondary">
-          Загрузка...
-        </Typography>
-      ) : !hasAccounts ? (
-        <Box
-          className={styles.addAccountBox}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate("/bank-accounts/add");
-          }}
-        >
-          <Typography 
-            variant="subtitle2" 
-            fontWeight={700} 
-            sx={{ 
-              fontSize: "14px", 
-              color: "text.primary", 
-              textAlign: "center",
-              lineHeight: 1.2
-            }}
+      <Typography variant="body2" fontWeight={700} mb={1}>
+        {isLoading ? "Загрузка..." : formatCurrency(totalBalance)}
+      </Typography>
+
+      <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+        {accounts.slice(0, 3).map((acc) => (
+          <Box
+            key={acc.bank_account_id || acc.id}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
             Добавить счет
           </Typography>

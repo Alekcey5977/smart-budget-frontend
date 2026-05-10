@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import { formatMoney } from "utils/formatMoney";
+import { formatCurrency } from "utils/formatMoney";
 
 dayjs.locale("ru");
 
@@ -117,7 +117,7 @@ export function getOperationImageUrl(
 export function getOperationSignedAmount(operation) {
   const sign = isIncomeOperation(operation) ? "+" : "-";
   const amount = Math.abs(Number(operation?.amount || 0));
-  return `${sign}${formatMoney(amount)} ₽`;
+  return `${sign}${formatCurrency(amount)}`;
 }
 
 export function formatOperationDateShort(value) {
@@ -224,15 +224,16 @@ function addOtherSegment(items, maxSegments) {
   }
 
   const visibleItems = items.slice(0, maxSegments - 1);
-  const restAmount = items
-    .slice(maxSegments - 1)
-    .reduce((sum, item) => sum + item.amount, 0);
+  const hiddenItems = items.slice(maxSegments - 1);
+  const restAmount = hiddenItems.reduce((sum, item) => sum + item.amount, 0);
+  const restCategoryIds = hiddenItems.flatMap((item) => item.categoryIds || []);
 
   return [
     ...visibleItems,
     {
       label: "Другое",
       amount: restAmount,
+      categoryIds: restCategoryIds,
     },
   ];
 }
@@ -267,19 +268,32 @@ function getCategorySegmentsByType(
       return;
     }
 
-    const key =
+    const categoryId =
       operation?.category_id !== undefined && operation?.category_id !== null
-        ? String(operation.category_id)
+        ? Number(operation.category_id)
+        : null;
+    const key =
+      categoryId !== null && Number.isFinite(categoryId)
+        ? String(categoryId)
         : operation?.category_name || "other";
 
     if (!grouped[key]) {
       grouped[key] = {
         label: operation?.category_name || "Другое",
         amount: 0,
+        categoryIds: [],
       };
     }
 
     grouped[key].amount += amount;
+
+    if (
+      categoryId !== null &&
+      Number.isFinite(categoryId) &&
+      !grouped[key].categoryIds.includes(categoryId)
+    ) {
+      grouped[key].categoryIds.push(categoryId);
+    }
   });
 
   const sorted = Object.values(grouped).sort((a, b) => b.amount - a.amount);
@@ -295,6 +309,10 @@ export function getExpenseCategorySummarySegments(items, maxSegments = 3) {
     .map((item) => ({
       label: item?.category_name || "Другое",
       amount: Number(item?.total_amount || 0),
+      categoryIds:
+        item?.category_id !== undefined && item?.category_id !== null
+          ? [Number(item.category_id)].filter(Number.isFinite)
+          : [],
     }))
     .filter((item) => Number.isFinite(item.amount) && item.amount > 0);
 

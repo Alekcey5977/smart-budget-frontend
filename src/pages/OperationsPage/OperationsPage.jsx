@@ -12,11 +12,16 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
+import SyncIcon from "@mui/icons-material/Sync";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   useGetCategoryImageMappingsQuery,
@@ -24,11 +29,15 @@ import {
 } from "services/images/imagesApi";
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
+  useGetBankAccountsQuery,
+  useSyncBankAccountsMutation,
+} from "services/auth/bankApi";
+import {
   useGetAllTransactionsQuery,
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import AppTextField from "ui/AppTextField";
 import OperationListItem from "./OperationListItem";
 import {
@@ -67,41 +76,101 @@ function getPeriodLabel(from, to) {
   return `${formatDateForFilterLabel(from)} - ${formatDateForFilterLabel(to)}`;
 }
 
+function getMonthFromSearchParams(searchParams) {
+  const value = searchParams.get("month");
+
+  if (!value || !/^\d{4}-\d{2}$/.test(value)) {
+    return null;
+  }
+
+  const monthDate = dayjs(`${value}-01`);
+  return monthDate.isValid() ? monthDate.startOf("month") : null;
+}
+
+function getCategoryIdsFromSearchParams(searchParams) {
+  const value = searchParams.get("categoryIds");
+
+  if (!value) {
+    return [];
+  }
+
+  const categoryIds = value
+    .split(",")
+    .map((item) => Number(item))
+    .filter((item) => Number.isFinite(item));
+
+  return [...new Set(categoryIds)];
+}
+
+function getAccountId(account) {
+  return account?.bank_account_id ?? account?.id;
+}
+
+function getAccountName(account) {
+  return account?.bank_account_name || account?.name || "Счёт";
+}
+
 export default function OperationsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setPageHeaderAction } = useOutletContext() || {};
 
   const now = dayjs();
-  const [filters, setFilters] = useState({
-    dateFrom: now.startOf("month"),
-    dateTo: now.endOf("month"),
+  const monthFromSearchParams = useMemo(
+    () => getMonthFromSearchParams(searchParams),
+    [searchParams],
+  );
+  const categoryIdsFromSearchParams = useMemo(
+    () => getCategoryIdsFromSearchParams(searchParams),
+    [searchParams],
+  );
+  const initialPeriod = monthFromSearchParams || now.startOf("month");
+  const [filters, setFilters] = useState(() => ({
+    dateFrom: initialPeriod.startOf("month"),
+    dateTo: initialPeriod.endOf("month"),
     minAmount: "",
     maxAmount: "",
-    categoryIds: [],
-  });
-  const [periodDraft, setPeriodDraft] = useState({
-    dateFrom: now.startOf("month"),
-    dateTo: now.endOf("month"),
-  });
+    categoryIds: categoryIdsFromSearchParams,
+    bankAccountId: "",
+  }));
+  const [periodDraft, setPeriodDraft] = useState(() => ({
+    dateFrom: initialPeriod.startOf("month"),
+    dateTo: initialPeriod.endOf("month"),
+  }));
   const [amountDraft, setAmountDraft] = useState({
     minAmount: "",
     maxAmount: "",
   });
-  const [categoryDraftIds, setCategoryDraftIds] = useState([]);
+  const [categoryDraftIds, setCategoryDraftIds] = useState(
+    categoryIdsFromSearchParams,
+  );
+  const [accountDraftId, setAccountDraftId] = useState("");
 
   const [periodDialogOpen, setPeriodDialogOpen] = useState(false);
   const [periodTarget, setPeriodTarget] = useState("from");
-  const [periodInitialized, setPeriodInitialized] = useState(false);
+  const [periodInitialized, setPeriodInitialized] = useState(
+    Boolean(monthFromSearchParams),
+  );
 
   const [amountDialogOpen, setAmountDialogOpen] = useState(false);
 
   const [categoriesDialogOpen, setCategoriesDialogOpen] = useState(false);
   const [categoriesInitialized, setCategoriesInitialized] = useState(false);
+  const [accountDialogOpen, setAccountDialogOpen] = useState(false);
+  const [syncBankAccounts, { isLoading: isSyncing }] =
+    useSyncBankAccountsMutation();
 
+  const { data: accountsData = [] } = useGetBankAccountsQuery();
+  const accounts = useMemo(
+    () => (Array.isArray(accountsData) ? accountsData : []),
+    [accountsData],
+  );
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
-  const { data: accountsData = [] } = useGetBankAccountsQuery();
-  const hasAccounts = Array.isArray(accountsData) && accountsData.length > 0;
+  const allCategoryIds = useMemo(
+    () => categories.map((item) => Number(item.id)),
+    [categories],
+  );
   const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
   const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
   const merchantImageLookup = useMemo(
@@ -118,14 +187,23 @@ export default function OperationsPage() {
       return;
     }
 
-    const categoryIds = categories.map((item) => Number(item.id));
+    const categoryIds =
+      categoryIdsFromSearchParams.length > 0
+        ? categoryIdsFromSearchParams
+        : allCategoryIds;
+
     setFilters((prev) => ({
       ...prev,
       categoryIds,
     }));
     setCategoryDraftIds(categoryIds);
     setCategoriesInitialized(true);
-  }, [categories, categoriesInitialized]);
+  }, [
+    allCategoryIds,
+    categories,
+    categoriesInitialized,
+    categoryIdsFromSearchParams,
+  ]);
 
   const noSelectedCategories =
     categories.length > 0 && filters.categoryIds.length === 0;
@@ -181,10 +259,20 @@ export default function OperationsPage() {
       dateTo: to,
     });
     setPeriodInitialized(true);
-  }, [latestOperationsData, latestMonthDate, periodInitialized, isLatestOperationsError]);
+  }, [
+    latestOperationsData,
+    latestMonthDate,
+    periodInitialized,
+    isLatestOperationsError,
+  ]);
 
   const hasCategoryFilter =
-    categories.length > 0 && filters.categoryIds.length !== categories.length;
+    categories.length === 0
+      ? filters.categoryIds.length > 0
+      : filters.categoryIds.length !== allCategoryIds.length ||
+        allCategoryIds.some((categoryId) => !filters.categoryIds.includes(categoryId));
+  const shouldApplyCategoryFilter =
+    filters.categoryIds.length > 0 && hasCategoryFilter;
 
   const transactionsFilters = useMemo(() => {
     const payload = {};
@@ -202,15 +290,24 @@ export default function OperationsPage() {
       payload.max_amount = Number(filters.maxAmount);
     }
 
-    if (hasCategoryFilter && filters.categoryIds.length > 0) {
+    if (shouldApplyCategoryFilter) {
       payload.category_ids = filters.categoryIds;
+    }
+
+    if (filters.bankAccountId) {
+      payload.bank_account_ids = [Number(filters.bankAccountId)];
     }
 
     return payload;
   }, [
     periodInitialized,
-    filters,
-    hasCategoryFilter,
+    filters.dateFrom,
+    filters.dateTo,
+    filters.minAmount,
+    filters.maxAmount,
+    filters.categoryIds,
+    filters.bankAccountId,
+    shouldApplyCategoryFilter,
   ]);
 
   const {
@@ -286,11 +383,25 @@ export default function OperationsPage() {
 
   const amountFilterActive = filters.minAmount !== "" || filters.maxAmount !== "";
   const categoryFilterActive = hasCategoryFilter;
+  const accountFilterActive = filters.bankAccountId !== "";
   const periodFilterActive =
     periodInitialized &&
     (!filters.dateFrom.isSame(defaultPeriodFrom, "day") ||
       !filters.dateTo.isSame(defaultPeriodTo, "day"));
+  const hasActiveFilters =
+    periodFilterActive ||
+    amountFilterActive ||
+    categoryFilterActive ||
+    accountFilterActive;
   const periodLabel = getPeriodLabel(filters.dateFrom, filters.dateTo);
+  const selectedAccount = useMemo(
+    () =>
+      accounts.find(
+        (account) => String(getAccountId(account)) === String(filters.bankAccountId),
+      ),
+    [accounts, filters.bankAccountId],
+  );
+  const accountLabel = selectedAccount ? getAccountName(selectedAccount) : "Счёт";
 
   const resetPeriodFilter = useCallback(() => {
     setFilters((prev) => ({
@@ -319,36 +430,45 @@ export default function OperationsPage() {
   }, []);
 
   const resetCategories = useCallback(() => {
-    const categoryIds = categories.map((item) => Number(item.id));
     setFilters((prev) => ({
       ...prev,
-      categoryIds,
+      categoryIds: allCategoryIds,
     }));
-    setCategoryDraftIds(categoryIds);
-  }, [categories]);
+    setCategoryDraftIds(allCategoryIds);
+  }, [allCategoryIds]);
+
+  const resetAccountFilter = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      bankAccountId: "",
+    }));
+    setAccountDraftId("");
+    setAccountDialogOpen(false);
+  }, []);
 
   const resetAllFilters = useCallback(() => {
     resetPeriodFilter();
     resetAmountFilter();
     resetCategories();
-  }, [resetPeriodFilter, resetAmountFilter, resetCategories]);
+    resetAccountFilter();
+  }, [resetPeriodFilter, resetAmountFilter, resetCategories, resetAccountFilter]);
+
+  const handleSync = useCallback(async () => {
+    try {
+      await syncBankAccounts().unwrap();
+    } catch {}
+  }, [syncBankAccounts]);
 
   useEffect(() => {
     if (!setPageHeaderAction) {
       return undefined;
     }
 
-    if (!periodFilterActive && !amountFilterActive && !categoryFilterActive) {
-      setPageHeaderAction(null);
-      return () => {
-        setPageHeaderAction(null);
-      };
-    }
-
     setPageHeaderAction(
       <IconButton
-        aria-label="Сбросить фильтры"
-        onClick={resetAllFilters}
+        aria-label="Синхронизировать операции"
+        onClick={handleSync}
+        disabled={isSyncing}
         sx={{
           width: 47,
           height: 37,
@@ -356,9 +476,18 @@ export default function OperationsPage() {
           bgcolor: "primary.main",
           color: "text.primary",
           "&:hover": { bgcolor: "primary.main" },
+          "&.Mui-disabled": {
+            bgcolor: "primary.main",
+            color: "text.primary",
+            opacity: 0.7,
+          },
         }}
       >
-        <FilterAltOffOutlinedIcon fontSize="small" />
+        {isSyncing ? (
+          <CircularProgress size={18} color="inherit" />
+        ) : (
+          <SyncIcon fontSize="small" />
+        )}
       </IconButton>,
     );
 
@@ -367,10 +496,8 @@ export default function OperationsPage() {
     };
   }, [
     setPageHeaderAction,
-    periodFilterActive,
-    amountFilterActive,
-    categoryFilterActive,
-    resetAllFilters,
+    handleSync,
+    isSyncing,
   ]);
 
   const openPeriodDialog = () => {
@@ -461,7 +588,20 @@ export default function OperationsPage() {
   };
 
   const resetCategoryDrafts = () => {
-    setCategoryDraftIds(categories.map((item) => Number(item.id)));
+    setCategoryDraftIds(allCategoryIds);
+  };
+
+  const openAccountDialog = () => {
+    setAccountDraftId(filters.bankAccountId);
+    setAccountDialogOpen(true);
+  };
+
+  const applyAccountFilter = () => {
+    setFilters((prev) => ({
+      ...prev,
+      bankAccountId: accountDraftId,
+    }));
+    setAccountDialogOpen(false);
   };
 
   const dialogPaperSx = {
@@ -529,7 +669,7 @@ export default function OperationsPage() {
       <div className={styles.filtersRow}>
         <button
           type="button"
-          className={styles.filterButton}
+          className={`${styles.filterButton} ${styles.filterButtonPeriod}`}
           onClick={periodFilterActive ? resetPeriodFilter : openPeriodDialog}
         >
           <span className={styles.filterButtonLabel}>{periodLabel}</span>
@@ -538,7 +678,16 @@ export default function OperationsPage() {
 
         <button
           type="button"
-          className={styles.filterButton}
+          className={`${styles.filterButton} ${styles.filterButtonAccount}`}
+          onClick={accountFilterActive ? resetAccountFilter : openAccountDialog}
+        >
+          <span className={styles.filterButtonLabel}>{accountLabel}</span>
+          {accountFilterActive ? <CloseIcon /> : <ArrowDropDownIcon />}
+        </button>
+
+        <button
+          type="button"
+          className={`${styles.filterButton} ${styles.filterButtonAmount}`}
           onClick={amountFilterActive ? resetAmountFilter : openAmountDialog}
         >
           <span className={styles.filterButtonLabel}>Сумма</span>
@@ -547,7 +696,7 @@ export default function OperationsPage() {
 
         <button
           type="button"
-          className={styles.filterButton}
+          className={`${styles.filterButton} ${styles.filterButtonCategory}`}
           onClick={categoryFilterActive ? resetCategories : openCategoriesDialog}
         >
           <span className={styles.filterButtonLabel}>Категория</span>
@@ -577,7 +726,7 @@ export default function OperationsPage() {
               <div className={styles.summaryInfo}>
                 <div className={styles.summaryLabel}>{card.title}</div>
                 <div className={styles.summaryValue}>
-                  {formatMoney(card.totalAmount)} ₽
+                  {formatCurrency(card.totalAmount)}
                 </div>
               </div>
             </button>
@@ -587,6 +736,17 @@ export default function OperationsPage() {
       <div className={styles.listWrap}>
         {renderListContent()}
       </div>
+
+      {hasActiveFilters && (
+        <button
+          type="button"
+          className={styles.resetFiltersButton}
+          onClick={resetAllFilters}
+          aria-label="Сбросить фильтры"
+        >
+          <FilterAltOffOutlinedIcon fontSize="small" />
+        </button>
+      )}
 
       <Dialog
         open={periodDialogOpen}
@@ -758,6 +918,58 @@ export default function OperationsPage() {
             type="button"
             className={styles.dialogActionButton}
             onClick={applyCategoriesFilter}
+          >
+            ОК
+          </button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={accountDialogOpen}
+        onClose={() => setAccountDialogOpen(false)}
+        PaperProps={{ className: styles.dialogPaper, sx: dialogPaperSx }}
+      >
+        <DialogTitle>Счёт</DialogTitle>
+        <DialogContent>
+          <div className={styles.categoryList}>
+            <button
+              type="button"
+              className={styles.categoryItem}
+              onClick={() => setAccountDraftId("")}
+            >
+              Все счета
+              <Checkbox checked={accountDraftId === ""} />
+            </button>
+
+            {accounts.map((account) => {
+              const accountId = getAccountId(account);
+
+              return (
+                <button
+                  key={accountId}
+                  type="button"
+                  className={styles.categoryItem}
+                  onClick={() => setAccountDraftId(String(accountId))}
+                >
+                  {getAccountName(account)}
+                  <Checkbox checked={String(accountId) === String(accountDraftId)} />
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+        <DialogActions className={styles.dialogActions}>
+          <button
+            type="button"
+            className={styles.dialogActionButton}
+            onClick={resetAccountFilter}
+          >
+            Сбросить
+          </button>
+          <button
+            type="button"
+            className={styles.dialogActionButton}
+            onClick={applyAccountFilter}
           >
             ОК
           </button>

@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 
 import { formatDateRu } from "src/utils/date";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import styles from "./GoalsPage.module.scss";
 
 function getProgressPercent(amount, totalAmount) {
@@ -42,7 +42,8 @@ export default function GoalListItem({ goal, onOpen }) {
       </div>
 
       <Typography variant="body2" className={styles.cardText}>
-        Накоплено {formatMoney(goal.amount)} ₽ из {formatMoney(goal.total_amount)} ₽
+        Накоплено {formatCurrency(goal.amount)} из{" "}
+        {formatCurrency(goal.total_amount)}
       </Typography>
 
       <Typography variant="body2" className={styles.cardText}>

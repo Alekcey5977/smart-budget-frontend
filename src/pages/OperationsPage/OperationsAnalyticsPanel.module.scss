@@ -1,10 +1,6 @@
 @use "styles/colors.scss" as color;
 
 .analyticsCard {
-  border-radius: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 229, 107, 0.3);
-  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -13,7 +9,7 @@
 .analyticsHeader {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
 }
 
@@ -25,7 +21,16 @@
   margin: 0;
   color: color.$color-muted-main;
   text-align: center;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.analyticsMonthCard {
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px 12px;
 }
 
 .analyticsMonthRow {
@@ -41,7 +46,7 @@
   height: 32px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 229, 107, 0.45);
   color: color.$color-text-main;
   display: inline-flex;
   align-items: center;
@@ -73,10 +78,13 @@
 }
 
 .analyticsState {
-  min-height: 120px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.46);
 }
 
 .analyticsContent {
@@ -86,34 +94,41 @@
   align-items: stretch;
 }
 
-.analyticsDonutWrap {
+.analyticsDonutCard {
   display: flex;
   justify-content: center;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 229, 107, 0.28);
+  padding: 22px 12px 24px;
 }
 
 .analyticsDonut {
-  width: 132px;
-  height: 132px;
+  width: 154px;
+  height: 154px;
   border-radius: 50%;
   background: var(
     --ring-background,
     conic-gradient(rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%)
   );
   position: relative;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 18px 32px rgba(42, 35, 10, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
 }
 
 .analyticsDonut::after {
   content: "";
   position: absolute;
-  inset: 24px;
+  inset: 27px;
   border-radius: 50%;
   background: color.$color-surface-main;
 }
 
 .analyticsDonutCenter {
   position: absolute;
-  inset: 30px;
+  inset: 27px;
   z-index: 1;
   border-radius: 50%;
   display: flex;
@@ -123,33 +138,47 @@
   text-align: center;
 }
 
-.analyticsDonutLabel {
-  font-size: 12px;
-  color: color.$color-muted-main;
-}
-
 .analyticsDonutValue {
-  margin-top: 4px;
-  font-size: 16px;
-  line-height: 1.15;
+  font-size: clamp(13px, 4vw, 17px);
+  line-height: 1.1;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.analyticsLegend {
+.analyticsLegendCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.46);
+  padding: 12px;
 }
 
 .analyticsLegendItem {
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.58);
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
   padding: 9px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  color: color.$color-text-main;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 1;
+    cursor: default;
+  }
+
+  &:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.74);
+  }
 }
 
 .analyticsLegendItemLabelWrap {
@@ -189,6 +218,7 @@
   font-size: 14px;
   line-height: 1.2;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .analyticsLegendItemPercent {

@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import { useGetGoalsQuery } from "services/goals/goalsApi";
@@ -26,22 +27,59 @@ export default function HomeGoalsCard() {
   const navigate = useNavigate();
   const { data: goals = [], isLoading } = useGetGoalsQuery();
   const dashboardGoals = goals.slice(0, 2);
+  const hasGoals = goals.length > 0;
+
+  const handleOpenGoals = () => {
+    if (isLoading) {
+      return;
+    }
+
+    navigate(hasGoals ? "/goals" : "/goals/create");
+  };
 
   return (
     <Paper
       variant="outlined"
-      className={classNames(styles.cardWide, styles.cardLink)}
-      onClick={() => navigate("/goals")}
+      className={`${styles.cardWide} ${styles.cardLink}`}
+      onClick={handleOpenGoals}
     >
-      <Typography variant="subtitle1" fontWeight={700}>
-        Цели
-      </Typography>
+      <div className={styles.goalsHeader}>
+        <Typography variant="subtitle1" fontWeight={700}>
+          Цели
+        </Typography>
+        {hasGoals && (
+          <button
+            type="button"
+            className={styles.goalAddButton}
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate("/goals/create");
+            }}
+          >
+            <AddIcon fontSize="small" />
+          </button>
+        )}
+      </div>
 
-      {isLoading || dashboardGoals.length === 0 ? (
+      {isLoading ? (
         <div className={styles.center}>
-          <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
-            {isLoading ? "Загрузка..." : "Целей нет"}
+          <Typography variant="body2" color="text.secondary">
+            Загрузка...
           </Typography>
+        </div>
+      ) : dashboardGoals.length === 0 ? (
+        <div className={styles.goalsEmpty}>
+          <div>
+            <Typography variant="body2" className={styles.goalsEmptyTitle}>
+              Целей нет
+            </Typography>
+            <Typography variant="caption" className={styles.goalsEmptyText}>
+              Добавить первую цель
+            </Typography>
+          </div>
+          <span className={styles.goalsEmptyIcon}>
+            <AddIcon fontSize="small" />
+          </span>
         </div>
       ) : (
         <div className={styles.goalsMiniList}>
@@ -50,7 +88,10 @@ export default function HomeGoalsCard() {
 
             return (
               <div key={goal.id} className={styles.goalMiniCard}>
-                <Box sx={{ position: "relative", width: 80, height: 80 }}>
+                <Box
+                  className={styles.goalProgressRing}
+                  sx={{ position: "relative", width: 80, height: 80 }}
+                >
                   <CircularProgress
                     variant="determinate"
                     value={100}

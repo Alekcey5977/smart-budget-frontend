@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useCreateGoalMutation } from "services/goals/goalsApi";
 import { getMonthsLeft } from "src/utils/date";
-import { formatMoney } from "src/utils/formatMoney";
+import { formatCurrency } from "src/utils/formatMoney";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import styles from "./GoalCreatePage.module.scss";
@@ -42,7 +42,7 @@ export default function GoalCreatePage() {
     }
 
     const monthlyAmount = total / monthsLeft;
-    return `В среднем нужно откладывать ${formatMoney(monthlyAmount)} ₽ в месяц`;
+    return `В среднем нужно откладывать ${formatCurrency(monthlyAmount)} в месяц`;
   }, [deadline, totalAmount]);
 
   const onSubmit = async (data) => {
@@ -63,6 +63,14 @@ export default function GoalCreatePage() {
         setErrorText("Не удалось создать цель");
       }
     }
+  };
+
+  const actionButtonSx = {
+    height: 52,
+    borderRadius: "18px",
+    fontSize: 18,
+    fontWeight: 800,
+    letterSpacing: 0,
   };
 
   return (
@@ -117,7 +125,7 @@ export default function GoalCreatePage() {
       </div>
 
       <div className={styles.actions}>
-        <AppButton type="submit" disabled={isLoading}>
+        <AppButton type="submit" disabled={isLoading} sx={actionButtonSx}>
           {isLoading ? "Создание..." : "Создать цель"}
         </AppButton>
       </div>

@@ -58,11 +58,9 @@ function HomeOperationsContent({
   return (
     <div className={styles.operationsList}>
       {operations.map((operation) => (
-        <button
+        <div
           key={operation.id}
-          type="button"
           className={styles.operationItem}
-          onClick={operation.onClick}
         >
           <OperationIcon
             operation={operation}
@@ -86,7 +84,7 @@ function HomeOperationsContent({
           >
             {operation.signedAmount}
           </div>
-        </button>
+        </div>
       ))}
     </div>
   );
@@ -128,15 +126,9 @@ export default function HomeOperationsCard() {
         date: formatOperationDateShort(operation.created_at),
         isIncome: isIncomeOperation(operation),
         signedAmount: getOperationSignedAmount(operation),
-        onClick: (event) => {
-          event.stopPropagation();
-          navigate(`/operations/${operation.id}`, {
-            state: { operation },
-          });
-        },
       };
     });
-  }, [data, navigate, hasAccounts]);
+  }, [data, hasAccounts]);
 
   return (
     <Paper
