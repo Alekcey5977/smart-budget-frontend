@@ -2,6 +2,7 @@ import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { useGetGoalsQuery } from "services/goals/goalsApi";
+import classNames from "classnames";
 import styles from "./HomePage.module.scss";
 
 function getProgress(amount, totalAmount) {
@@ -29,7 +30,7 @@ export default function HomeGoalsCard() {
   return (
     <Paper
       variant="outlined"
-      className={`${styles.cardWide} ${styles.cardLink}`}
+      className={classNames(styles.cardWide, styles.cardLink)}
       onClick={() => navigate("/goals")}
     >
       <Typography variant="subtitle1" fontWeight={700}>
@@ -38,7 +39,7 @@ export default function HomeGoalsCard() {
 
       {isLoading || dashboardGoals.length === 0 ? (
         <div className={styles.center}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
             {isLoading ? "Загрузка..." : "Целей нет"}
           </Typography>
         </div>

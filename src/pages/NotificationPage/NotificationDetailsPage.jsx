@@ -10,9 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import InfoIcon from "@mui/icons-material/Info";
-import { formatDateTimeRu } from "utils/date";
 import { useOutletContext } from "react-router-dom";
 
 import {
@@ -20,63 +18,26 @@ import {
   useDeleteNotificationMutation,
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
+import styles from "./NotificationsPage.module.scss";
 
 const DetailsLayout = ({ children }) => (
-  <Box sx={{ 
-    width: "100%", 
-    padding: "0 16px",
-    boxSizing: "border-box",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  }}>
-    <Box sx={{ width: "100%", maxWidth: 500 }}>
+  <Box className={styles.detailsLayout}>
+    <Box className={styles.detailsLayoutInner}>
       {children}
     </Box>
   </Box>
 );
 
 const DetailContent = ({ data }) => (
-  <Paper 
-    variant="outlined" 
-    sx={{ 
-      p: 2, 
-      borderRadius: "16px", 
-      width: "100%",
-      boxSizing: "border-box",
-      bgcolor: "background.paper",
-      border: "1px solid",
-      borderColor: "divider",
-    }}
+  <Paper
+    elevation={0}
+    className={styles.detailContentPaper}
+    sx={{ bgcolor: "background.paper" }}
   >
-    <Box sx={{ mb: 1 }}>
-      <Typography
-        variant="subtitle1"
-        fontWeight={700}
-        color="text.primary"
-        sx={{ textAlign: "left", width: "100%" }}
-      >
-        {data.title || "Уведомление"}
-      </Typography>
-
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-        <AccessTimeIcon sx={{ fontSize: 14, color: "text.disabled" }} />
-        <Typography variant="caption" color="text.disabled">
-          {formatDateTimeRu(data.created_at || data.createdAt)}
-        </Typography>
-      </Box>
-    </Box>
-
     <Typography
-      variant="body2"
+      variant="body1"
       color="text.secondary"
-      sx={{
-        whiteSpace: "pre-wrap",
-        lineHeight: 1.6,
-        textAlign: "left",
-        width: "100%",
-        mt: 1
-      }}
+      className={styles.detailContentText}
     >
       {data.text || data.message || data.body || data.full_text || "Нет текста уведомления"}
     </Typography>
@@ -108,7 +69,7 @@ const AlertDetails = ({ id }) => {
   const navigate = useNavigate();
   const { data, isLoading, isError, error } = useGetNotificationByIdQuery(id);
   const [deleteNotification] = useDeleteNotificationMutation();
-  const { setPageHeaderAction } = useOutletContext();
+  const { setPageHeaderAction, setPageTitle } = useOutletContext();
 
   const handleDelete = useCallback(async () => {
     if (window.confirm("Удалить это уведомление?")) {
@@ -123,14 +84,18 @@ const AlertDetails = ({ id }) => {
 
   useEffect(() => {
     if (data && setPageHeaderAction) {
+      setPageTitle?.(data.title || "Уведомление");
       setPageHeaderAction(
         <IconButton onClick={handleDelete} sx={{ color: "text.primary" }}>
           <DeleteOutlineIcon />
         </IconButton>
       );
     }
-    return () => setPageHeaderAction?.(null);
-  }, [data, setPageHeaderAction, handleDelete]);
+    return () => {
+      setPageHeaderAction?.(null);
+      setPageTitle?.(null);
+    };
+  }, [data, setPageHeaderAction, setPageTitle, handleDelete]);
 
   if (isLoading) return <LoadingIndicator />;
   if (isError || !data) return <ErrorView error={error} />;
@@ -144,6 +109,12 @@ const AlertDetails = ({ id }) => {
 
 const HistoryDetails = ({ id }) => {
   const { data, isLoading, isError, error } = useGetHistoryByIdQuery(id);
+  const { setPageTitle } = useOutletContext();
+
+  useEffect(() => {
+    if (data) setPageTitle?.(data.title || "Уведомление");
+    return () => setPageTitle?.(null);
+  }, [data, setPageTitle]);
 
   if (isLoading) return <LoadingIndicator />;
   if (isError || !data) return <ErrorView error={error} />;
@@ -156,7 +127,7 @@ const HistoryDetails = ({ id }) => {
 };
 
 const LoadingIndicator = () => (
-  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+  <Box className={styles.loadingView}>
     <CircularProgress />
   </Box>
 );
@@ -164,7 +135,7 @@ const LoadingIndicator = () => (
 const ErrorView = ({ error }) => {
   const navigate = useNavigate();
   return (
-    <Box sx={{ p: 3, textAlign: "center", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <Box className={styles.errorView}>
       <Alert severity="error" sx={{ mb: 2 }}>
         {error?.data?.message || "Уведомление не найдено или было удалено"}
       </Alert>

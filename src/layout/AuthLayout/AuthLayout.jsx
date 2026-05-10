@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useNotifications } from "hooks/useNotifications";
+import { useNotificationSocket } from "hooks/useNotificationSocket";
 import { getAuthToken, getAuthUser } from "store/auth/authsSelectors";
 import {
   Avatar,
@@ -21,6 +22,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import EditIcon from "@mui/icons-material/Edit";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
+import classNames from "classnames";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -33,6 +35,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   const user = useSelector(getAuthUser);
 
   const { unreadCount } = useNotifications();
+  useNotificationSocket();
 
   const { data: myAvatar } = useGetMyAvatarQuery();
 
@@ -40,6 +43,12 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [pageHeaderAction, setPageHeaderAction] = useState(null);
+  const [pageTitle, setPageTitle] = useState(null);
+
+  useEffect(() => {
+    setPageTitle(null);
+  }, [title]);
+
   const menuOpen = Boolean(anchorEl);
   const openMenu = (e) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
@@ -61,25 +70,18 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   return (
     <PhoneLayout>
       <div
-        className={`${styles.header} ${showBack ? styles.headerPage : styles.headerMain}`}
+        className={classNames(styles.header, showBack ? styles.headerPage : styles.headerMain)}
       >
         {showBack ? (
           <>
             <IconButton
               className={styles.backButton}
               onClick={() => navigate("/home")}
-              sx={{
-                bgcolor: "primary.main",
-                color: "text.primary",
-                borderRadius: "15px",
-                width: 40,
-                height: 40,
-              }}
             >
               <HomeIcon fontSize="small" />
             </IconButton>
             <Typography variant="h6" className={styles.pageTitle}>
-              {title}
+              {pageTitle || title}
             </Typography>
 
             <div className={styles.pageRight}>{pageHeaderAction}</div>
@@ -98,24 +100,18 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
                       ? `/images/${myAvatar.id}`
                       : undefined
                 }
-                sx={{
-                  bgcolor: "#cbcbcb",
-                  width: 40,
-                  height: 40,
-                  cursor: "pointer",
-                }}
               >
                 {!(myAvatar?.image_id || myAvatar?.id) && <PersonIcon />}
               </Avatar>
             </Box>
 
-            <Typography variant="h6" className={styles.pageTitle} sx={{ flexGrow: 1, textAlign: "center" }}>
-              {title}
+            <Typography variant="h6" className={styles.pageTitle}>
+              {pageTitle || title}
             </Typography>
 
             <IconButton
               onClick={handleNotificationsClick}
-              sx={{ width: 40, height: 40 }}
+              className={styles.notificationBtn}
             >
               <Badge
                 color="error"
@@ -173,7 +169,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
         )}
       </div>
       <div className={styles.content}>
-        <Outlet context={{ setPageHeaderAction }} />
+        <Outlet context={{ setPageHeaderAction, setPageTitle }} />
       </div>
 
       <AvatarSelector

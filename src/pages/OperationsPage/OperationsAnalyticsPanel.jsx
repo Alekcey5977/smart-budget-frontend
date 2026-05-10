@@ -53,7 +53,7 @@ export default function OperationsAnalyticsPanel({
     if (segments.length === 0) {
       return (
         <div className={styles.analyticsState}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography color="text.secondary" sx={{ fontSize: "14px", fontWeight: 700 }}>
             {emptyText}
           </Typography>
         </div>

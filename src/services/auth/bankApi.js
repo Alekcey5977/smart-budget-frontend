@@ -83,6 +83,14 @@ export const bankApi = createApi({
         } catch {}
       },
     }),
+    renameBankAccount: builder.mutation({
+      query: ({ id, name }) => ({
+        url: `/bank_account/${id}`,
+        method: "PATCH",
+        data: { bank_account_name: name },
+      }),
+      invalidatesTags: ["BankAccount"],
+    }),
   }),
 });
 
@@ -90,4 +98,5 @@ export const {
   useGetBankAccountsQuery,
   useAddBankAccountMutation,
   useDeleteBankAccountMutation,
+  useRenameBankAccountMutation,
 } = bankApi;
