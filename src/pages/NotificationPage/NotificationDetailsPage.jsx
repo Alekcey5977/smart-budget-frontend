@@ -86,7 +86,8 @@ const AlertDetails = ({ id }) => {
 
   useEffect(() => {
     if (data && setPageHeaderAction) {
-      setPageTitle?.(data.title || "Уведомление");
+      const displayTitle = data.title?.split(":")?.[0]?.trim() || "Уведомление";
+      setPageTitle?.(displayTitle === "Прогресс цели" ? "Прогресс цели" : displayTitle);
       setPageHeaderAction(
         <IconButton
           onClick={() => setDeleteDialogOpen(true)}
@@ -125,7 +126,10 @@ const HistoryDetails = ({ id }) => {
   const { setPageTitle } = useOutletContext();
 
   useEffect(() => {
-    if (data) setPageTitle?.(data.title || "Уведомление");
+    if (data) {
+      const displayTitle = data.title?.split(":")?.[0]?.trim() || "Уведомление";
+      setPageTitle?.(displayTitle === "Прогресс цели" ? "Прогресс цели" : displayTitle);
+    }
     return () => setPageTitle?.(null);
   }, [data, setPageTitle]);
 

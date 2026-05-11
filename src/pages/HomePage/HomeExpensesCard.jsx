@@ -122,7 +122,6 @@ export default function HomeExpensesCard() {
       variant="outlined"
       className={classNames(styles.card, styles.cardLink)}
       sx={{ 
-        height: "100%",
         display: "flex",
         flexDirection: "column"
       }}
