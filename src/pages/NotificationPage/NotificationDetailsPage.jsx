@@ -19,6 +19,7 @@ import {
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
 import ConfirmDialog from "ui/ConfirmDialog";
+import styles from "./NotificationsPage.module.scss";
 
 const DetailsLayout = ({ children }) => (
   <Box className={styles.detailsLayout}>
@@ -70,7 +71,7 @@ const AlertDetails = ({ id }) => {
   const { data, isLoading, isError, error } = useGetNotificationByIdQuery(id);
   const [deleteNotification, { isLoading: isDeleting }] =
     useDeleteNotificationMutation();
-  const { setPageHeaderAction } = useOutletContext();
+  const { setPageHeaderAction, setPageTitle } = useOutletContext();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDeleteConfirm = useCallback(async () => {

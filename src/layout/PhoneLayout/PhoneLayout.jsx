@@ -1,9 +1,10 @@
+import classNames from "classnames";
 import styles from "./PhoneLayout.module.scss";
 
-export default function PhoneLayout({ children }) {
+export default function PhoneLayout({ children, className }) {
   return (
     <div className={styles.root}>
-      <div className={styles.phone}>{children}</div>
+      <div className={classNames(styles.phone, className)}>{children}</div>
     </div>
   );
 }

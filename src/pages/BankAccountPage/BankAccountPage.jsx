@@ -30,6 +30,7 @@ import styles from "./BankAccountPage.module.scss";
 
 
 const AccountCard = ({ account, onDelete }) => {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(
@@ -88,8 +89,18 @@ const AccountCard = ({ account, onDelete }) => {
 
   const accountNumber = account.number || account.account_number;
 
+  const id = account.bank_account_id || account.id;
+
   return (
-    <div className={styles.card}>
+    <div 
+      className={styles.card} 
+      onClick={() => {
+        if (!isEditing) {
+          navigate(`/operations?bankAccountId=${id}`);
+        }
+      }}
+      style={{ cursor: isEditing ? "default" : "pointer" }}
+    >
       <div className={styles.cardHeader}>
         <div className={styles.cardInfo}>
           <div className={styles.cardName}>
@@ -100,6 +111,7 @@ const AccountCard = ({ account, onDelete }) => {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onClick={(e) => e.stopPropagation()}
                 size="small"
                 variant="standard"
                 disabled={isRenaming}
@@ -123,13 +135,22 @@ const AccountCard = ({ account, onDelete }) => {
           <div style={{ display: "flex", gap: 2 }}>
             <IconButton
               size="small"
-              onClick={handleRenameConfirm}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRenameConfirm();
+              }}
               disabled={isRenaming}
               color="primary"
             >
               <CheckIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={handleRenameCancel}>
+            <IconButton 
+              size="small" 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRenameCancel();
+              }}
+            >
               <CloseIcon fontSize="small" />
             </IconButton>
           </div>
@@ -161,13 +182,24 @@ const AccountCard = ({ account, onDelete }) => {
           horizontal: "right",
         }}
       >
-        <MenuItem onClick={handleRenameStart}>
+        <MenuItem 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRenameStart();
+          }}
+        >
           <ListItemIcon sx={{ minWidth: "32px" }}>
             <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Переименовать" />
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+        <MenuItem 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }} 
+          sx={{ color: "error.main" }}
+        >
           <ListItemIcon sx={{ color: "error.main", minWidth: "32px" }}>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>

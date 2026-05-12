@@ -106,6 +106,14 @@ export const bankApi = createApi({
       },
       invalidatesTags: ["BankAccount"],
     }),
+    renameBankAccount: builder.mutation({
+      query: ({ id, name }) => ({
+        url: `/bank_account/${id}`,
+        method: "PATCH",
+        data: { bank_account_name: name },
+      }),
+      invalidatesTags: ["BankAccount"],
+    }),
   }),
 });
 
@@ -114,4 +122,5 @@ export const {
   useAddBankAccountMutation,
   useDeleteBankAccountMutation,
   useSyncBankAccountsMutation,
+  useRenameBankAccountMutation,
 } = bankApi;

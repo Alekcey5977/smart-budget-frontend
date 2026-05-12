@@ -8,6 +8,29 @@
   border-bottom-right-radius: 26px;
 }
 
+.headerSticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.phoneFixed {
+  overflow-y: hidden !important;
+}
+
+.contentScrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 -16px -16px;
+  padding: 14px 16px 16px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .headerMain {
   display: flex;
   align-items: center;
@@ -60,6 +83,15 @@
   padding-top: 14px;
 }
 
+.contentScrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .avatar {
   width: 40px;
   height: 40px;
@@ -76,4 +108,3 @@
   width: 40px;
   height: 40px;
 }
-

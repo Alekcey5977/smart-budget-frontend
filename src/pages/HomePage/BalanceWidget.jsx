@@ -27,23 +27,38 @@ export default function BalanceWidget() {
     <Paper
       variant="outlined"
       className={classNames(styles.card, styles.balanceWidgetCard)}
+      sx={{ height: "100%" }}
       onClick={() => navigate("/bank-accounts")}
     >
-      <Typography
-        variant="h6"
-        fontWeight={800}
-        sx={{ fontSize: "18px", mb: hasAccounts ? 0.5 : 0 }}
-      >
-        Баланс
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: hasAccounts ? 0.5 : 0 }}>
+        <Typography
+          variant="h6"
+          fontWeight={800}
+          sx={{ fontSize: "18px" }}
+        >
+          Баланс
+        </Typography>
+        {hasAccounts && (
+          <button
+            type="button"
+            className={styles.goalAddButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/bank-accounts/add");
+            }}
+          >
+            <AddIcon fontSize="small" />
+          </button>
+        )}
+      </Box>
 
       {isLoading ? (
         <Typography variant="caption" color="text.secondary">
           Загрузка...
         </Typography>
       ) : (
-        <>
-          {hasAccounts && (
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          {hasAccounts ? (
             <>
               <Typography
                 variant="body1"
@@ -74,43 +89,42 @@ export default function BalanceWidget() {
                 ))}
               </Box>
             </>
-          )}
-
-          {accounts.length < 3 && (
-            <Box
-              className={styles.addAccountBox}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/bank-accounts/add");
-              }}
-              sx={{
-                mt: hasAccounts ? 0.5 : 0,
-                py: hasAccounts ? 0.8 : 2,
-                px: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center"
-              }}
-            >
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
+          ) : (
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <Box
+                className={styles.addAccountBox}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/bank-accounts/add");
+                }}
                 sx={{
-                  fontSize: hasAccounts ? "11px" : "14px",
-                  color: "text.primary",
-                  textAlign: "center",
-                  lineHeight: 1.2,
-                  mb: hasAccounts ? 0.5 : 1
+                  py: 2,
+                  px: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
                 }}
               >
-                Добавить счет
-              </Typography>
-              <Box className={styles.addIconWrap} sx={{ width: hasAccounts ? 20 : 32, height: hasAccounts ? 20 : 32 }}>
-                <AddIcon sx={{ fontSize: hasAccounts ? 14 : 20, color: "text.primary" }} />
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={700}
+                  sx={{
+                    fontSize: "14px",
+                    color: "text.primary",
+                    textAlign: "center",
+                    lineHeight: 1.2,
+                    mb: 1
+                  }}
+                >
+                  Добавить счет
+                </Typography>
+                <Box className={styles.addIconWrap} sx={{ width: 32, height: 32 }}>
+                  <AddIcon sx={{ fontSize: 20, color: "text.primary" }} />
+                </Box>
               </Box>
             </Box>
           )}
-        </>
+        </Box>
       )}
     </Paper>
   );

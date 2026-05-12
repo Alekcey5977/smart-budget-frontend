@@ -23,6 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AvatarSelector from "ui/AvatarSelector/AvatarSelector";
 import { useGetMyAvatarQuery } from "services/auth/avatarApi";
 import { useAppBackNavigation } from "hooks/useAppBackNavigation";
+import classNames from "classnames";
 import styles from "./AuthLayout.module.scss";
 import PhoneLayout from "layout/PhoneLayout/PhoneLayout";
 import { logout } from "store/auth/authSlice";
@@ -69,9 +70,13 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   };
 
   return (
-    <PhoneLayout>
+    <PhoneLayout className={isDashboard ? styles.phoneFixed : ""}>
       <div
-        className={classNames(styles.header, showBack ? styles.headerPage : styles.headerMain)}
+        className={classNames(
+          styles.header,
+          showBack ? styles.headerPage : styles.headerMain,
+          isDashboard && styles.headerSticky
+        )}
       >
         {showBack ? (
           <>
@@ -177,7 +182,12 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
           </>
         )}
       </div>
-      <div className={styles.content}>
+      <div
+        className={classNames(
+          styles.content,
+          isDashboard && styles.contentScrollable
+        )}
+      >
         <Outlet context={{ setPageHeaderAction, setPageTitle }} />
       </div>
 

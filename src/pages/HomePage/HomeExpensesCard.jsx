@@ -123,7 +123,8 @@ export default function HomeExpensesCard() {
       className={classNames(styles.card, styles.cardLink)}
       sx={{ 
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        height: "100%"
       }}
       onClick={() =>
         navigate(
