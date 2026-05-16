@@ -26,6 +26,7 @@ import {
   useRenameBankAccountMutation,
 } from "services/auth/bankApi";
 import BankAccountPage from "./BankAccountDeletePage.jsx";
+import classNames from "classnames";
 import styles from "./BankAccountPage.module.scss";
 
 
@@ -93,13 +94,12 @@ const AccountCard = ({ account, onDelete }) => {
 
   return (
     <div 
-      className={styles.card} 
+      className={classNames(styles.card, { [styles.card_inEdit]: isEditing })} 
       onClick={() => {
         if (!isEditing) {
           navigate(`/operations?bankAccountId=${id}`);
         }
       }}
-      style={{ cursor: isEditing ? "default" : "pointer" }}
     >
       <div className={styles.cardHeader}>
         <div className={styles.cardInfo}>

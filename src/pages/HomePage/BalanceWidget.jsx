@@ -30,7 +30,7 @@ export default function BalanceWidget() {
       sx={{ height: "100%" }}
       onClick={() => navigate("/bank-accounts")}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: hasAccounts ? 0.5 : 0 }}>
+      <Box className={styles.balanceHeader} sx={{ mb: hasAccounts ? 0.5 : 0 }}>
         <Typography
           variant="h6"
           fontWeight={800}
@@ -97,24 +97,11 @@ export default function BalanceWidget() {
                   e.stopPropagation();
                   navigate("/bank-accounts/add");
                 }}
-                sx={{
-                  py: 2,
-                  px: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center"
-                }}
               >
                 <Typography
                   variant="subtitle2"
                   fontWeight={700}
-                  sx={{
-                    fontSize: "14px",
-                    color: "text.primary",
-                    textAlign: "center",
-                    lineHeight: 1.2,
-                    mb: 1
-                  }}
+                  className={styles.addAccountText}
                 >
                   Добавить счет
                 </Typography>

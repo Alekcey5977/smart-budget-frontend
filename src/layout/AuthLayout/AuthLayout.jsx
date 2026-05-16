@@ -70,7 +70,7 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
   };
 
   return (
-    <PhoneLayout className={isDashboard ? styles.phoneFixed : ""}>
+    <PhoneLayout className={classNames({ [styles.phoneFixed]: isDashboard })}>
       <div
         className={classNames(
           styles.header,

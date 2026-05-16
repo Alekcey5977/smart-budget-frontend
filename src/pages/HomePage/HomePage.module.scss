@@ -319,6 +319,12 @@
   flex-direction: column;
 }
 
+.balanceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .addAccountBox {
   background-color: #fdf5d3;
   border-radius: 12px;
@@ -354,4 +360,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.addAccountText {
+  font-size: 14px;
+  color: color.$color-text-main;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 8px;
 }
