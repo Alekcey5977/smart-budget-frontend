@@ -27,7 +27,6 @@ import {
   useGetCategoryImageMappingsQuery,
   useGetMerchantImageMappingsQuery,
 } from "services/images/imagesApi";
-import { useGetBankAccountsQuery } from "services/auth/bankApi";
 import {
   useGetBankAccountsQuery,
   useSyncBankAccountsMutation,
@@ -102,6 +101,11 @@ function getCategoryIdsFromSearchParams(searchParams) {
   return [...new Set(categoryIds)];
 }
 
+function getBankAccountIdFromSearchParams(searchParams) {
+  const value = searchParams.get("bankAccountId");
+  return value || "";
+}
+
 function getAccountId(account) {
   return account?.bank_account_id ?? account?.id;
 }
@@ -124,6 +128,10 @@ export default function OperationsPage() {
     () => getCategoryIdsFromSearchParams(searchParams),
     [searchParams],
   );
+  const bankAccountIdFromSearchParams = useMemo(
+    () => getBankAccountIdFromSearchParams(searchParams),
+    [searchParams],
+  );
   const initialPeriod = monthFromSearchParams || now.startOf("month");
   const [filters, setFilters] = useState(() => ({
     dateFrom: initialPeriod.startOf("month"),
@@ -131,7 +139,7 @@ export default function OperationsPage() {
     minAmount: "",
     maxAmount: "",
     categoryIds: categoryIdsFromSearchParams,
-    bankAccountId: "",
+    bankAccountId: bankAccountIdFromSearchParams,
   }));
   const [periodDraft, setPeriodDraft] = useState(() => ({
     dateFrom: initialPeriod.startOf("month"),
@@ -144,7 +152,7 @@ export default function OperationsPage() {
   const [categoryDraftIds, setCategoryDraftIds] = useState(
     categoryIdsFromSearchParams,
   );
-  const [accountDraftId, setAccountDraftId] = useState("");
+  const [accountDraftId, setAccountDraftId] = useState(bankAccountIdFromSearchParams);
 
   const [periodDialogOpen, setPeriodDialogOpen] = useState(false);
   const [periodTarget, setPeriodTarget] = useState("from");
@@ -165,6 +173,7 @@ export default function OperationsPage() {
     () => (Array.isArray(accountsData) ? accountsData : []),
     [accountsData],
   );
+  const hasAccounts = accounts.length > 0;
   const { data: categoriesData = [] } = useGetTransactionCategoriesQuery();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
   const allCategoryIds = useMemo(
@@ -295,7 +304,12 @@ export default function OperationsPage() {
     }
 
     if (filters.bankAccountId) {
-      payload.bank_account_ids = [Number(filters.bankAccountId)];
+      const id = filters.bankAccountId;
+      const numericId = Number(id);
+      const finalId = !isNaN(numericId) ? numericId : id;
+      
+      payload.bank_account_ids = [finalId];
+      payload.bank_account_id = finalId;
     }
 
     return payload;

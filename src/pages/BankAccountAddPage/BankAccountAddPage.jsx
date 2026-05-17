@@ -27,7 +27,7 @@ export default function BankAccountAddPage() {
           bank: data.bank,
         }).unwrap();
 
-        navigate("/bank-accounts");
+        navigate(-1);
       } catch (err) {
         console.error("Failed to add account", err);
       }

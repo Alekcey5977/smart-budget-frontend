@@ -22,6 +22,10 @@ function buildTransactionsPayload(filters = {}) {
     payload.bank_account_ids = filters.bank_account_ids;
   }
 
+  if (filters.bank_account_id) {
+    payload.bank_account_id = filters.bank_account_id;
+  }
+
   if (filters.start_date) {
     payload.start_date = filters.start_date;
   }

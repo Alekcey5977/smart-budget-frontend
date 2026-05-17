@@ -54,7 +54,7 @@ export default function GoalCreatePage() {
         deadline: `${data.deadline}T00:00:00`,
         total_amount: Number(data.totalAmount),
       }).unwrap();
-      navigate("/goals");
+      navigate(-1);
     } catch (error) {
       const message = error?.data?.detail;
       if (typeof message === "string") {

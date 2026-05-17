@@ -19,6 +19,7 @@ import {
 } from "services/auth/notificationApi";
 import { useGetHistoryByIdQuery } from "services/auth/historyApi";
 import ConfirmDialog from "ui/ConfirmDialog";
+import styles from "./NotificationsPage.module.scss";
 
 const DetailsLayout = ({ children }) => (
   <Box className={styles.detailsLayout}>
@@ -70,7 +71,7 @@ const AlertDetails = ({ id }) => {
   const { data, isLoading, isError, error } = useGetNotificationByIdQuery(id);
   const [deleteNotification, { isLoading: isDeleting }] =
     useDeleteNotificationMutation();
-  const { setPageHeaderAction } = useOutletContext();
+  const { setPageHeaderAction, setPageTitle } = useOutletContext();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDeleteConfirm = useCallback(async () => {
@@ -86,7 +87,8 @@ const AlertDetails = ({ id }) => {
 
   useEffect(() => {
     if (data && setPageHeaderAction) {
-      setPageTitle?.(data.title || "Уведомление");
+      const displayTitle = data.title?.split(":")?.[0]?.trim() || "Уведомление";
+      setPageTitle?.(displayTitle === "Прогресс цели" ? "Прогресс цели" : displayTitle);
       setPageHeaderAction(
         <IconButton
           onClick={() => setDeleteDialogOpen(true)}
@@ -125,7 +127,10 @@ const HistoryDetails = ({ id }) => {
   const { setPageTitle } = useOutletContext();
 
   useEffect(() => {
-    if (data) setPageTitle?.(data.title || "Уведомление");
+    if (data) {
+      const displayTitle = data.title?.split(":")?.[0]?.trim() || "Уведомление";
+      setPageTitle?.(displayTitle === "Прогресс цели" ? "Прогресс цели" : displayTitle);
+    }
     return () => setPageTitle?.(null);
   }, [data, setPageTitle]);
 
