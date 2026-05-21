@@ -307,9 +307,8 @@ export default function OperationsPage() {
       const id = filters.bankAccountId;
       const numericId = Number(id);
       const finalId = !isNaN(numericId) ? numericId : id;
-      
+
       payload.bank_account_ids = [finalId];
-      payload.bank_account_id = finalId;
     }
 
     return payload;

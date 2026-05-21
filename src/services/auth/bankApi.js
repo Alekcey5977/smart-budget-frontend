@@ -42,7 +42,10 @@ export const bankApi = createApi({
           } catch {
           } finally {
             api.dispatch(
-              transactionsApi.util.invalidateTags(["Transactions"]),
+              transactionsApi.util.invalidateTags([
+                "Transactions",
+                "TransactionCategorySummary",
+              ]),
             );
           }
         }
