@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
@@ -30,10 +30,37 @@ import {
 } from "utils/operationHelpers";
 import styles from "./OperationDetailsPage.module.scss";
 
+type OperationType = "income" | "expense";
+
+type Operation = {
+  id: string;
+  bank_account_id: number;
+  category_id: number | null;
+  category_name?: string | null;
+  merchant_id?: number | null;
+  merchant_name?: string | null;
+  amount: number;
+  created_at: string;
+  type: OperationType;
+  description?: string | null;
+};
+
+type Category = {
+  id: number;
+  name: string;
+  type: OperationType | null;
+};
+
+type BankAccount = {
+  bank_account_id: number;
+  bank_account_name?: string | null;
+  balance: number | string;
+};
+
 export default function OperationDetailsPage() {
   const { operationId } = useParams();
-  const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [categoryAnchorEl, setCategoryAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [errorText, setErrorText] = useState("");
   const categoryDialogOpen = Boolean(categoryAnchorEl);
   const [updateTransactionCategory, { isLoading: isUpdatingCategory }] =
@@ -43,23 +70,26 @@ export default function OperationDetailsPage() {
     useGetTransactionByIdQuery(operationId, {
       skip: !operationId,
     });
-  const operationType = operationData?.type;
+  const operation = (operationData ?? null) as Operation | null;
+  const operationType = operation?.type;
   const { currentData: categoriesData } = useGetTransactionCategoriesQuery(
     { type: operationType },
     {
       skip: !operationType,
     },
   );
-  const { data: accountsData } = useGetBankAccountsQuery();
-  const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
-  const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
+  const { data: accountsData } = useGetBankAccountsQuery(undefined);
+  const { data: merchantImageMappings } =
+    useGetMerchantImageMappingsQuery(undefined);
+  const { data: categoryImageMappings } =
+    useGetCategoryImageMappingsQuery(undefined);
 
   const categories = useMemo(
-    () => (Array.isArray(categoriesData) ? categoriesData : []),
+    () => (Array.isArray(categoriesData) ? (categoriesData as Category[]) : []),
     [categoriesData],
   );
   const accounts = useMemo(
-    () => (Array.isArray(accountsData) ? accountsData : []),
+    () => (Array.isArray(accountsData) ? (accountsData as BankAccount[]) : []),
     [accountsData],
   );
   const merchantImageLookup = useMemo(
@@ -70,7 +100,6 @@ export default function OperationDetailsPage() {
     () => buildImageMappingLookup(categoryImageMappings),
     [categoryImageMappings],
   );
-  const operation = operationData ?? null;
   const visibleCategories = useMemo(() => {
     if (!operationType) {
       return categories;
@@ -94,6 +123,10 @@ export default function OperationDetailsPage() {
   const account = accounts.find(
     (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
+
+  const handleCategoryOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setCategoryAnchorEl(event.currentTarget);
+  };
 
   const handleCategoryClose = () => {
     setCategoryAnchorEl(null);
@@ -217,7 +250,7 @@ export default function OperationDetailsPage() {
               <IconButton
                 aria-label="Изменить категорию"
                 disabled={isUpdatingCategory}
-                onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
+                onClick={handleCategoryOpen}
                 className={styles.categoryEditButton}
               >
                 <EditOutlinedIcon fontSize="small" />
