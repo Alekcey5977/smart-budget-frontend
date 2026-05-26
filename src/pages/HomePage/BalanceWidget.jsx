@@ -103,7 +103,7 @@ export default function BalanceWidget() {
                   fontWeight={700}
                   className={styles.addAccountText}
                 >
-                  Добавить счет
+                  Добавить счёт
                 </Typography>
                 <Box className={styles.addIconWrap} sx={{ width: 32, height: 32 }}>
                   <AddIcon sx={{ fontSize: 20, color: "text.primary" }} />

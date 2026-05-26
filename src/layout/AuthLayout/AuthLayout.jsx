@@ -143,11 +143,11 @@ export default function AuthLayout({ title = "", headerRightContent = null }) {
               onClose={closeMenu}
               anchorOrigin={{
                 vertical: "bottom",
-                horizontal: "center",
+                horizontal: "left",
               }}
               transformOrigin={{
                 vertical: "top",
-                horizontal: "center",
+                horizontal: "left",
               }}
             >
               <MenuItem
