@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Switch,
   Typography,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -216,6 +217,11 @@ export default function OperationsPage() {
 
   const noSelectedCategories =
     categories.length > 0 && filters.categoryIds.length === 0;
+  const allCategoriesSelected =
+    categories.length > 0 &&
+    allCategoryIds.every((categoryId) =>
+      categoryDraftIds.includes(categoryId),
+    );
 
   const {
     data: latestOperationsData,
@@ -600,8 +606,8 @@ export default function OperationsPage() {
     setCategoriesDialogOpen(false);
   };
 
-  const resetCategoryDrafts = () => {
-    setCategoryDraftIds(allCategoryIds);
+  const toggleAllCategories = () => {
+    setCategoryDraftIds(allCategoriesSelected ? [] : allCategoryIds);
   };
 
   const openAccountDialog = () => {
@@ -901,7 +907,14 @@ export default function OperationsPage() {
         PaperProps={{ className: styles.dialogPaper, sx: dialogPaperSx }}
       >
         <DialogTitle>Категории</DialogTitle>
-        <DialogContent>
+        <DialogContent className={styles.categoryDialogContent}>
+          <label className={styles.categorySelectAll}>
+            Все категории
+            <Switch
+              checked={allCategoriesSelected}
+              onChange={toggleAllCategories}
+            />
+          </label>
           <div className={styles.categoryList}>
             {categories.map((category) => (
               <button
@@ -916,16 +929,15 @@ export default function OperationsPage() {
                 />
               </button>
             ))}
-
           </div>
         </DialogContent>
         <DialogActions className={styles.dialogActions}>
           <button
             type="button"
             className={styles.dialogActionButton}
-            onClick={resetCategoryDrafts}
+            onClick={() => setCategoriesDialogOpen(false)}
           >
-            Сбросить
+            Отмена
           </button>
           <button
             type="button"

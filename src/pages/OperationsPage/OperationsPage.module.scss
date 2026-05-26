@@ -336,6 +336,48 @@
   gap: 8px;
 }
 
+.categoryDialogContent {
+  max-height: 68vh;
+  overflow-y: scroll;
+  padding-top: 0 !important;
+  padding-right: 12px !important;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(206, 159, 0, 0.9) rgba(20, 20, 20, 0.12);
+}
+
+.categoryDialogContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.categoryDialogContent::-webkit-scrollbar-track {
+  background: rgba(20, 20, 20, 0.12);
+  border-radius: 999px;
+}
+
+.categoryDialogContent::-webkit-scrollbar-thumb {
+  background: rgba(206, 159, 0, 0.9);
+  border-radius: 999px;
+  border: 2px solid #fff9d8;
+}
+
+.categorySelectAll {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(20, 20, 20, 0.1);
+  background: transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 6px 12px;
+  margin-bottom: 4px;
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .categoryList {
   display: flex;
   flex-direction: column;
