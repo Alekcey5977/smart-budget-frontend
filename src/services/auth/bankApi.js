@@ -83,6 +83,13 @@ export const bankApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
+          dispatch(
+            transactionsApi.util.invalidateTags([
+              "Transactions",
+              "Transaction",
+              "TransactionCategorySummary",
+            ]),
+          );
           dispatch(historyApi.util.invalidateTags(["History"]));
           dispatch(
             notificationApi.util.invalidateTags([
