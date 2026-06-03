@@ -36,7 +36,7 @@ import {
   useGetTransactionCategoriesQuery,
   useGetTransactionsQuery,
 } from "services/transactions/transactionsApi";
-import { formatCurrency } from "src/utils/formatMoney";
+import { formatCurrency } from "utils/formatMoney";
 import AppTextField from "ui/AppTextField";
 import OperationListItem from "./OperationListItem";
 import {

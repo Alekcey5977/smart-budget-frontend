@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Alert } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { useLoginMutation } from "src/services/auth/authApi";
+import { useLoginMutation } from "services/auth/authApi";
 import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
 import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
-import { translateError } from "src/utils/errorHelpers";
+import { translateError } from "utils/errorHelpers";
 import styles from "./LoginPage.module.scss";
 
 export default function LoginPage() {

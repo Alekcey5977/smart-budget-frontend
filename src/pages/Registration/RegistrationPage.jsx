@@ -2,11 +2,11 @@ import React, { useCallback, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "@mui/material";
-import { useRegisterMutation } from "src/services/auth/authApi";
+import { useRegisterMutation } from "services/auth/authApi";
 import UnauthLayout from "layout/UnauthLayout/UnauthLayout";
 import StepOne from "./StepOne/StepOne";
 import StepTwo from "./StepTwo/StepTwo";
-import { translateError } from "src/utils/errorHelpers";
+import { translateError } from "utils/errorHelpers";
 import styles from "./RegistrationPage.module.scss";
 
 const RegistrationPage = () => {

@@ -30,68 +30,38 @@ import {
 } from "utils/operationHelpers";
 import styles from "./OperationDetailsPage.module.scss";
 
-type OperationType = "income" | "expense";
-
-type Operation = {
-  id: string;
-  bank_account_id: number;
-  category_id: number | null;
-  category_name?: string | null;
-  merchant_id?: number | null;
-  merchant_name?: string | null;
-  amount: number;
-  created_at: string;
-  type: OperationType;
-  description?: string | null;
-};
-
-type Category = {
-  id: number;
-  name: string;
-  type: OperationType | null;
-};
-
-type BankAccount = {
-  bank_account_id: number;
-  bank_account_name?: string | null;
-  balance: number | string;
-};
-
 export default function OperationDetailsPage() {
   const { operationId } = useParams();
-  const [categoryAnchorEl, setCategoryAnchorEl] = useState<HTMLElement | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [categoryAnchorEl, setCategoryAnchorEl] = useState<HTMLElement | null>(
+    null,
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
   const [errorText, setErrorText] = useState("");
   const categoryDialogOpen = Boolean(categoryAnchorEl);
   const [updateTransactionCategory, { isLoading: isUpdatingCategory }] =
     useUpdateTransactionCategoryMutation();
 
-  const { data: operationData, isLoading, isError } =
-    useGetTransactionByIdQuery(operationId, {
-      skip: !operationId,
-    });
-  const operation = (operationData ?? null) as Operation | null;
+  const {
+    data: operationData,
+    isLoading,
+    isError,
+  } = useGetTransactionByIdQuery(operationId, {
+    skip: !operationId,
+  });
+  const operation = operationData ?? null;
   const operationType = operation?.type;
-  const { currentData: categoriesData } = useGetTransactionCategoriesQuery(
+  const { currentData: categories = [] } = useGetTransactionCategoriesQuery(
     { type: operationType },
     {
       skip: !operationType,
     },
   );
-  const { data: accountsData } = useGetBankAccountsQuery(undefined);
-  const { data: merchantImageMappings } =
-    useGetMerchantImageMappingsQuery(undefined);
-  const { data: categoryImageMappings } =
-    useGetCategoryImageMappingsQuery(undefined);
+  const { data: accounts = [] } = useGetBankAccountsQuery();
+  const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
+  const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
 
-  const categories = useMemo(
-    () => (Array.isArray(categoriesData) ? (categoriesData as Category[]) : []),
-    [categoriesData],
-  );
-  const accounts = useMemo(
-    () => (Array.isArray(accountsData) ? (accountsData as BankAccount[]) : []),
-    [accountsData],
-  );
   const merchantImageLookup = useMemo(
     () => buildImageMappingLookup(merchantImageMappings),
     [merchantImageMappings],
@@ -121,7 +91,8 @@ export default function OperationDetailsPage() {
     (category) => Number(category.id) === Number(selectedCategoryId),
   );
   const account = accounts.find(
-    (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
+    (item) =>
+      Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
 
   const handleCategoryOpen = (event: MouseEvent<HTMLButtonElement>) => {

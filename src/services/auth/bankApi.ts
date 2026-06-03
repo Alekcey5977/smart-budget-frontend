@@ -1,16 +1,44 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { transactionsApi } from "services/transactions/transactionsApi";
-import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
-import { $api } from "src/shared/api/axiosInstance";
+import { axiosBaseQuery } from "../../shared/api/axiosBaseQuery";
+import { $api } from "../../shared/api/axiosInstance";
 import { historyApi } from "./historyApi";
 import { notificationApi } from "./notificationApi";
+
+export type BankAccount = {
+  bank_account_id: number;
+  bank_account_name?: string | null;
+  currency?: string;
+  bank?: string;
+  balance: number | string;
+  bank_account_hash?: string;
+};
+
+type AddBankAccountArgs = {
+  number: string;
+  name: string;
+  bank: string;
+};
+
+type RenameBankAccountArgs = {
+  id: number | string;
+  name: string;
+};
+
+type ApiError = {
+  response?: {
+    status?: number;
+    data?: unknown;
+  };
+  message?: string;
+};
 
 export const bankApi = createApi({
   reducerPath: "bankApi",
   baseQuery: axiosBaseQuery({ baseUrl: "/users/me" }),
   tagTypes: ["BankAccount", "History"],
   endpoints: (builder) => ({
-    getBankAccounts: builder.query({
+    getBankAccounts: builder.query<BankAccount[], void>({
       query: () => ({
         url: "/bank_accounts",
         method: "GET",
@@ -18,7 +46,7 @@ export const bankApi = createApi({
       providesTags: ["BankAccount", "History"],
     }),
 
-    addBankAccount: builder.mutation({
+    addBankAccount: builder.mutation<BankAccount, AddBankAccountArgs>({
       async queryFn(data, api, _extraOptions, fetchWithBQ) {
         const result = await fetchWithBQ({
           url: "/bank_account",
@@ -34,7 +62,8 @@ export const bankApi = createApi({
           return { error: result.error };
         }
 
-        const bankAccountId = result.data?.bank_account_id;
+        const bankAccount = result.data as BankAccount;
+        const bankAccountId = bankAccount.bank_account_id;
 
         if (bankAccountId) {
           try {
@@ -50,7 +79,7 @@ export const bankApi = createApi({
           }
         }
 
-        return { data: result.data };
+        return { data: bankAccount };
       },
       invalidatesTags: ["BankAccount"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
@@ -67,7 +96,7 @@ export const bankApi = createApi({
       },
     }),
 
-    deleteBankAccount: builder.mutation({
+    deleteBankAccount: builder.mutation<void, number | string>({
       query: (id) => ({
         url: `/bank_account/${id}`,
         method: "DELETE",
@@ -87,7 +116,7 @@ export const bankApi = createApi({
       },
     }),
 
-    syncBankAccounts: builder.mutation({
+    syncBankAccounts: builder.mutation<unknown, void>({
       async queryFn(arg, api) {
         try {
           const result = await $api.post("/sync");
@@ -99,17 +128,19 @@ export const bankApi = createApi({
           );
           return { data: result.data };
         } catch (error) {
+          const apiError = error as ApiError;
+
           return {
             error: {
-              status: error.response?.status,
-              data: error.response?.data || error.message,
+              status: apiError.response?.status,
+              data: apiError.response?.data || apiError.message,
             },
           };
         }
       },
       invalidatesTags: ["BankAccount"],
     }),
-    renameBankAccount: builder.mutation({
+    renameBankAccount: builder.mutation<BankAccount, RenameBankAccountArgs>({
       query: ({ id, name }) => ({
         url: `/bank_account/${id}`,
         method: "PATCH",
