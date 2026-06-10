@@ -4,8 +4,9 @@ import HomeExpensesCard from "./HomeExpensesCard";
 import HomeGoalsCard from "./HomeGoalsCard";
 import HomeOperationsCard from "./HomeOperationsCard";
 import styles from "./HomePage.module.scss";
+import React from "react";
 
-export default function HomePage() {
+const HomePage: React.FC = () => {
   return (
     <div className={styles.content}>
       <Stack direction="row" spacing={2} sx={{ width: "100%", alignItems: "stretch" }}>
@@ -23,4 +24,6 @@ export default function HomePage() {
       <HomeOperationsCard />
     </div>
   );
-}
+};
+
+export default HomePage;

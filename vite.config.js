@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
         "/users": { target, changeOrigin: true, secure: false },
         "/history": { target, changeOrigin: true, secure: false },
         "/notifications": {
-          target: env.VITE_API_URL || "http://127.0.0.1:8000", // Заменили localhost на 127.0.0.1
+          target: env.VITE_API_URL || "http://127.0.0.1:8000",
           changeOrigin: true,
           ws: true,
           bypass: (req) => {
@@ -73,6 +73,11 @@ export default defineConfig(({ mode }) => {
         utils: path.resolve(__dirname, "./src/utils"),
         hooks: path.resolve(__dirname, "./src/hooks"),
       },
+    },
+    test: {
+      root: __dirname,
+      environment: "jsdom",
+      globals: true,
     },
   };
 });
