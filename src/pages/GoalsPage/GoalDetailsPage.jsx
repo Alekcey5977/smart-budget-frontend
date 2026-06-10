@@ -8,8 +8,8 @@ import {
   useGetGoalsQuery,
   useUpdateGoalMutation,
 } from "services/goals/goalsApi";
-import { formatCurrency } from "src/utils/formatMoney";
-import { toInputDate } from "src/utils/date";
+import { formatCurrency } from "utils/formatMoney";
+import { toInputDate } from "utils/date";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import ConfirmDialog from "ui/ConfirmDialog";

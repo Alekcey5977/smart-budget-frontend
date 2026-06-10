@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { useCreateGoalMutation } from "services/goals/goalsApi";
-import { getMonthsLeft } from "src/utils/date";
-import { formatCurrency } from "src/utils/formatMoney";
+import { getMonthsLeft } from "utils/date";
+import { formatCurrency } from "utils/formatMoney";
 import AppButton from "ui/AppButton";
 import AppTextField from "ui/AppTextField";
 import styles from "./GoalCreatePage.module.scss";

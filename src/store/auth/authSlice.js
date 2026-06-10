@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { authApi } from "src/services/auth/authApi";
+import { authApi } from "services/auth/authApi";
 
 const STORAGE_KEY = "token1";
 

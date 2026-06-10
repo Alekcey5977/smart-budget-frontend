@@ -17,8 +17,8 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 import AppButton from "ui/AppButton/AppButton";
 import AppTextField from "ui/AppTextField/AppTextField";
 import styles from "./ProfilePage.module.scss";
-import { useGetMeQuery, useUpdateUserMutation } from "src/services/auth/authApi";
-import { useGetMyAvatarQuery } from "src/services/auth/avatarApi";
+import { useGetMeQuery, useUpdateUserMutation } from "services/auth/authApi";
+import { useGetMyAvatarQuery } from "services/auth/avatarApi";
 
 export default function ProfilePage() {
   const { setPageHeaderAction } = useOutletContext();

@@ -22,7 +22,7 @@ import {
 } from "services/auth/notificationApi";
 import { useGetHistoryQuery } from "services/auth/historyApi";
 
-import { useNotifications } from "src/hooks/useNotifications";
+import { useNotifications } from "hooks/useNotifications";
 import styles from "./NotificationsPage.module.scss";
 
 const NotificationsListLayout = ({ items, onNotificationClick, onDelete, emptyMessage, clickable = true }) => {

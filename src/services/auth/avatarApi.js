@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
+import { axiosBaseQuery } from "../../shared/api/axiosBaseQuery";
 
 export const avatarApi = createApi({
   reducerPath: "avatarApi",

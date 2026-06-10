@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useGetBankAccountsQuery } from "services/auth/bankApi";
@@ -32,36 +32,36 @@ import styles from "./OperationDetailsPage.module.scss";
 
 export default function OperationDetailsPage() {
   const { operationId } = useParams();
-  const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [categoryAnchorEl, setCategoryAnchorEl] = useState<HTMLElement | null>(
+    null,
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
   const [errorText, setErrorText] = useState("");
   const categoryDialogOpen = Boolean(categoryAnchorEl);
   const [updateTransactionCategory, { isLoading: isUpdatingCategory }] =
     useUpdateTransactionCategoryMutation();
 
-  const { data: operationData, isLoading, isError } =
-    useGetTransactionByIdQuery(operationId, {
-      skip: !operationId,
-    });
-  const operationType = operationData?.type;
-  const { currentData: categoriesData } = useGetTransactionCategoriesQuery(
+  const {
+    data: operationData,
+    isLoading,
+    isError,
+  } = useGetTransactionByIdQuery(operationId, {
+    skip: !operationId,
+  });
+  const operation = operationData ?? null;
+  const operationType = operation?.type;
+  const { currentData: categories = [] } = useGetTransactionCategoriesQuery(
     { type: operationType },
     {
       skip: !operationType,
     },
   );
-  const { data: accountsData } = useGetBankAccountsQuery();
+  const { data: accounts = [] } = useGetBankAccountsQuery();
   const { data: merchantImageMappings } = useGetMerchantImageMappingsQuery();
   const { data: categoryImageMappings } = useGetCategoryImageMappingsQuery();
 
-  const categories = useMemo(
-    () => (Array.isArray(categoriesData) ? categoriesData : []),
-    [categoriesData],
-  );
-  const accounts = useMemo(
-    () => (Array.isArray(accountsData) ? accountsData : []),
-    [accountsData],
-  );
   const merchantImageLookup = useMemo(
     () => buildImageMappingLookup(merchantImageMappings),
     [merchantImageMappings],
@@ -70,7 +70,6 @@ export default function OperationDetailsPage() {
     () => buildImageMappingLookup(categoryImageMappings),
     [categoryImageMappings],
   );
-  const operation = operationData ?? null;
   const visibleCategories = useMemo(() => {
     if (!operationType) {
       return categories;
@@ -92,8 +91,13 @@ export default function OperationDetailsPage() {
     (category) => Number(category.id) === Number(selectedCategoryId),
   );
   const account = accounts.find(
-    (item) => Number(item.bank_account_id) === Number(operation?.bank_account_id),
+    (item) =>
+      Number(item.bank_account_id) === Number(operation?.bank_account_id),
   );
+
+  const handleCategoryOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setCategoryAnchorEl(event.currentTarget);
+  };
 
   const handleCategoryClose = () => {
     setCategoryAnchorEl(null);
@@ -217,7 +221,7 @@ export default function OperationDetailsPage() {
               <IconButton
                 aria-label="Изменить категорию"
                 disabled={isUpdatingCategory}
-                onClick={(event) => setCategoryAnchorEl(event.currentTarget)}
+                onClick={handleCategoryOpen}
                 className={styles.categoryEditButton}
               >
                 <EditOutlinedIcon fontSize="small" />

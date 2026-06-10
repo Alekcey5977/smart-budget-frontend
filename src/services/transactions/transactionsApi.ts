@@ -1,8 +1,56 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { axiosBaseQuery } from "src/shared/api/axiosBaseQuery";
+import { axiosBaseQuery } from "../../shared/api/axiosBaseQuery";
 
-function buildTransactionsPayload(filters = {}) {
-  const payload = {
+export type OperationType = "income" | "expense";
+
+export type Transaction = {
+  id: string;
+  bank_account_id: number;
+  category_id: number | null;
+  category_name?: string | null;
+  merchant_id?: number | null;
+  merchant_name?: string | null;
+  amount: number | string;
+  created_at: string;
+  type: OperationType;
+  description?: string | null;
+};
+
+export type TransactionCategory = {
+  id: number;
+  name: string;
+  type: OperationType | null;
+};
+
+type TransactionFilters = {
+  transaction_type?: OperationType;
+  category_ids?: number[];
+  bank_account_ids?: number[];
+  start_date?: string;
+  end_date?: string;
+  min_amount?: number;
+  max_amount?: number;
+  limit?: number;
+  offset?: number;
+};
+
+type TransactionCategoryFilters = {
+  type?: OperationType;
+};
+
+type TransactionCategorySummaryFilters = {
+  transaction_type?: OperationType;
+  start_date?: string;
+  end_date?: string;
+};
+
+type UpdateTransactionCategoryArgs = {
+  transactionId: string;
+  category_id: number;
+};
+
+function buildTransactionsPayload(filters: TransactionFilters = {}) {
+  const payload: TransactionFilters = {
     limit: 100,
     offset: 0,
   };
@@ -49,8 +97,10 @@ function buildTransactionsPayload(filters = {}) {
   return payload;
 }
 
-function buildCategorySummaryPayload(filters = {}) {
-  const payload = {};
+function buildCategorySummaryPayload(
+  filters: TransactionCategorySummaryFilters = {},
+) {
+  const payload: TransactionCategorySummaryFilters = {};
 
   if (filters.transaction_type) {
     payload.transaction_type = filters.transaction_type;
@@ -77,26 +127,32 @@ export const transactionsApi = createApi({
     "TransactionCategorySummary",
   ],
   endpoints: (builder) => ({
-    getTransactions: builder.query({
+    getTransactions: builder.query<
+      Transaction[],
+      TransactionFilters | undefined
+    >({
       query: (filters) => ({
         url: "/",
         method: "POST",
-        data: buildTransactionsPayload(filters),
+        data: buildTransactionsPayload(filters ?? {}),
       }),
       providesTags: ["Transactions"],
     }),
-    getAllTransactions: builder.query({
-      async queryFn(filters = {}, _api, _extraOptions, fetchWithBQ) {
+    getAllTransactions: builder.query<
+      Transaction[],
+      TransactionFilters | undefined
+    >({
+      async queryFn(filters, _api, _extraOptions, fetchWithBQ) {
         const pageSize = 100;
         let offset = 0;
-        let allTransactions = [];
+        let allTransactions: Transaction[] = [];
 
         while (true) {
           const result = await fetchWithBQ({
             url: "/",
             method: "POST",
             data: buildTransactionsPayload({
-              ...filters,
+              ...(filters ?? {}),
               limit: pageSize,
               offset,
             }),
@@ -106,7 +162,9 @@ export const transactionsApi = createApi({
             return { error: result.error };
           }
 
-          const page = Array.isArray(result.data) ? result.data : [];
+          const page = Array.isArray(result.data)
+            ? (result.data as Transaction[])
+            : [];
           allTransactions = [...allTransactions, ...page];
 
           if (page.length < pageSize) {
@@ -120,7 +178,7 @@ export const transactionsApi = createApi({
       },
       providesTags: ["Transactions"],
     }),
-    getTransactionById: builder.query({
+    getTransactionById: builder.query<Transaction, string | undefined>({
       query: (transactionId) => ({
         url: `/${transactionId}`,
         method: "GET",
@@ -129,23 +187,32 @@ export const transactionsApi = createApi({
         { type: "Transaction", id: transactionId },
       ],
     }),
-    getTransactionCategories: builder.query({
-      query: (filters = {}) => ({
+    getTransactionCategories: builder.query<
+      TransactionCategory[],
+      TransactionCategoryFilters | undefined
+    >({
+      query: (filters) => ({
         url: "/categories",
         method: "GET",
-        params: filters.type ? { type: filters.type } : undefined,
+        params: filters?.type ? { type: filters.type } : undefined,
       }),
       providesTags: ["TransactionCategories"],
     }),
-    getTransactionCategoriesSummary: builder.query({
-      query: (filters = {}) => ({
+    getTransactionCategoriesSummary: builder.query<
+      unknown,
+      TransactionCategorySummaryFilters | undefined
+    >({
+      query: (filters) => ({
         url: "/categories/summary",
         method: "POST",
-        data: buildCategorySummaryPayload(filters),
+        data: buildCategorySummaryPayload(filters ?? {}),
       }),
       providesTags: ["TransactionCategorySummary"],
     }),
-    updateTransactionCategory: builder.mutation({
+    updateTransactionCategory: builder.mutation<
+      Transaction,
+      UpdateTransactionCategoryArgs
+    >({
       query: ({ transactionId, category_id }) => ({
         url: `/${transactionId}/category`,
         method: "PATCH",

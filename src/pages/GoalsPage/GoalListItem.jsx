@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 
-import { formatDateRu } from "src/utils/date";
-import { formatCurrency } from "src/utils/formatMoney";
+import { formatDateRu } from "utils/date";
+import { formatCurrency } from "utils/formatMoney";
 import styles from "./GoalsPage.module.scss";
 
 function getProgressPercent(amount, totalAmount) {
