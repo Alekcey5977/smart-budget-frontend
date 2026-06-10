@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAuthToken } from "store/auth/authsSelectors";
 import { notificationApi } from "services/auth/notificationApi";
 
-const getWsUrl = (token) => {
+const getWsUrl = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const token = localStorage.getItem("token1");
+  if (!token) return null;
   return apiUrl.replace(/^http/, "ws").replace(/\/$/, "") + `/ws/notification?token=${token}`;
 };
 
@@ -25,7 +27,8 @@ export const useNotificationSocket = () => {
     const connect = () => {
       if (!isEffectActive) return;
 
-      const url = getWsUrl(token);
+      const url = getWsUrl();
+      if (!url) return;
       console.log("[WS] Connecting to:", url.replace(/token=.*/, "token=***"));
 
       ws = new WebSocket(url);
