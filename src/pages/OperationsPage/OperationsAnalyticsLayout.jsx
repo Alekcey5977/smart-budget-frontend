@@ -9,7 +9,7 @@ import { getOperationsAnalyticsConfig } from "./operationsAnalyticsConfig";
 
 export default function OperationsAnalyticsLayout() {
   const { type } = useParams();
-  const handleBack = useAppBackNavigation("/operations");
+  const handleBack = useAppBackNavigation("/home");
   const config = getOperationsAnalyticsConfig(type);
 
   if (!config) {

@@ -306,7 +306,7 @@ export default function BankAccountsPage() {
       </div>
 
       <div className={styles.footer}>
-        <AppButton onClick={handleAddAccount}>Добавить счет</AppButton>
+        <AppButton onClick={handleAddAccount}>Добавить счёт</AppButton>
       </div>
 
       <BankAccountPage
